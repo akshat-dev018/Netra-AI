@@ -3,13 +3,14 @@ import { Disruption } from '../modules/disruptions/disruption.model.js';
 import { Shipment } from '../modules/shipments/shipment.model.js';
 import { RiskEvent } from '../modules/risk/riskEvent.model.js';
 import { emitRiskEvent } from '../sockets/emitter.js';
+import { trustedOp } from '../utils/trustedQuery.js';
 
 export async function scoreCorridors(): Promise<void> {
   const corridors = await Corridor.find({ isDeleted: false });
   for (const c of corridors) {
     const disruptions = await Disruption.countDocuments({
       isDeleted: false,
-      status: { $ne: 'resolved' },
+      status: trustedOp({ $ne: 'resolved' }),
       affectedCorridorIds: c._id,
     });
     const shipments = await Shipment.countDocuments({

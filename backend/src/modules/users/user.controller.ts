@@ -7,6 +7,7 @@ import { publicUser } from '../auth/auth.service.js';
 import { paginationMeta, parsePagination } from '../../utils/pagination.js';
 import { AppError, notFound } from '../../utils/appError.js';
 import { writeAudit } from '../../services/audit.service.js';
+import { trustedOp } from '../../utils/trustedQuery.js';
 
 export async function me(req: Request, res: Response) {
   const user = await User.findById(req.user!.id);
@@ -53,9 +54,10 @@ export async function list(req: Request, res: Response) {
   const { page, limit, skip } = parsePagination(Number(req.query.page), Number(req.query.limit));
   const filter: Record<string, unknown> = { isDeleted: false };
   if (req.query.q) {
+    const q = String(req.query.q);
     filter.$or = [
-      { email: { $regex: req.query.q, $options: 'i' } },
-      { name: { $regex: req.query.q, $options: 'i' } },
+      { email: trustedOp({ $regex: q, $options: 'i' }) },
+      { name: trustedOp({ $regex: q, $options: 'i' }) },
     ];
   }
   const [data, total] = await Promise.all([

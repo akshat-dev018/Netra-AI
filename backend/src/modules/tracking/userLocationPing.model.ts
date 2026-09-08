@@ -24,7 +24,7 @@ const pingSchema = new Schema<UserLocationPingDoc>(
     accuracy: { type: Number },
     speed: { type: Number },
     heading: { type: Number },
-    recordedAt: { type: Date, required: true, index: true },
+    recordedAt: { type: Date, required: true },
     tripId: { type: Schema.Types.ObjectId, ref: 'Shipment' },
   },
   { timestamps: { createdAt: true, updatedAt: false } },

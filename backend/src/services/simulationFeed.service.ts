@@ -1,6 +1,7 @@
 import { Corridor } from '../modules/corridors/corridor.model.js';
 import { Shipment } from '../modules/shipments/shipment.model.js';
 import { emitMapEvent } from '../sockets/emitter.js';
+import { trustedOp } from '../utils/trustedQuery.js';
 
 /** Simulated network drift only. Never writes UserLocationPing or Driver GPS. */
 export async function tickSimulationFeed(): Promise<void> {
@@ -14,7 +15,7 @@ export async function tickSimulationFeed(): Promise<void> {
   const shipments = await Shipment.find({
     isDeleted: false,
     status: 'in_transit',
-    assignedDriverId: { $exists: false },
+    assignedDriverId: trustedOp({ $exists: false }),
   }).limit(20);
   for (const s of shipments) {
     emitMapEvent('shipment:position', {

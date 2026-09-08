@@ -7,6 +7,7 @@ import { emitTracking } from '../sockets/emitter.js';
 import { scoreCorridors } from './riskScoring.service.js';
 import { refreshPredictions } from './prediction.service.js';
 import { tickSimulationFeed } from './simulationFeed.service.js';
+import { trustedOp } from '../utils/trustedQuery.js';
 
 export function startCron(): void {
   cron.schedule('*/2 * * * *', () => {
@@ -26,13 +27,13 @@ export function startCron(): void {
       const stale = await Driver.find({
         isDeleted: false,
         status: 'on_trip',
-        lastPingAt: { $lt: cutoff },
+        lastPingAt: trustedOp({ $lt: cutoff }),
       });
       for (const d of stale) {
         emitTracking('driver:offline', { driverId: String(d._id), fleetId: String(d.fleetId), lastPingAt: d.lastPingAt });
       }
       const retain = new Date(Date.now() - env.LOCATION_RAW_RETENTION_HOURS * 60 * 60 * 1000);
-      await UserLocationPing.deleteMany({ recordedAt: { $lt: retain } });
+      await UserLocationPing.deleteMany({ recordedAt: trustedOp({ $lt: retain }) });
     })().catch((err) => logger.error('tracking cron failed', { err }));
   });
 

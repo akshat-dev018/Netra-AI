@@ -5,17 +5,20 @@ import { Driver } from '../drivers/driver.model.js';
 import { Corridor } from '../corridors/corridor.model.js';
 import { EmergencyAlert } from '../emergency-alerts/emergencyAlert.model.js';
 import { CopilotConversation } from './copilotConversation.model.js';
+import { trustedOp } from '../../utils/trustedQuery.js';
 
 async function groundContext() {
   const [driversSilent, topRisk, openAlerts] = await Promise.all([
     Driver.find({
       isDeleted: false,
-      lastPingAt: { $lt: new Date(Date.now() - env.LOCATION_STALE_THRESHOLD_MINUTES * 60 * 1000) },
+      lastPingAt: trustedOp({
+        $lt: new Date(Date.now() - env.LOCATION_STALE_THRESHOLD_MINUTES * 60 * 1000),
+      }),
     })
       .select('_id status lastPingAt')
       .limit(10),
     Corridor.find({ isDeleted: false }).sort({ riskScore: -1 }).limit(5).select('name highwayRef riskScore'),
-    EmergencyAlert.find({ isDeleted: false, status: { $ne: 'resolved' } })
+    EmergencyAlert.find({ isDeleted: false, status: trustedOp({ $ne: 'resolved' }) })
       .select('type severity status')
       .limit(5),
   ]);

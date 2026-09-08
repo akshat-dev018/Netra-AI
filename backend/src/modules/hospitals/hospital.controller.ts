@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { paginationMeta, parsePagination } from '../../utils/pagination.js';
 import { Hospital } from './hospital.model.js';
+import { trustedOp } from '../../utils/trustedQuery.js';
 
 export async function listHospitals(req: Request, res: Response) {
   const { page, limit, skip } = parsePagination(Number(req.query.page), Number(req.query.limit));
@@ -18,12 +19,12 @@ export async function nearby(req: Request, res: Response) {
   const radius = Number(req.query.radius ?? 50000);
   const data = await Hospital.find({
     isDeleted: false,
-    location: {
+    location: trustedOp({
       $near: {
         $geometry: { type: 'Point', coordinates: [lng, lat] },
         $maxDistance: radius,
       },
-    },
+    }),
   }).limit(20);
   res.json({ success: true, data });
 }

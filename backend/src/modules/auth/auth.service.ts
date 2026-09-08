@@ -8,6 +8,7 @@ import { sendMail } from '../../services/email.service.js';
 import { User, type UserRole } from '../users/user.model.js';
 import { Session } from './session.model.js';
 import { LoginAttempt } from './loginAttempt.model.js';
+import { trustedOp } from '../../utils/trustedQuery.js';
 
 const BCRYPT_COST = 12;
 const GENERIC_AUTH = 'Invalid email or password';
@@ -90,7 +91,7 @@ export async function verifyEmail(token: string) {
   const hash = sha256(token);
   const user = await User.findOne({
     emailVerifyTokenHash: hash,
-    emailVerifyExpires: { $gt: new Date() },
+    emailVerifyExpires: trustedOp({ $gt: new Date() }),
     isDeleted: false,
   }).select('+emailVerifyTokenHash +emailVerifyExpires');
   if (!user) throw new AppError(400, 'INVALID_REQUEST', 'Invalid or expired token');
@@ -150,8 +151,8 @@ export async function refresh(refreshToken: string | undefined, meta: { userAgen
 
   const sessions = await Session.find({
     userId: payload.sub,
-    revokedAt: { $exists: false },
-    expiresAt: { $gt: new Date() },
+    revokedAt: trustedOp({ $exists: false }),
+    expiresAt: trustedOp({ $gt: new Date() }),
   });
 
   let matched: (typeof sessions)[number] | undefined;
@@ -184,7 +185,7 @@ export async function refresh(refreshToken: string | undefined, meta: { userAgen
 
 export async function logout(refreshToken: string | undefined) {
   if (!refreshToken) return;
-  const sessions = await Session.find({ revokedAt: { $exists: false } });
+  const sessions = await Session.find({ revokedAt: trustedOp({ $exists: false }) });
   for (const s of sessions) {
     if (await bcrypt.compare(refreshToken, s.tokenHash)) {
       s.revokedAt = new Date();
@@ -207,7 +208,7 @@ export async function forgotPassword(email: string) {
 export async function resetPassword(token: string, password: string) {
   const user = await User.findOne({
     passwordResetTokenHash: sha256(token),
-    passwordResetExpires: { $gt: new Date() },
+    passwordResetExpires: trustedOp({ $gt: new Date() }),
     isDeleted: false,
   }).select('+passwordResetTokenHash +passwordResetExpires +passwordHash');
   if (!user) throw new AppError(400, 'INVALID_REQUEST', 'Invalid or expired token');
@@ -219,7 +220,7 @@ export async function resetPassword(token: string, password: string) {
 }
 
 export async function listSessions(userId: string) {
-  const sessions = await Session.find({ userId, revokedAt: { $exists: false } }).sort({
+  const sessions = await Session.find({ userId, revokedAt: trustedOp({ $exists: false }) }).sort({
     createdAt: -1,
   });
   return sessions.map((s) => ({

@@ -6,6 +6,7 @@ import { Driver } from '../drivers/driver.model.js';
 import { Shipment } from '../shipments/shipment.model.js';
 import { Vehicle } from '../vehicles/vehicle.model.js';
 import { Assignment } from './assignment.model.js';
+import { trustedOp } from '../../utils/trustedQuery.js';
 
 export async function listAssignments(req: Request, res: Response) {
   const { page, limit, skip } = parsePagination(Number(req.query.page), Number(req.query.limit));
@@ -28,7 +29,7 @@ export async function createAssignment(req: Request, res: Response) {
   }
   const conflict = await Assignment.findOne({
     isDeleted: false,
-    status: { $in: ['scheduled', 'active'] },
+    status: trustedOp({ $in: ['scheduled', 'active'] }),
     $or: [{ driverId: driver._id }, { vehicleId: vehicle._id }],
   });
   if (conflict) throw new AppError(409, 'CONFLICT', 'Driver or vehicle already assigned');

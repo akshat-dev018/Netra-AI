@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { env } from './env.js';
 import { logger } from '../utils/logger.js';
 
+// Strips untrusted $-operators from filters. Wrap server-built selectors with trustedOp().
 mongoose.set('sanitizeFilter', true);
 mongoose.set('strictQuery', true);
 
