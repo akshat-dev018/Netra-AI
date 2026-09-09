@@ -1,0 +1,48 @@
+---
+description: Keep backend API documentation and Postman coverage synchronized with every API change.
+globs:
+  - "backend/src/app.ts"
+  - "backend/src/routes.ts"
+  - "backend/src/modules/**/*.routes.ts"
+  - "backend/src/modules/**/*.schema.ts"
+  - "backend/src/modules/**/*.controller.ts"
+  - "backend/src/middleware/requireAuth.ts"
+  - "backend/src/middleware/roleGuard.ts"
+  - "backend/src/middleware/validate.ts"
+alwaysApply: false
+---
+
+# API documentation synchronization
+
+Whenever a change affects an HTTP route or its behavior, update
+`docs/BACKEND_API.md` in the same change.
+
+This includes:
+
+- adding, removing, renaming, or moving an endpoint;
+- changing a router prefix, HTTP method, path parameter, query parameter, or
+  request body;
+- changing validation rules, enums, authentication, role access, ownership,
+  rate limits, or body limits;
+- changing success response shapes, status codes, error codes, or error
+  messages;
+- changing health/readiness behavior, webhooks, or Socket.io namespaces.
+
+Before finishing:
+
+1. Compare the changed route/schema/controller with the endpoint reference in
+   `docs/BACKEND_API.md`.
+2. Update examples and scenario playbooks when the workflow changes, including
+   approve, change, cancel/discard, and failure scenarios.
+3. Update the status-code and error catalog when a new response is possible.
+4. Keep the documented endpoint count accurate.
+5. If the change is a new or changed route, update the corresponding Postman
+   collection using the `netra-postman-sync` skill when Postman access is
+   available.
+6. Mention documentation and Postman synchronization in the final change
+   summary. Do not claim Postman was updated if credentials or connectivity
+   were unavailable.
+
+Documentation must not contain production secrets, real passwords, access
+tokens, API keys, or copied sensitive data. Use synthetic examples and
+environment variables.
