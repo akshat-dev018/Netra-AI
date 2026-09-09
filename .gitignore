@@ -1,9 +1,1 @@
-node_modules/
-.env
-.env.*
-!.env.example
 .cursor/mcp.json
-dist/
-build/
-*.log
-.DS_Store
