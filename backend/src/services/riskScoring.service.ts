@@ -1,6 +1,7 @@
+import type { QueryFilter } from 'mongoose';
 import { Corridor } from '../modules/corridors/corridor.model.js';
-import { Disruption } from '../modules/disruptions/disruption.model.js';
-import { Shipment } from '../modules/shipments/shipment.model.js';
+import { Disruption, type DisruptionDoc } from '../modules/disruptions/disruption.model.js';
+import { Shipment, type ShipmentDoc } from '../modules/shipments/shipment.model.js';
 import { RiskEvent } from '../modules/risk/riskEvent.model.js';
 import { emitRiskEvent } from '../sockets/emitter.js';
 import { trustedOp } from '../utils/trustedQuery.js';
@@ -12,12 +13,12 @@ export async function scoreCorridors(): Promise<void> {
       isDeleted: false,
       status: trustedOp({ $ne: 'resolved' }),
       affectedCorridorIds: c._id,
-    });
+    } satisfies QueryFilter<DisruptionDoc>);
     const shipments = await Shipment.countDocuments({
       isDeleted: false,
       status: 'in_transit',
       currentCorridorId: c._id,
-    });
+    } satisfies QueryFilter<ShipmentDoc>);
     const weather = Math.min(40, c.currentUtilization * 0.3);
     const congestion = Math.min(40, (shipments / Math.max(1, c.capacity)) * 40);
     const incidents = Math.min(30, disruptions * 12);

@@ -52,4 +52,6 @@ No Google OAuth. Email/password only. Refresh cookie uses `COOKIE_SAMESITE=lax` 
 cd backend && npm ci && npm run typecheck && npm audit --audit-level=high
 ```
 
-Postman: [`backend/postman/`](backend/postman/). Endpoint notes: [`docs/BACKEND_PLANNING.md`](docs/BACKEND_PLANNING.md).
+Postman: [`backend/postman/`](backend/postman/). API handoff guide:
+[`docs/BACKEND_API.md`](docs/BACKEND_API.md). Endpoint planning notes:
+[`docs/BACKEND_PLANNING.md`](docs/BACKEND_PLANNING.md).

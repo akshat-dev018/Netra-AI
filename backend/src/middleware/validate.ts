@@ -22,7 +22,12 @@ export function validate(schemas: Schemas) {
         }
         return;
       }
-      req[key] = result.data as typeof req.body;
+      if (key === 'query') {
+        Object.keys(req.query).forEach((queryKey) => delete req.query[queryKey]);
+        Object.assign(req.query, result.data);
+      } else {
+        req[key] = result.data as typeof req.body;
+      }
     };
 
     run('body', schemas.body);

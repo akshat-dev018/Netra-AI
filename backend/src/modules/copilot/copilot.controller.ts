@@ -1,9 +1,10 @@
 import type { Request, Response } from 'express';
+import type { QueryFilter } from 'mongoose';
 import { env } from '../../config/env.js';
 import { AppError } from '../../utils/appError.js';
-import { Driver } from '../drivers/driver.model.js';
-import { Corridor } from '../corridors/corridor.model.js';
-import { EmergencyAlert } from '../emergency-alerts/emergencyAlert.model.js';
+import { Driver, type DriverDoc } from '../drivers/driver.model.js';
+import { Corridor, type CorridorDoc } from '../corridors/corridor.model.js';
+import { EmergencyAlert, type EmergencyAlertDoc } from '../emergency-alerts/emergencyAlert.model.js';
 import { CopilotConversation } from './copilotConversation.model.js';
 import { trustedOp } from '../../utils/trustedQuery.js';
 
@@ -13,12 +14,16 @@ async function groundContext() {
       isDeleted: false,
       lastPingAt: trustedOp({
         $lt: new Date(Date.now() - env.LOCATION_STALE_THRESHOLD_MINUTES * 60 * 1000),
-      }),
+      } satisfies QueryFilter<DriverDoc>),
     })
       .select('_id status lastPingAt')
       .limit(10),
-    Corridor.find({ isDeleted: false }).sort({ riskScore: -1 }).limit(5).select('name highwayRef riskScore'),
-    EmergencyAlert.find({ isDeleted: false, status: trustedOp({ $ne: 'resolved' }) })
+    Corridor.find({ isDeleted: false } satisfies QueryFilter<CorridorDoc>)
+      .sort({ riskScore: -1 }).limit(5).select('name highwayRef riskScore'),
+    EmergencyAlert.find({
+      isDeleted: false,
+      status: trustedOp({ $ne: 'resolved' }),
+    } satisfies QueryFilter<EmergencyAlertDoc>)
       .select('type severity status')
       .limit(5),
   ]);

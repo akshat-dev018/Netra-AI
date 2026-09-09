@@ -1,11 +1,12 @@
 import type { Request, Response } from 'express';
+import type { QueryFilter } from 'mongoose';
 import { AppError, notFound } from '../../utils/appError.js';
 import { paginationMeta, parsePagination } from '../../utils/pagination.js';
 import { fleetFilter, requireFleetId } from '../../utils/scope.js';
 import { Driver } from '../drivers/driver.model.js';
 import { Shipment } from '../shipments/shipment.model.js';
 import { Vehicle } from '../vehicles/vehicle.model.js';
-import { Assignment } from './assignment.model.js';
+import { Assignment, type AssignmentDoc } from './assignment.model.js';
 import { trustedOp } from '../../utils/trustedQuery.js';
 
 export async function listAssignments(req: Request, res: Response) {
@@ -31,7 +32,7 @@ export async function createAssignment(req: Request, res: Response) {
     isDeleted: false,
     status: trustedOp({ $in: ['scheduled', 'active'] }),
     $or: [{ driverId: driver._id }, { vehicleId: vehicle._id }],
-  });
+  } satisfies QueryFilter<AssignmentDoc>);
   if (conflict) throw new AppError(409, 'CONFLICT', 'Driver or vehicle already assigned');
 
   const assignment = await Assignment.create({
