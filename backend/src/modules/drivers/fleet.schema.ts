@@ -1,16 +1,21 @@
 import { z } from 'zod';
+import mongoose from 'mongoose';
+
+const objectId = z.string().refine((v) => mongoose.isValidObjectId(v), {
+  message: 'Must be a valid ObjectId',
+});
 
 export const paginationQuery = z.object({
   page: z.coerce.number().optional(),
   limit: z.coerce.number().optional(),
 });
-export const idParam = z.object({ id: z.string().min(1) });
+export const idParam = z.object({ id: objectId });
 
 export const createDriverSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   name: z.string().min(1),
-  fleetId: z.string().optional(),
+  fleetId: objectId.optional(),
   licenseNumber: z.string().min(1),
   licenseExpiry: z.coerce.date(),
   phone: z.string().min(5),
@@ -22,13 +27,13 @@ export const patchDriverSchema = z.object({
   licenseExpiry: z.coerce.date().optional(),
   phone: z.string().optional(),
   status: z.enum(['available', 'on_trip', 'off_duty']).optional(),
-  assignedVehicleId: z.string().nullable().optional(),
+  assignedVehicleId: objectId.nullable().optional(),
   emergencyContact: z.string().optional(),
   locationSharingEnabled: z.boolean().optional(),
 });
 
 export const createVehicleSchema = z.object({
-  fleetId: z.string().optional(),
+  fleetId: objectId.optional(),
   registrationNumber: z.string().min(1),
   type: z.enum(['truck', 'van', 'rail_car', 'other']),
   capacity: z.number().optional(),
@@ -39,9 +44,9 @@ export const createVehicleSchema = z.object({
 export const patchVehicleSchema = createVehicleSchema.partial();
 
 export const createAssignmentSchema = z.object({
-  driverId: z.string(),
-  vehicleId: z.string(),
-  shipmentId: z.string(),
+  driverId: objectId,
+  vehicleId: objectId,
+  shipmentId: objectId,
   startsAt: z.coerce.date(),
   endsAt: z.coerce.date().optional(),
 });
@@ -58,7 +63,7 @@ export const pingSchema = z.object({
   speed: z.number().optional(),
   heading: z.number().optional(),
   recordedAt: z.coerce.date(),
-  tripId: z.string().optional(),
+  tripId: objectId.optional(),
 });
 
 export const nearbyQuery = z.object({

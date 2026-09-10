@@ -30,7 +30,7 @@ async function run() {
   const fleet = await Fleet.findOneAndUpdate(
     { name: 'NETRA North Fleet' },
     { name: 'NETRA North Fleet', region: 'NCR', isDeleted: false },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' as const },
   );
 
   const roles = [
@@ -57,7 +57,7 @@ async function run() {
         isEmailVerified: true,
         isDeleted: false,
       },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: 'after' as const },
     );
     users[r.role] = u;
   }
@@ -70,10 +70,11 @@ async function run() {
       type: 'truck',
       capacity: 18,
       status: 'active',
+      currentLocation: point(77.21, 28.5672),
       maintenanceDueAt: new Date(Date.now() + 40 * 24 * 60 * 60 * 1000),
       isDeleted: false,
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' as const },
   );
 
   const driverUser = users.driver;
@@ -87,10 +88,11 @@ async function run() {
       phone: '+91-9800000001',
       assignedVehicleId: vehicle._id,
       status: 'available',
+      lastKnownLocation: point(77.21, 28.5672),
       emergencyContact: '+91-9800000002',
       isDeleted: false,
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' as const },
   );
   vehicle.assignedDriverId = driver._id;
   await vehicle.save();
@@ -162,7 +164,7 @@ async function run() {
       riskComponents: { weather: 8, congestion: 12, incidents: 8, accidentDensity: 10 },
       isDeleted: false,
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' as const },
   );
 
   const shipment = await Shipment.findOneAndUpdate(
@@ -184,7 +186,7 @@ async function run() {
       createdBy: users.controller._id,
       isDeleted: false,
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' as const },
   );
 
   await Disruption.findOneAndUpdate(

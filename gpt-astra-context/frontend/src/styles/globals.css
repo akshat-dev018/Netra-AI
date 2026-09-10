@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+  --surface: #DEEBEC;
+  --primary: #11315F;
+  --critical: #EF270B;
+  --warning: #EC7507;
+  --success: #278B56;
+}
+
+[data-colorblind="deuteranopia"] {
+  --surface: #DEEBEC;
+  --primary: #11315F;
+  --critical: #0057A8;
+  --warning: #FFB000;
+  --success: #007A33;
+}
+
+[data-colorblind="protanopia"] {
+  --surface: #DEEBEC;
+  --primary: #11315F;
+  --critical: #0057A8;
+  --warning: #FFB000;
+  --success: #007A33;
+}
+
+[data-colorblind="tritanopia"] {
+  --surface: #DEEBEC;
+  --primary: #11315F;
+  --critical: #B800B8;
+  --warning: #FFB000;
+  --success: #007A33;
+}
+
+body {
+  background-color: var(--surface);
+  color: var(--primary);
+}
+
+/* Colorblind-safe pattern overlays for indicators */
+.critical-pattern { background-image: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,0.15) 3px, rgba(255,255,255,0.15) 6px); }
+.warning-pattern { background-image: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(255,255,255,0.15) 3px, rgba(255,255,255,0.15) 6px); }
+.success-pattern { background-image: repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(255,255,255,0.15) 3px, rgba(255,255,255,0.15) 6px); }
+
+/* High contrast border indicators for colorblind mode */
+[data-colorblind="deuteranopia"] .status-dot::after,
+[data-colorblind="protanopia"] .status-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--primary);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Responsive sidebar */
+.sidebar-collapsed .sidebar-text { display: none; }
+.sidebar-expanded .sidebar-text { display: inline; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+/* Driver portal mobile-first touch targets */
+@media (max-width: 768px) {
+  .touch-target { min-height: 48px; min-width: 48px; }
+}

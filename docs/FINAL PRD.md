@@ -401,6 +401,35 @@ All models include `createdAt`, `updatedAt`, and `isDeleted: boolean` (soft dele
 
 ## 9. Tech Stack
 
+### 9.1 Frontend completion and accessibility requirements
+
+- The frontend must use the backend route inventory as its source of truth. Every
+  mounted HTTP endpoint must have either a user-facing workflow or an explicit
+  service-layer integration; do not invent client routes such as `/fleet/overview`
+  or `/drivers/me` when the backend does not expose them.
+- Authenticated downloads and mutations must use the shared API client so bearer
+  tokens, refresh handling, cookies, and error envelopes are preserved.
+- Live portals must subscribe to the Socket.io `/map`, `/alerts`, `/risk`, and
+  `/tracking` namespaces when real-time mode is enabled.
+- A persistent **Colorblind Mode** toggle must be available in the application
+  chrome. It must persist locally, expose `aria-pressed`, use palettes that do
+  not rely on red/green alone, and add patterns, labels, icons, or shapes to
+  critical/warning/safe statuses.
+- The supplied transparent `netra_logo.png` is the canonical brand asset and
+  must be used in authentication and portal shells.
+- Browser geolocation must be requested only with user consent, clearly explain
+  why location is shared, stop on trip completion or opt-out, and surface
+  permission/network errors without silently failing.
+
+### 9.2 Backend-to-frontend coverage
+
+The UI must cover authentication, users/admin, fleet, assignments, tracking,
+shipments/import, route optimization, corridors/highways, disruptions,
+emergency alerts and response units, risk/predictions, simulation, analytics,
+reports/export, Copilot, audit logs, and settings/data sources. Read-only
+administrative endpoints may be presented as settings tabs, but they must not be
+rendered to roles that cannot access them server-side.
+
 | Layer | Choice | Notes |
 |---|---|---|
 | **Frontend framework** | Next.js (React, App Router) | Route groups per portal: `(command)/`, `(fleet)/`, `(driver)/`, `(auth)/` |
