@@ -19,7 +19,7 @@ export async function refreshPredictions(): Promise<void> {
         horizonHours: 6,
         contributingSignals: ['utilization', 'open_disruptions', 'historical_density'],
       },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: 'after' as const },
     );
     emitRiskEvent('prediction:updated', doc);
   }

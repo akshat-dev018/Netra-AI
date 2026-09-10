@@ -815,6 +815,28 @@ Run through this before every production deployment.
 
 ## 7. Frontend Architecture
 
+### 7.0 Frontend implementation gate
+
+Before calling the frontend complete, compare its API client calls with the
+backend route inventory and remove invented paths. Cover all backend capability
+groups: auth/session lifecycle, users, fleet/assignments, shipments/import,
+route optimization, tracking/geolocation, corridors/highways, disruptions,
+emergency/response units, risk/predictions/simulation, analytics, reports,
+Copilot, audit logs, and settings/data sources.
+
+Use the shared Axios client for every authenticated request and download so the
+bearer token, refresh flow, cookies, and standard error envelope are retained.
+Use Socket.io namespaces `/map`, `/alerts`, `/risk`, and `/tracking` for live
+updates when enabled. Do not hard-code shipment IDs, user IDs, or placeholder
+fleet metrics in production screens.
+
+The global shell must include a persistent Colorblind Mode toggle. Store the
+preference locally, expose its state with `aria-pressed`, use color-safe tokens,
+and reinforce status colors with text, icons, patterns, or shapes. The canonical
+transparent `netra_logo.png` must be used in auth and portal shell branding.
+Location sharing requires explicit consent and must stop on trip completion or
+manual opt-out.
+
 
 ### Axios Client Setup
 
@@ -1575,5 +1597,4 @@ When using this document as context, follow the **⚠️ Version Safety Rule** a
 
 
 *Industry-agnostic. Adapt the domain add-ons in Section 12 for your use case.*
-
 

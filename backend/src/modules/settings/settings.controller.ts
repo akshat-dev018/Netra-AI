@@ -11,7 +11,7 @@ export async function upsertSource(req: Request, res: Response) {
   const doc = await DataSource.findOneAndUpdate(
     { name: req.body.name },
     req.body,
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' as const },
   );
   res.status(201).json({ success: true, data: doc });
 }

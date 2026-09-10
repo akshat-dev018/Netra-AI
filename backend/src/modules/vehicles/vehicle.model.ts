@@ -32,8 +32,22 @@ const vehicleSchema = new Schema<VehicleDoc>(
     },
     assignedDriverId: { type: Schema.Types.ObjectId, ref: 'Driver' },
     currentLocation: {
-      type: { type: String, enum: ['Point'] },
-      coordinates: { type: [Number] },
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: function (this: any) {
+          return this.currentLocation && this.currentLocation.coordinates && this.currentLocation.coordinates.length === 2;
+        },
+      },
+      coordinates: {
+        type: [Number],
+        validate: {
+          validator: function (v: number[]) {
+            return v === undefined || (Array.isArray(v) && v.length === 2 && v[0] >= -180 && v[0] <= 180 && v[1] >= -90 && v[1] <= 90);
+          },
+          message: 'Coordinates must be [lng, lat] in valid ranges',
+        },
+      },
     },
     maintenanceDueAt: { type: Date },
     isDeleted: { type: Boolean, default: false },
@@ -42,6 +56,15 @@ const vehicleSchema = new Schema<VehicleDoc>(
   { timestamps: true },
 );
 
-vehicleSchema.index({ currentLocation: '2dsphere' });
+vehicleSchema.pre('save', function () {
+  const loc = (this as any).currentLocation;
+  if (!loc || !loc.coordinates || loc.coordinates.length !== 2) {
+    (this as any).currentLocation = undefined as any;
+  } else if (!loc.type) {
+    loc.type = 'Point';
+  }
+});
+
+vehicleSchema.index({ currentLocation: '2dsphere' }, { sparse: true });
 
 export const Vehicle = mongoose.model<VehicleDoc>('Vehicle', vehicleSchema);

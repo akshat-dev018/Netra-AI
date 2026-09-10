@@ -1,0 +1,11 @@
+# Use this workspace to collaborate
+workspace:
+  id: 3f24972a-f8bb-4bc4-892d-e072d4a80d33
+
+localResources:
+  collections:
+    - ../backend/postman/collection.json
+    - ../gpt-astra-context/backend/postman/collection.json
+  environments:
+    - ../backend/postman/environment.json
+    - ../gpt-astra-context/backend/postman/environment.json

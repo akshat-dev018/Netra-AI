@@ -32,8 +32,22 @@ const driverSchema = new Schema<DriverDoc>(
     status: { type: String, enum: ['available', 'on_trip', 'off_duty'], default: 'available' },
     emergencyContact: { type: String },
     lastKnownLocation: {
-      type: { type: String, enum: ['Point'] },
-      coordinates: { type: [Number] },
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: function (this: any) {
+          return this.lastKnownLocation && this.lastKnownLocation.coordinates && this.lastKnownLocation.coordinates.length === 2;
+        },
+      },
+      coordinates: {
+        type: [Number],
+        validate: {
+          validator: function (v: number[]) {
+            return v === undefined || (Array.isArray(v) && v.length === 2 && v[0] >= -180 && v[0] <= 180 && v[1] >= -90 && v[1] <= 90);
+          },
+          message: 'Coordinates must be [lng, lat] in valid ranges',
+        },
+      },
     },
     lastPingAt: { type: Date },
     locationSharingEnabled: { type: Boolean, default: false },
@@ -43,7 +57,16 @@ const driverSchema = new Schema<DriverDoc>(
   { timestamps: true },
 );
 
-driverSchema.index({ lastKnownLocation: '2dsphere' });
+driverSchema.pre('save', function () {
+  const loc = (this as any).lastKnownLocation;
+  if (!loc || !loc.coordinates || loc.coordinates.length !== 2) {
+    (this as any).lastKnownLocation = undefined as any;
+  } else if (!loc.type) {
+    loc.type = 'Point';
+  }
+});
+
+driverSchema.index({ lastKnownLocation: '2dsphere' }, { sparse: true });
 driverSchema.index({ fleetId: 1, isDeleted: 1 });
 
 export const Driver = mongoose.model<DriverDoc>('Driver', driverSchema);
