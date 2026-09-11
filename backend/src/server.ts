@@ -7,10 +7,20 @@ import { startCron } from './services/cron.service.js';
 import { attachSockets } from './sockets/index.js';
 import { logger } from './utils/logger.js';
 
+import { User } from './modules/users/user.model.js';
+import { seedData } from './scripts/seed.js';
+
 initSentry();
 
 async function main() {
   await connectDb();
+  
+  const userCount = await User.countDocuments();
+  if (userCount === 0) {
+    logger.info('Database is empty. Automatically seeding demo dataset...');
+    await seedData();
+  }
+
   const app = createApp();
   const server = createServer(app);
   attachSockets(server);

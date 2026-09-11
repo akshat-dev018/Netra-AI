@@ -6,14 +6,42 @@ import { logger } from '../utils/logger.js';
 mongoose.set('sanitizeFilter', true);
 mongoose.set('strictQuery', true);
 
+let memoryServer: any = null;
+
 export async function connectDb(): Promise<void> {
-  const maxAttempts = 5;
+  try {
+    await mongoose.connect(env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 3000,
+    });
+    logger.info('MongoDB connected to ' + env.MONGODB_URI);
+    return;
+  } catch (initialErr) {
+    if (env.NODE_ENV !== 'production') {
+      try {
+        logger.warn('Direct MongoDB connection failed. Starting embedded MongoDB server for seamless development...');
+        const { MongoMemoryServer } = await import('mongodb-memory-server');
+        memoryServer = await MongoMemoryServer.create({
+          instance: {
+            dbName: 'netra',
+          },
+        });
+        const uri = memoryServer.getUri();
+        await mongoose.connect(uri);
+        logger.info('Embedded MongoDB connected at ' + uri);
+        return;
+      } catch (memErr) {
+        logger.error('Embedded MongoDB failed to start', { memErr });
+      }
+    }
+  }
+
+  const maxAttempts = 3;
   const retryDelayMs = 2000;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
       await mongoose.connect(env.MONGODB_URI, {
-        serverSelectionTimeoutMS: 10000,
+        serverSelectionTimeoutMS: 5000,
       });
       logger.info('MongoDB connected');
       return;
@@ -34,6 +62,9 @@ export async function connectDb(): Promise<void> {
 
 export async function disconnectDb(): Promise<void> {
   await mongoose.disconnect();
+  if (memoryServer) {
+    await memoryServer.stop();
+  }
   logger.info('MongoDB disconnected');
 }
 

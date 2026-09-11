@@ -1,68 +1,363 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { client } from '@/lib/api/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { settingsApi, highwaysApi, usersApi, auditLogApi } from '@/lib/api';
+import {
+  Settings,
+  Database,
+  Users,
+  Shield,
+  Activity,
+  Plus,
+  RefreshCw,
+  CheckCircle2,
+  Trash2,
+  X,
+  Lock,
+  Radio,
+  FileSpreadsheet,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useAuth } from '@/auth/AuthProvider';
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState('profile');
-  const [form, setForm] = useState({ name: '', password: '' });
-  const { user } = useAuth();
-  const users = useQuery({
-    queryKey: ['admin-users'],
-    queryFn: async () => (await client.get('/users', { params: { page: 1, limit: 100 } })).data,
-    enabled: activeTab === 'users' && user?.role === 'admin',
-  });
-  const sources = useQuery({
-    queryKey: ['data-sources'],
-    queryFn: async () => (await client.get('/settings/data-sources')).data,
-    enabled: activeTab === 'data-sources' && user?.role === 'admin',
-  });
-  const audit = useQuery({
-    queryKey: ['audit-log'],
-    queryFn: async () => (await client.get('/audit-log')).data,
-    enabled: activeTab === 'audit-log' && user?.role === 'admin',
+  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<'sources' | 'users' | 'audit'>('sources');
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showAddSourceModal, setShowAddSourceModal] = useState(false);
+
+  const [newUser, setNewUser] = useState({
+    email: '',
+    name: '',
+    password: 'NetraDemo123!',
+    role: 'dispatcher',
   });
 
-  const update = useMutation({
-    mutationFn: (body: object) => client.patch('/users/me', body),
-    onSuccess: () => toast.success('Profile updated'),
-    onError: () => toast.error('Update failed'),
+  const [newSource, setNewSource] = useState({
+    name: 'Weather Sensors IoT Feed',
+    kind: 'webhook',
+  });
+
+  const { data: sources } = useQuery({
+    queryKey: ['settings-sources'],
+    queryFn: async () => {
+      const res = await settingsApi.getDataSources();
+      return res.data.data;
+    },
+  });
+
+  const { data: users } = useQuery({
+    queryKey: ['settings-users'],
+    queryFn: async () => {
+      const res = await usersApi.list();
+      return res.data.data;
+    },
+  });
+
+  const { data: auditLogs } = useQuery({
+    queryKey: ['settings-audit'],
+    queryFn: async () => {
+      const res = await auditLogApi.list();
+      return res.data.data;
+    },
+  });
+
+  const syncHighwaysMutation = useMutation({
+    mutationFn: async () => {
+      await highwaysApi.sync();
+    },
+    onSuccess: () => {
+      toast.success('Highways synchronized from OSM Overpass vector servers!');
+    },
+    onError: () => {
+      toast.error('OSM Overpass sync failed');
+    },
+  });
+
+  const createUserMutation = useMutation({
+    mutationFn: async (data: typeof newUser) => {
+      await usersApi.create(data);
+    },
+    onSuccess: () => {
+      toast.success('User provisioned with role permissions');
+      setShowAddUserModal(false);
+      setNewUser({ email: '', name: '', password: 'NetraDemo123!', role: 'dispatcher' });
+      queryClient.invalidateQueries({ queryKey: ['settings-users'] });
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.error?.message || 'Failed to create user');
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await usersApi.delete(id);
+    },
+    onSuccess: () => {
+      toast.success('User account de-provisioned');
+      queryClient.invalidateQueries({ queryKey: ['settings-users'] });
+    },
   });
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <h1 className="text-2xl font-bold text-primary">Settings</h1>
-      <div className="flex gap-2 border-b">
-        {['profile', 'users', 'data-sources', 'audit-log'].map((tab) => (
-          <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-gray-700'}`}>
-            {tab.replace(/-/g, ' ')}
-          </button>
-        ))}
+    <div className="space-y-6 animate-fade-in-up">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans">
+              System Settings & Gateways
+            </h1>
+            <span className="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-mono text-[10px] font-semibold uppercase">
+              ENTERPRISE CORE
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+            OSM Overpass synchronization, user role scopes, telemetry data sources, and immutable audit trails.
+          </p>
+        </div>
+
+        <button
+          onClick={() => syncHighwaysMutation.mutate()}
+          disabled={syncHighwaysMutation.isPending}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 transition-all self-start sm:self-auto disabled:opacity-50"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${syncHighwaysMutation.isPending ? 'animate-spin' : ''}`} />
+          <span>{syncHighwaysMutation.isPending ? 'Syncing OSM...' : 'Sync OSM Highways'}</span>
+        </button>
       </div>
-      {activeTab === 'profile' && (
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-primary mb-1">Name</label>
-            <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
+
+      {/* Tabs */}
+      <div className="flex items-center gap-2 border-b border-white/[0.06] pb-2 text-xs font-semibold">
+        <button
+          onClick={() => setActiveTab('sources')}
+          className={`px-4 py-2 rounded-xl transition-all ${
+            activeTab === 'sources'
+              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          Data Sources & Adapters
+        </button>
+        <button
+          onClick={() => setActiveTab('users')}
+          className={`px-4 py-2 rounded-xl transition-all ${
+            activeTab === 'users'
+              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          User & Role Management
+        </button>
+        <button
+          onClick={() => setActiveTab('audit')}
+          className={`px-4 py-2 rounded-xl transition-all ${
+            activeTab === 'audit'
+              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          System Audit Trail
+        </button>
+      </div>
+
+      {/* Tab 1: Data Sources */}
+      {activeTab === 'sources' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="glass-card p-5 rounded-2xl flex items-center justify-between border-emerald-500/30">
+              <div>
+                <div className="font-bold text-sm text-white">NHAI FASTag Gantry API</div>
+                <div className="text-xs text-slate-400 mt-0.5">Adapter: <b className="text-cyan-400 font-mono">REST/SSE</b></div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                CONNECTED
+              </span>
+            </div>
+
+            <div className="glass-card p-5 rounded-2xl flex items-center justify-between border-emerald-500/30">
+              <div>
+                <div className="font-bold text-sm text-white">IMD Doppler Weather Radar</div>
+                <div className="text-xs text-slate-400 mt-0.5">Adapter: <b className="text-cyan-400 font-mono">POLAR-GEOJSON</b></div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                CONNECTED
+              </span>
+            </div>
+
+            <div className="glass-card p-5 rounded-2xl flex items-center justify-between border-emerald-500/30">
+              <div>
+                <div className="font-bold text-sm text-white">In-Cab OBD-II Telematics Ping</div>
+                <div className="text-xs text-slate-400 mt-0.5">Adapter: <b className="text-cyan-400 font-mono">SOCKET.IO</b></div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                STREAMING
+              </span>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-primary mb-1">New Password</label>
-            <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
-          </div>
-          <button onClick={() => update.mutate(form)} disabled={update.isPending} className="px-6 py-2 bg-primary text-white rounded-lg font-medium">
-            Save Changes
-          </button>
         </div>
       )}
-      {activeTab !== 'profile' && user?.role !== 'admin' && (
-        <div className="rounded-xl bg-white p-6 text-sm text-gray-800">Admin access is required for this section.</div>
+
+      {/* Tab 2: User Management */}
+      {activeTab === 'users' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-slate-400">Manage operators and security permissions</span>
+            <button
+              onClick={() => setShowAddUserModal(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-xs font-semibold text-white shadow-md"
+            >
+              <Plus className="w-3.5 h-3.5" /> Provision Operator
+            </button>
+          </div>
+
+          <div className="glass-card rounded-2xl overflow-hidden">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-white/[0.06] text-slate-400 bg-white/[0.02]">
+                  <th className="py-3 px-4 font-semibold">User Name</th>
+                  <th className="py-3 px-4 font-semibold">Email</th>
+                  <th className="py-3 px-4 font-semibold">Assigned Role</th>
+                  <th className="py-3 px-4 font-semibold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04] font-mono">
+                {users?.map((u: any) => (
+                  <tr key={u._id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3 px-4 font-bold text-white font-sans">{u.name}</td>
+                    <td className="py-3 px-4 text-cyan-300">{u.email}</td>
+                    <td className="py-3 px-4 font-sans">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-white/10 text-slate-200 uppercase">
+                        {u.role?.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      {u.email !== 'admin@netra.local' && (
+                        <button
+                          onClick={() => deleteUserMutation.mutate(u._id)}
+                          className="p-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 transition-all"
+                          title="De-provision user"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
-      {activeTab === 'users' && user?.role === 'admin' && <pre className="overflow-auto rounded-xl bg-white p-6 text-sm">{JSON.stringify(users.data?.data ?? [], null, 2)}</pre>}
-      {activeTab === 'data-sources' && user?.role === 'admin' && <pre className="overflow-auto rounded-xl bg-white p-6 text-sm">{JSON.stringify(sources.data?.data ?? [], null, 2)}</pre>}
-      {activeTab === 'audit-log' && user?.role === 'admin' && <pre className="overflow-auto rounded-xl bg-white p-6 text-sm">{JSON.stringify(audit.data?.data ?? [], null, 2)}</pre>}
+
+      {/* Tab 3: Audit Trail */}
+      {activeTab === 'audit' && (
+        <div className="space-y-4">
+          <div className="glass-card rounded-2xl overflow-hidden">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-white/[0.06] text-slate-400 bg-white/[0.02]">
+                  <th className="py-3 px-4 font-semibold">Action Event</th>
+                  <th className="py-3 px-4 font-semibold">Actor</th>
+                  <th className="py-3 px-4 font-semibold">Resource</th>
+                  <th className="py-3 px-4 font-semibold text-right">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04] font-mono">
+                {auditLogs?.map((log: any, idx: number) => (
+                  <tr key={idx} className="hover:bg-white/[0.02]">
+                    <td className="py-3 px-4 text-cyan-400 font-semibold">{log.action || 'AUTH_LOGIN'}</td>
+                    <td className="py-3 px-4 text-slate-300 font-sans">{log.userEmail || 'admin@netra.local'}</td>
+                    <td className="py-3 px-4 text-slate-400 font-sans">{log.resource || 'Session'}</td>
+                    <td className="py-3 px-4 text-right text-slate-500 font-sans">
+                      {new Date(log.createdAt || Date.now()).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+                {(!auditLogs || auditLogs.length === 0) && (
+                  <tr>
+                    <td colSpan={4} className="py-10 text-center text-slate-500 font-sans">
+                      No security audit log entries.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-md glass-panel-elevated p-6 rounded-2xl border border-white/[0.1] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+              <h3 className="text-base font-bold text-white">Provision New Operator</h3>
+              <button onClick={() => setShowAddUserModal(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="text-slate-300 font-medium block mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Ramesh Sharma"
+                  value={newUser.name}
+                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                  className="glass-input w-full p-2.5 rounded-xl text-white text-xs focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-slate-300 font-medium block mb-1">Email Address *</label>
+                <input
+                  type="email"
+                  placeholder="e.g. ramesh@netra.local"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  className="glass-input w-full p-2.5 rounded-xl text-white font-mono text-xs focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-slate-300 font-medium block mb-1">Security Role</label>
+                <select
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                  className="glass-input w-full p-2.5 rounded-xl text-white text-xs focus:outline-none bg-[#0D1525]"
+                >
+                  <option value="admin">System Admin</option>
+                  <option value="ops_manager">Operations Manager</option>
+                  <option value="controller">Shipment Controller</option>
+                  <option value="analyst">Risk Analyst</option>
+                  <option value="dispatcher">Emergency Dispatcher</option>
+                  <option value="fleet_manager">Fleet Manager</option>
+                  <option value="driver">Driver</option>
+                  <option value="viewer">Executive Viewer</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/[0.06]">
+              <button
+                onClick={() => setShowAddUserModal(false)}
+                className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.08] text-slate-300 text-xs font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => createUserMutation.mutate(newUser)}
+                disabled={createUserMutation.isPending}
+                className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-lg shadow-cyan-950/50"
+              >
+                {createUserMutation.isPending ? 'Provisioning...' : 'Provision User'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

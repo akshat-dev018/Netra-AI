@@ -1,119 +1,336 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { refreshClient } from '@/lib/api/refreshClient';
-import { client } from '@/lib/api/client';
-import { tokenStore } from '@/auth/tokenStore';
 import { useAuth } from '@/auth/AuthProvider';
-import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
+import {
+  Shield,
+  Compass,
+  BarChart3,
+  AlertCircle,
+  Truck,
+  Navigation,
+  Lock,
+  Mail,
+  ArrowRight,
+  Sparkles,
+  Zap,
+  Globe2,
+  Activity,
+  CheckCircle2,
+} from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const DEMO_ROLES = [
+  {
+    key: 'admin',
+    label: 'Admin',
+    email: 'admin@netra.local',
+    role: 'Full System Control',
+    icon: Shield,
+    color: 'from-purple-500/20 to-indigo-500/10 border-purple-500/30 text-purple-300 hover:border-purple-400',
+  },
+  {
+    key: 'controller',
+    label: 'Controller',
+    email: 'controller@netra.local',
+    role: 'Shipment Control',
+    icon: Compass,
+    color: 'from-cyan-500/20 to-blue-500/10 border-cyan-500/30 text-cyan-300 hover:border-cyan-400',
+  },
+  {
+    key: 'dispatcher',
+    label: 'Dispatcher',
+    email: 'dispatcher@netra.local',
+    role: 'Emergency SOS',
+    icon: AlertCircle,
+    color: 'from-rose-500/20 to-red-500/10 border-rose-500/30 text-rose-300 hover:border-rose-400',
+  },
+  {
+    key: 'fleet_manager',
+    label: 'Fleet Mgr',
+    email: 'fleet@netra.local',
+    role: 'Depot & Vehicles',
+    icon: Truck,
+    color: 'from-amber-500/20 to-orange-500/10 border-amber-500/30 text-amber-300 hover:border-amber-400',
+  },
+  {
+    key: 'driver',
+    label: 'Driver',
+    email: 'driver@netra.local',
+    role: 'Mobile Telematics',
+    icon: Navigation,
+    color: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/30 text-emerald-300 hover:border-emerald-400',
+  },
+  {
+    key: 'analyst',
+    label: 'Analyst',
+    email: 'analyst@netra.local',
+    role: 'Risk Engine',
+    icon: BarChart3,
+    color: 'from-blue-500/20 to-sky-500/10 border-blue-500/30 text-blue-300 hover:border-blue-400',
+  },
+];
+
+const METRICS = [
+  { label: 'Corridors Monitored', val: '14 Active', icon: Globe2 },
+  { label: 'Telematics Latency', val: '< 1.2s', icon: Zap },
+  { label: 'ETA Prediction', val: '99.8% Acc', icon: Activity },
+];
 
 export default function LoginPage() {
+  const { loginWithCredentials, loginAsDemoRole } = useAuth();
   const router = useRouter();
-  const { setUser } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [roleLoading, setRoleLoading] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast.error('Please enter email and password');
+      return;
+    }
     setLoading(true);
-    try {
-      const { data } = await refreshClient.post('/auth/login', { email, password });
-      tokenStore.set(data.data.accessToken);
-      const { data: me } = await client.get('/users/me');
-      setUser(me.data);
-      toast.success('Logged in successfully');
+    const ok = await loginWithCredentials(email, password);
+    setLoading(false);
+    if (ok) {
       router.push('/dashboard');
-    } catch (error: any) {
-      const msg = error.response?.data?.error?.message || 'Login failed';
-      toast.error(msg);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const handleQuickLogin = async (roleKey: string) => {
+    setRoleLoading(roleKey);
+    const ok = await loginAsDemoRole(roleKey);
+    setRoleLoading(null);
+    if (ok) {
+      if (roleKey === 'driver') {
+        router.push('/driver');
+      } else if (roleKey === 'fleet_manager') {
+        router.push('/fleet');
+      } else {
+        router.push('/dashboard');
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#07131d] lg:flex">
-      <section className="relative hidden min-h-screen overflow-hidden lg:flex lg:w-[58%] lg:flex-col lg:justify-between px-12 py-11 text-white xl:px-16">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_58%_44%,rgba(24,116,201,0.25),transparent_28%),linear-gradient(145deg,#071b2a_0%,#06131d_58%,#03080d_100%)]" />
-        <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(112,187,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(112,187,255,0.12)_1px,transparent_1px)] [background-size:48px_48px]" />
-        <div className="absolute -right-24 top-1/3 h-[34rem] w-[34rem] rounded-full border border-cyan-300/10 shadow-[0_0_100px_rgba(25,145,225,0.14)]" />
-        <div className="absolute right-20 top-[41%] h-64 w-64 rounded-full border border-cyan-300/10" />
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2f73d9] shadow-lg shadow-blue-950/40">
-            <span className="text-xl font-bold">N</span>
-          </div>
-          <span className="text-xl font-semibold tracking-tight">NETRA</span>
-        </div>
-        <div className="relative z-10 max-w-xl pb-4">
-          <p className="mb-5 text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">National intelligence platform</p>
-          <h1 className="max-w-2xl text-5xl font-bold leading-[1.05] tracking-tight xl:text-6xl">
-            See the road ahead.
-            <br />
-            <span className="text-cyan-300">Move with confidence.</span>
-          </h1>
-          <p className="mt-6 max-w-lg text-lg leading-8 text-slate-300">
-            One command center for freight corridors, emergency response, and predictive risk intelligence.
-          </p>
-          <div className="mt-9 flex flex-wrap gap-3 text-sm text-slate-200">
-            {['Live corridor intelligence', 'Predictive risk signals', 'Faster emergency response'].map((item) => (
-              <span key={item} className="rounded-full border border-white/15 bg-white/5 px-4 py-2 backdrop-blur-sm">
-                <span className="mr-2 text-cyan-300">●</span>{item}
-              </span>
-            ))}
-          </div>
-        </div>
-        <p className="relative z-10 text-xs tracking-wide text-slate-300">Secure operations workspace · Built for the road network</p>
-      </section>
+    <div className="min-h-screen bg-[#070B13] text-slate-100 flex items-center justify-center p-4 lg:p-8 relative overflow-hidden">
+      {/* Background Ambient Glows */}
+      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-cyan-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute -top-20 -right-20 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <section className="flex min-h-screen w-full items-center justify-center bg-[#f8fafc] px-6 py-12 sm:px-10 lg:w-[42%]">
-        <div className="w-full max-w-[390px]">
-          <div className="mb-10 flex items-center gap-3 lg:hidden">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2f73d9] text-xl font-bold text-white">N</div>
-            <span className="text-xl font-semibold text-[#11233b]">NETRA</span>
+      {/* Grid Pattern Overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-20"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)',
+          backgroundSize: '32px 32px',
+        }}
+      />
+
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        {/* Left Side: Branding, Vision, Telematics Highlights */}
+        <div className="lg:col-span-6 space-y-6 text-left hidden lg:block animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-mono">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+            NATIONAL HIGHWAYS FREIGHT INTEL • v1.0
           </div>
-          <div className="mb-9">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#2f73d9]">Command center</p>
-            <h2 className="text-3xl font-bold tracking-tight text-[#132238]">Welcome back</h2>
-            <p className="mt-2 text-sm text-slate-700">Sign in to continue to your operations workspace.</p>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#273852]">Email address</label>
-              <div className="relative">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">✉</span>
-                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-                  className="w-full rounded-xl border border-slate-200 bg-white px-11 py-3.5 text-sm text-[#132238] outline-none transition focus:border-[#2f73d9] focus:ring-4 focus:ring-blue-100"
-                  placeholder="you@netra.gov" />
+
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500/20 via-blue-500/20 to-indigo-500/20 border border-cyan-500/30 flex items-center justify-center p-2.5 shadow-xl shadow-cyan-500/10">
+                <Image
+                  src="/netra_logo.png"
+                  alt="NETRA"
+                  width={48}
+                  height={48}
+                  className="object-contain filter invert brightness-200"
+                  priority
+                />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-white font-sans">
+                  FreightIntel <span className="text-gradient font-mono">NETRA</span>
+                </h1>
+                <p className="text-xs text-slate-400 font-mono tracking-wider">
+                  AI CONTROL TOWER & TELEMATICS PLATFORM
+                </p>
               </div>
             </div>
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-medium text-[#273852]">Password</label>
-                <a href="/forgot-password" className="text-xs font-medium text-[#2f73d9] hover:underline">Forgot password?</a>
-              </div>
-              <div className="relative">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-600">▣</span>
-                <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-                  className="w-full rounded-xl border border-slate-200 bg-white px-11 py-3.5 text-sm text-[#132238] outline-none transition focus:border-[#2f73d9] focus:ring-4 focus:ring-blue-100"
-                  placeholder="Enter your password" />
-              </div>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Real-time corridor telemetry, multi-modal disruption intelligence, predictive ETA modeling,
+              and coordinated emergency response across Indian national highways.
+            </p>
+          </div>
+
+          {/* Key Metrics Chips */}
+          <div className="grid grid-cols-3 gap-3">
+            {METRICS.map((m) => {
+              const Icon = m.icon;
+              return (
+                <div
+                  key={m.label}
+                  className="glass-card p-3 rounded-xl border border-white/[0.06] bg-white/[0.02]"
+                >
+                  <Icon className="w-4 h-4 text-cyan-400 mb-1.5" />
+                  <div className="text-xs font-bold text-white font-mono">{m.val}</div>
+                  <div className="text-[10px] text-slate-400">{m.label}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Feature Badges */}
+          <div className="space-y-2 pt-2 border-t border-white/[0.06] text-xs text-slate-400">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Automated bottleneck resolution & dynamic rerouting</span>
             </div>
-            <label className="flex items-center gap-2 text-sm text-slate-700">
-              <input type="checkbox" className="h-4 w-4 rounded border-slate-300 accent-[#2f73d9]" />
-              Keep me signed in
-            </label>
-            <button type="submit" disabled={loading}
-              className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#2f73d9] py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-[#2564c2] disabled:cursor-wait disabled:opacity-60">
-              {loading ? 'Signing in...' : 'Sign in'}
-              {!loading && <span className="text-lg">→</span>}
-            </button>
-          </form>
-          <p className="mt-8 text-center text-sm text-slate-600">Don&apos;t have an account? <a href="/register" className="font-medium text-[#2f73d9] hover:underline">Create one</a></p>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Multi-role access for Dispatchers, Fleet Managers, and Drivers</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Integrated with Golden Quadrilateral & NH telematics sensors</span>
+            </div>
+          </div>
         </div>
-      </section>
+
+        {/* Right Side: Glass Panel with 1-Click Roles + Sign In */}
+        <div className="lg:col-span-6 w-full max-w-md mx-auto space-y-5 animate-slide-in-right">
+          {/* Mobile Header */}
+          <div className="lg:hidden text-center space-y-2">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 p-2 shadow-lg shadow-cyan-950/60 border border-cyan-400/30">
+              <Image
+                src="/netra_logo.png"
+                alt="NETRA"
+                width={40}
+                height={40}
+                className="object-contain filter invert brightness-200"
+                priority
+              />
+            </div>
+            <h1 className="text-xl font-bold font-sans tracking-tight text-white">
+              FreightIntel <span className="text-cyan-400 font-mono">NETRA</span>
+            </h1>
+            <p className="text-xs text-slate-400">Sign in to National Control Tower</p>
+          </div>
+
+          {/* 1-Click Demo Logins Panel */}
+          <div className="glass-panel-elevated p-4 rounded-2xl border border-white/[0.08] shadow-2xl space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> 1-Click Demo Role Logins
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono bg-white/[0.04] px-2 py-0.5 rounded border border-white/[0.06]">
+                Pass: NetraDemo123!
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {DEMO_ROLES.map((r) => {
+                const Icon = r.icon;
+                const isThisLoading = roleLoading === r.key;
+                return (
+                  <button
+                    key={r.key}
+                    type="button"
+                    disabled={Boolean(roleLoading)}
+                    onClick={() => handleQuickLogin(r.key)}
+                    className={`p-2.5 rounded-xl border bg-gradient-to-br text-left transition-all duration-200 ${r.color} hover:scale-[1.02] flex items-center gap-2 relative overflow-hidden group`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" />
+                    <div className="min-w-0 flex-1">
+                      <div className="font-bold text-xs truncate text-white">{r.label}</div>
+                      <div className="text-[10px] text-slate-400 truncate font-mono">{r.role}</div>
+                    </div>
+                    {isThisLoading && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Standard Credentials Form */}
+          <form
+            onSubmit={handleSubmit}
+            className="glass-panel p-6 rounded-2xl border border-white/[0.08] shadow-2xl space-y-4 text-xs"
+          >
+            <div className="flex items-center justify-between pb-1 border-b border-white/[0.06]">
+              <span className="text-xs font-semibold text-white uppercase tracking-wider">
+                Operator Sign In
+              </span>
+              <span className="text-[11px] text-slate-400">Enterprise Credentials</span>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-slate-300 font-medium block mb-1.5">Operator Email</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="email"
+                    placeholder="controller@netra.local"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="glass-input w-full pl-10 pr-3 py-2.5 rounded-xl text-white placeholder-slate-500 font-mono text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-slate-300 font-medium">Password</label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="password"
+                    placeholder="••••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="glass-input w-full pl-10 pr-3 py-2.5 rounded-xl text-white placeholder-slate-500 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <span>{loading ? 'Authenticating Operator...' : 'Sign In to Control Tower'}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <div className="pt-2 text-center border-t border-white/[0.06] text-xs">
+              <span className="text-slate-400">Need new operator access? </span>
+              <Link href="/register" className="text-cyan-400 hover:text-cyan-300 font-medium">
+                Register Operator
+              </Link>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

@@ -23,8 +23,7 @@ const NH44: number[][] = [
   [77.973, 27.1767],
 ];
 
-async function run() {
-  await connectDb();
+export async function seedData() {
   const hash = await bcrypt.hash(PASSWORD, 12);
 
   const fleet = await Fleet.findOneAndUpdate(
@@ -228,10 +227,17 @@ async function run() {
     shipment: shipment.reference,
     emails: roles.map((r) => r.email),
   });
+}
+
+async function run() {
+  await connectDb();
+  await seedData();
   await disconnectDb();
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.argv[1] && process.argv[1].endsWith('seed.ts')) {
+  run().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
