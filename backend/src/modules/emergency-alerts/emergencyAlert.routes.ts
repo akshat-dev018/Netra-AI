@@ -23,4 +23,6 @@ emergencyRouter.get('/alerts', roleGuard(...ANY_AUTH), validate({ query: paginat
 emergencyRouter.post('/alerts', roleGuard(...DISPATCHER_WRITE, 'driver'), validate({ body: createSchema }), ctrl.createAlert);
 emergencyRouter.post('/alerts/:id/acknowledge', roleGuard(...DISPATCHER_WRITE), validate({ params: idParam }), ctrl.acknowledge);
 emergencyRouter.post('/alerts/:id/dispatch', roleGuard(...DISPATCHER_WRITE), validate({ params: idParam }), ctrl.dispatch);
+emergencyRouter.post('/alerts/:id/approve-hospital', roleGuard(...DISPATCHER_WRITE), validate({ params: idParam }), ctrl.approveHospitalAlert);
+emergencyRouter.post('/alerts/:id/reject-hospital', roleGuard(...DISPATCHER_WRITE), validate({ params: idParam }), ctrl.rejectHospitalAlert);
 emergencyRouter.post('/alerts/:id/resolve', roleGuard(...DISPATCHER_WRITE), validate({ params: idParam }), ctrl.resolve);

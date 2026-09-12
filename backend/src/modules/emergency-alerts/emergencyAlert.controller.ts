@@ -72,6 +72,38 @@ export async function dispatch(req: Request, res: Response) {
   res.json({ success: true, data: doc });
 }
 
+export async function approveHospitalAlert(req: Request, res: Response) {
+  const doc = await loadAlert(String(req.params.id));
+  doc.status = 'dispatched';
+  doc.operatorAction = {
+    approvedBy: req.user?.id as any,
+    approvedAt: new Date(),
+    notes: req.body.notes ?? 'Operator approved AI Hospital Emergency Alert dispatch.',
+  };
+  await doc.save();
+  emitAlert('alert:dispatched', doc);
+  emitAlert('hospital:alert:dispatched', {
+    alertId: doc._id,
+    highwayRef: doc.aiPrediction?.highwayRef,
+    hospitals: doc.aiPrediction?.nearbyHospitals ?? [],
+    approvedAt: doc.operatorAction.approvedAt,
+    notes: doc.operatorAction.notes,
+  });
+  res.json({ success: true, message: 'AI Hospital Alert approved and emergency dispatched.', data: doc });
+}
+
+export async function rejectHospitalAlert(req: Request, res: Response) {
+  const doc = await loadAlert(String(req.params.id));
+  doc.status = 'rejected';
+  doc.operatorAction = {
+    rejectedBy: req.user?.id as any,
+    rejectedAt: new Date(),
+    notes: req.body.reason ?? 'Operator dismissed AI recommendation after manual inspection.',
+  };
+  await doc.save();
+  res.json({ success: true, message: 'AI Alert proposal rejected by operator.', data: doc });
+}
+
 export async function resolve(req: Request, res: Response) {
   const doc = await loadAlert(String(req.params.id));
   doc.status = 'resolved';

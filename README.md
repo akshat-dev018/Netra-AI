@@ -1,167 +1,122 @@
 <div align="center">
 
-<img src="netra_logo.png" alt="NETRA Logo" width="80"/>
+<img src="frontend/public/netra_logo.png" alt="NETRA Logo" width="100"/>
 
 # NETRA — FreightIntel
-### National Emergency & Transport Risk Analytics
+### National Emergency & Transport Risk Analytics AI Platform
 
-**A full-stack, AI-powered freight intelligence control tower for India's highway logistics network.**
+**An enterprise-grade, AI-powered predictive freight intelligence and highway accident prevention platform for India's national logistics corridors.**
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-7.0-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x%20%7C%207.x-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15%20App%20Router-black?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![Express](https://img.shields.io/badge/Express-5.2-00D632?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org/)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-ML%20Engine-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-9.9-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Socket.io](https://img.shields.io/badge/Socket.io-4.8-010101?style=flat-square&logo=socket.io&logoColor=white)](https://socket.io/)
-[![Node.js](https://img.shields.io/badge/Node.js-24.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
 
 </div>
 
 ---
 
-## 🚀 What is NETRA?
+## 📌 Overview
 
-NETRA (National Emergency & Transport Risk Analytics) is a **real-time freight intelligence platform** modeled after India's national highway logistics ecosystem. It provides:
+**NETRA (National Emergency & Transport Risk Analytics)** is a real-time, AI-driven freight intelligence and safety control platform modeled for India's national highway logistics ecosystem. 
 
-- **Command Center Portal** — National-level freight monitoring for logistics controllers and analysts
-- **Fleet Management Portal** — Commercial fleet operations, compliance, and driver management
-- **Commercial Driver Portal** — Mobile-first driver mission cockpit with GPS beacon and emergency SOS
-- **AI Copilot** — Context-aware risk analysis and route recommendations (integration layer ready)
+It connects **Freight Operations**, **Commercial Fleet Fleets**, **Drivers**, and **Emergency Trauma Centers** into a single cohesive system powered by an autonomous Python machine learning engine and human-in-the-loop safety oversight.
 
-The system monitors corridor health across India's National Highways (NH-44, NH-48, NH-58, Western DFC), tracks real-time shipment manifests, predicts congestion events, and dispatches emergency response units — all in a single dark glassmorphic interface.
+### 🌟 Core Capabilities
+
+- 🧠 **Integrated Python ML Risk Engine** — 36-dimensional feature extraction evaluating speed variance, curvature, congestion, weather impact, visibility, and historical accident density to output real-time accident probability scores (0–100%).
+- 🚑 **Operator-in-the-Loop Hospital Emergency Dispatch** — When high accident risks or SOS beacons are detected, AI agents automatically locate nearby Level-1/2 trauma centers within a configurable radius (5–50 km) and prepare emergency alerts for single-click operator dispatch.
+- 🗺️ **Dynamic Highway Route Optimization & Risk Mapping** — Real-time corridor telemetry for NH-44, NH-48, NH-19, and Western DFC with automated rerouting recommendations around high-risk segments.
+- 🎛️ **Triple Multi-Role Portals**:
+  1. **🏛️ Command Center Portal** — National freight overview, corridor health, live risk heatmaps, scenario simulator, emergency dispatch, and AI Copilot.
+  2. **🚛 Fleet Management Portal** — Vehicle telematics, maintenance, driver rosters, trip manifests, and MoRTH compliance tracking.
+  3. **👨‍✈️ Driver Cockpit Portal** — Mobile-first mission HUD, live GPS beaconing, one-tap SOS panic button, and trauma hub radar.
+- 🎨 **Enterprise Light & Dark Theme** — Clean modern interface with dynamic light/dark mode switcher, glassmorphic HUD overlays, and responsive mobile layouts.
 
 ---
 
-## 🗂️ Repository Structure
+## 🗂️ Monorepo Architecture
 
 ```
 Netra-ai/
-├── backend/                  # Express 5 REST API + Socket.io server
+├── backend/                       # Node.js + Express 5 + TypeScript Server (Port 5000)
+│   ├── postman/                   # Exported Postman collections & environments
 │   ├── src/
-│   │   ├── modules/          # Feature modules (21 domains)
-│   │   │   ├── auth/         # JWT auth with refresh tokens
-│   │   │   ├── corridors/    # Highway corridor risk & analytics
-│   │   │   ├── shipments/    # Cargo manifest management
-│   │   │   ├── tracking/     # Real-time GPS telemetry pings
-│   │   │   ├── disruptions/  # Live incident feed
-│   │   │   ├── predictions/  # Congestion forecasting engine
-│   │   │   ├── simulator/    # Disruption stress-test scenarios
-│   │   │   ├── copilot/      # AI Copilot conversation module
-│   │   │   ├── analytics/    # Historical metrics & fleet compliance
-│   │   │   ├── risk/         # Risk scoring matrix
-│   │   │   ├── emergency-alerts/ # SOS panic & incident alerts
-│   │   │   ├── hospitals/    # Trauma hub registry
-│   │   │   ├── response-units/   # Highway patrol & ambulance fleet
-│   │   │   ├── vehicles/     # Commercial truck registry
-│   │   │   ├── drivers/      # Driver roster & credentials
-│   │   │   ├── assignments/  # Trip allocation
-│   │   │   ├── reports/      # Manifest & audit reports
-│   │   │   ├── settings/     # Platform configuration
-│   │   │   ├── users/        # User provisioning
-│   │   │   ├── highways/     # Static highway data
-│   │   │   └── audit-log/    # Immutable action audit trail
-│   │   ├── services/
-│   │   │   ├── riskScoring.service.ts    # Multi-factor corridor risk calculator
-│   │   │   ├── prediction.service.ts     # Congestion forecast engine
-│   │   │   ├── simulationFeed.service.ts # Synthetic disruption generator
-│   │   │   ├── highwayData.service.ts    # External highway data aggregator
-│   │   │   ├── cron.service.ts           # Scheduled risk refresh jobs
-│   │   │   └── email.service.ts          # Transactional email dispatch
-│   │   ├── sockets/          # Socket.io real-time event namespaces
-│   │   ├── middleware/       # Auth guards, rate limiting, validation
-│   │   └── config/           # DB connection, env validation
-│   └── postman/              # API collection for testing
+│   │   ├── config/                # Database & environment variables (Zod validated)
+│   │   ├── middleware/            # JWT auth, role guards, validation, error handler
+│   │   ├── modules/               # 21 domain modules (auth, corridors, emergency, etc.)
+│   │   ├── scripts/               # Database seeder & test-endpoints runner
+│   │   ├── services/              # ML Engine bridge, prediction, simulation & cron
+│   │   ├── sockets/               # Real-time WebSocket emitter & event handlers
+│   │   ├── types/                 # TypeScript typings
+│   │   ├── utils/                 # Security, cryptographic utils, geo-spatial math
+│   │   ├── app.ts                 # Express application configuration
+│   │   ├── routes.ts              # Central API router registry
+│   │   └── server.ts              # HTTP & Socket.IO server bootstrap
+│   ├── package.json
+│   └── tsconfig.json
 │
-├── frontend/                 # Next.js 15 App Router (39 routes)
+├── frontend/                      # Next.js 15 (App Router) + TypeScript + Tailwind (Port 3000)
+│   ├── public/                    # Static assets & netra_logo.png
 │   ├── src/
-│   │   ├── app/
-│   │   │   ├── (auth)/       # Login, register, forgot/reset password
-│   │   │   ├── (command)/    # Command Center Portal (14 routes)
-│   │   │   │   ├── dashboard/
-│   │   │   │   ├── network/
-│   │   │   │   ├── corridors/
-│   │   │   │   ├── shipments/
-│   │   │   │   ├── routes/optimizer/
-│   │   │   │   ├── disruptions/
-│   │   │   │   ├── simulator/
-│   │   │   │   ├── predictions/
-│   │   │   │   ├── analytics/
-│   │   │   │   ├── copilot/
-│   │   │   │   ├── risk/
-│   │   │   │   ├── reports/
-│   │   │   │   ├── settings/
-│   │   │   │   └── emergency/ (alerts, hospitals, response)
-│   │   │   ├── (fleet)/      # Fleet Management Portal (6 routes)
-│   │   │   │   ├── fleet/
-│   │   │   │   ├── fleet/vehicles/
-│   │   │   │   ├── fleet/drivers/
-│   │   │   │   ├── fleet/assignments/
-│   │   │   │   ├── fleet/map/
-│   │   │   │   └── fleet/compliance/
-│   │   │   └── (driver)/     # Driver Mobile Portal (5 routes)
-│   │   │       ├── driver/
-│   │   │       ├── location/
-│   │   │       ├── sos/
-│   │   │       ├── hospitals/
-│   │   │       └── profile/
-│   │   ├── components/
-│   │   │   ├── layout/       # Sidebar, TopBar, DriverTabBar, AlertRibbon
-│   │   │   └── dashboard/    # MiniRiskMap, KPI widgets, chart components
-│   │   ├── lib/
-│   │   │   ├── api/          # Axios API client wrappers for all 21 domains
-│   │   │   ├── env.ts        # Environment configuration
-│   │   │   └── socket.ts     # Socket.io client
-│   │   └── auth/             # AuthProvider, token store, refresh logic
+│   │   ├── app/                   # App Router pages ((auth), (command), (driver), (fleet))
+│   │   ├── auth/                  # AuthProvider, session store, cookie rotation
+│   │   ├── components/            # Emergency modals, live risk maps, sidebars, navbars
+│   │   ├── contexts/              # Light/Dark Theme & TanStack Query Provider
+│   │   └── lib/                   # API Axios clients, Geolocation, Socket.io client
+│   ├── package.json
+│   └── tsconfig.json
 │
-├── docs/
-│   ├── BACKEND_API.md        # Full REST endpoint documentation
-│   └── BACKEND_PLANNING.md   # Architecture decisions & rationale
-└── postman/                  # Postman collection for API testing
+├── netra-ml-engine/               # Core Python Machine Learning Pipeline
+│   ├── feature_extractor.py       # 36-factor spatial & temporal feature engineering
+│   ├── inference.py               # RiskPredictor engine runtime
+│   ├── predict_cli.py             # JSON CLI bridge called seamlessly by backend
+│   ├── train.py                   # Model training script
+│   ├── test_pipeline.py           # ML test suite
+│   ├── netra_ml_engine.pkl        # Serialized trained model
+│   └── requirements.txt           # Python dependencies (scikit-learn, numpy, pandas)
+│
+├── docs/                          # PRD, Architecture & Backend API Reference
+├── README.md                      # Platform documentation
+└── .gitignore                     # Monorepo ignore rules
 ```
 
 ---
 
 ## ⚙️ Tech Stack
 
-### Backend
-| Layer | Technology |
-|---|---|
-| Runtime | Node.js 24.x (Active LTS) |
-| Framework | Express 5.2.1 |
-| Database | MongoDB 9.9 via Mongoose |
-| Auth | JWT (access + refresh) + bcryptjs |
-| Real-time | Socket.io 4.8.3 |
-| Validation | Zod 4.5.4 |
-| Security | Helmet 8, mongo-sanitize, rate-limiting |
-| Scheduling | node-cron (corridor risk refresh every 30min) |
-| Monitoring | Sentry 10 (`@sentry/node`) |
-| Language | TypeScript 7.0.2 |
-
-### Frontend
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 15.5 (App Router) |
-| Language | TypeScript 7 |
-| Styling | Vanilla CSS with dark glassmorphic design system |
-| Data Fetching | TanStack Query v5 (React Query) |
-| Maps | Leaflet.js with CartoDB dark tiles |
-| Charts | Recharts |
-| Real-time | Socket.io-client |
-| Auth | Custom `AuthProvider` with JWT cookie rotation |
-| UI | Lucide React icons, react-hot-toast |
-| Font | Inter (Google Fonts) |
+| Domain | Technology | Purpose |
+|---|---|---|
+| **Backend API** | Node.js 20+ / 24, Express 5.2, TypeScript 7 | RESTful microservice handling 74+ endpoints |
+| **Real-time Engine** | Socket.IO 4.8.3 | Sub-second telemetry & incident broadcasting |
+| **Database** | MongoDB 9.9 via Mongoose | GeoJSON spatial indexing & document storage |
+| **ML Engine** | Python 3.10+, Scikit-Learn, Joblib, NumPy | 36-feature accident probability inference |
+| **Frontend** | Next.js 15.5 (App Router), React 19, TypeScript | Server & client rendered interactive dashboards |
+| **Styling & UI** | Vanilla CSS + Tailwind CSS, Lucide Icons | Responsive enterprise Light & Dark theme |
+| **Mapping & GIS** | Leaflet.js, CartoDB & OpenStreetMap Tiles | Real-time corridor telemetry & GPS tracking |
+| **State Management**| TanStack Query v5 (React Query) | Cache synchronization & background polling |
+| **Security** | Helmet 8, Mongo Sanitize, Rate Limiting, JWT | Secure cookie rotation & RBAC |
 
 ---
 
-## 🛠️ Local Development Setup
+## 🚀 Step-by-Step Server Setup Guide
 
-### Prerequisites
-- **Node.js 24.x** (Active LTS) — [nodejs.org](https://nodejs.org/)
-- **MongoDB** — Local instance or [MongoDB Atlas](https://cloud.mongodb.com/) free tier
-- **Git**
+Follow these steps to run the entire NETRA platform locally or on your server.
+
+### 📋 Prerequisites
+
+Ensure you have installed:
+1. **Node.js**: v20.x or v24.x LTS ([Download](https://nodejs.org/))
+2. **Python**: v3.10 or higher ([Download](https://www.python.org/))
+3. **MongoDB**: Local MongoDB community instance running on port `27017` or a [MongoDB Atlas](https://cloud.mongodb.com/) cluster URI.
+4. **Git**: Installed and configured.
 
 ---
 
-### 1. Clone the Repository
+### Step 1: Clone the Repository
 
 ```bash
 git clone https://github.com/akshat-dev018/Netra-AI.git
@@ -170,415 +125,198 @@ cd Netra-AI
 
 ---
 
-### 2. Backend Setup
+### Step 2: Set Up the Python ML Engine
+
+```bash
+cd netra-ml-engine
+
+# Create and activate a Python virtual environment (optional but recommended)
+python3 -m venv venv
+source venv/bin/activate    # On Windows: venv\Scripts\activate
+
+# Install required ML libraries
+pip install -r requirements.txt
+
+# Run the test pipeline to verify model readiness
+python3 test_pipeline.py
+
+# Return to root
+cd ..
+```
+
+---
+
+### Step 3: Configure and Start the Backend Server
 
 ```bash
 cd backend
+
+# Create environment configuration
 cp .env.example .env
 ```
 
-Edit `.env` and fill in:
+Configure your `.env` variables:
 ```env
-# MongoDB
+PORT=5000
+NODE_ENV=development
 MONGODB_URI=mongodb://localhost:27017/netra
+CLIENT_URL=http://localhost:3000
+CORS_ORIGINS=http://localhost:3000
+ALLOW_PUBLIC_REGISTER=true
 
-# JWT (must be different, each ≥32 chars)
-JWT_ACCESS_SECRET=your_access_secret_here
-JWT_REFRESH_SECRET=your_refresh_secret_here
+# Security Secrets (Must be 64-character hex strings)
+JWT_ACCESS_SECRET=e7b4c91d8f2a5b6c3d4e7f8a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c
+JWT_REFRESH_SECRET=a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0ce7b4c91d8f2a5b6c3d4e7f8
+ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+
 JWT_ACCESS_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
-
-# Encryption (64 hex chars = 32 bytes)
-ENCRYPTION_KEY=your_64_hex_chars_here
-
-# Server
-PORT=5001
-NODE_ENV=development
-CORS_ORIGIN=http://localhost:3000
-
-# Cookie
 COOKIE_SAMESITE=lax
-COOKIE_SECURE=false
-
-# Optional: Sentry DSN for error monitoring
-SENTRY_DSN=
-
-# Optional: SMTP for email verification
-SMTP_HOST=
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
 ```
+
+Install dependencies, seed the database with mock national corridors, hospitals & fleets, and start the development server:
 
 ```bash
 npm install
-npm run seed       # Seeds demo users, corridors, hospitals, trucks
-npm run dev        # Starts backend on http://localhost:5001
+
+# Seed the database with corridors, demo users, hospitals & trucks
+npm run seed
+
+# Start the Express & Socket.IO server
+npm run dev
 ```
 
-**Health check:** `GET http://localhost:5001/health`  
-**API base:** `http://localhost:5001/api/v1`
-
-#### Demo Accounts (seeded)
-| Role | Email | Password |
-|---|---|---|
-| Admin / Command Center | `admin@netra.local` | `NetraDemo123!` |
-| Fleet Manager | `fleet@netra.local` | `NetraDemo123!` |
-| Driver | `driver@netra.local` | `NetraDemo123!` |
-| Ops Controller | `ops@netra.local` | `NetraDemo123!` |
-| Analyst | `analyst@netra.local` | `NetraDemo123!` |
-| Viewer | `viewer@netra.local` | `NetraDemo123!` |
+The backend server is now running at `http://localhost:5000`.  
+- **Health Check**: `http://localhost:5000/health`
+- **API Base**: `http://localhost:5000/api/v1`
 
 ---
 
-### 3. Frontend Setup
+### Step 4: Configure and Start the Frontend Application
+
+Open a new terminal window:
 
 ```bash
 cd frontend
-cp .env.local.example .env.local   # or create manually
+
+# Create local environment configuration
+cp .env.example .env.local
 ```
 
-`.env.local`:
+Ensure `.env.local` points to your backend:
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5001
-NEXT_PUBLIC_SOCKET_URL=http://localhost:5001
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
+NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
+NEXT_PUBLIC_ENABLE_REAL_TIME=true
+NEXT_PUBLIC_ENABLE_COPILOT=true
+NEXT_PUBLIC_LOCATION_PING_INTERVAL_SECONDS=45
 ```
+
+Install dependencies and start Next.js:
 
 ```bash
 npm install
-npm run dev        # Starts frontend on http://localhost:3000
+
+# Start Next.js App Router in dev mode
+npm run dev
 ```
 
-Open **[http://localhost:3000](http://localhost:3000)** — you'll see the login page with 1-click demo buttons.
+Open your browser and navigate to: **[http://localhost:3000](http://localhost:3000)**
 
 ---
 
-### 4. Role-Based Quick Login
+## 🔑 Demo Accounts & Pre-Seeded Roles
 
-The app includes a **Demo Role Switcher bar** pinned at the top of every screen (visible when logged in) that lets you instantly switch between all 3 portals without re-authenticating:
+Use any of the pre-seeded demo accounts to test different roles (or use the one-click demo login buttons on the login page):
 
-| Portal | Role | Key Features |
-|---|---|---|
-| 🏛️ Command Center | `admin` / `ops` | National freight map, corridor risk matrix, AI copilot, emergency dispatch |
-| 🚛 Fleet Manager | `fleet_manager` | Truck registry, driver compliance, live fleet map, HOS tracking |
-| 👨‍✈️ Driver Terminal | `driver` | Mission cockpit, GPS beacon, SOS panic, trauma hub locator |
+| Portal / Role | Email | Password | Access Highlights |
+|---|---|---|---|
+| **Command Center (Admin)** | `admin@netra.local` | `NetraDemo123!` | Full national map, risk matrix, ML predictions, emergency alert dispatch, copilot |
+| **Fleet Manager** | `fleet@netra.local` | `NetraDemo123!` | Commercial truck fleet, driver roster, live GPS radar, compliance vault |
+| **Commercial Driver** | `driver@netra.local` | `NetraDemo123!` | Mobile mission cockpit, GPS beacon transmitter, SOS panic trigger, nearby trauma hubs |
+| **Ops Controller** | `ops@netra.local` | `NetraDemo123!` | Operational dispatch, route approvals, active disruption management |
+| **Risk Analyst** | `analyst@netra.local` | `NetraDemo123!` | Incident reports, risk factor decomposition, corridor health charts |
 
----
-
-## 🌐 API Endpoints
-
-All endpoints are prefixed with `/api/v1/`. Full documentation: [`docs/BACKEND_API.md`](docs/BACKEND_API.md)
-
-### Authentication
-| Method | Route | Description |
-|---|---|---|
-| POST | `/auth/register` | Register new organization account |
-| POST | `/auth/login` | Email/password login, returns JWT access + refresh cookie |
-| POST | `/auth/refresh` | Rotate access token via refresh cookie |
-| POST | `/auth/logout` | Clear refresh cookie |
-| POST | `/auth/forgot-password` | Request password reset link |
-| POST | `/auth/reset-password` | Consume reset token |
-
-### Core Freight Operations
-| Method | Route | Description |
-|---|---|---|
-| GET/POST | `/corridors` | Corridor list with live risk scores |
-| GET | `/corridors/:id/analytics` | Segment-level speed timelines & incidents |
-| GET/POST | `/shipments` | Cargo manifest CRUD |
-| GET | `/shipments/:id/track` | Live consignment telemetry |
-| POST | `/tracking/ping` | GPS telemetry ingestion from driver device |
-| GET/POST | `/disruptions` | Live incident feed |
-| GET | `/predictions` | 24-48h corridor congestion forecasts |
-| POST | `/simulator/run` | Stress-test disruption scenario |
-| GET | `/risk/matrix` | Multi-corridor risk scoring matrix |
-
-### Fleet & Driver Management
-| Method | Route | Description |
-|---|---|---|
-| GET/POST | `/vehicles` | Commercial truck registry |
-| GET/POST | `/drivers` | Driver roster & credentials |
-| GET/POST | `/assignments` | Trip allocation |
-| GET | `/analytics/fleet/compliance` | HOS, safety scores, audit report |
-
-### Emergency Response
-| Method | Route | Description |
-|---|---|---|
-| GET/POST | `/emergency-alerts` | SOS panic broadcasts & incident alerts |
-| GET/POST | `/hospitals` | Trauma center registry with geocoords |
-| GET/POST | `/response-units` | Highway patrol & ambulance dispatch |
-
-### AI Copilot
-| Method | Route | Description |
-|---|---|---|
-| POST | `/copilot/chat` | Send message to AI copilot, streaming response |
-| GET | `/copilot/history` | Conversation history |
-
-### Analytics & Reports
-| Method | Route | Description |
-|---|---|---|
-| GET | `/analytics/dashboard` | KPI aggregates for Command Center |
-| GET | `/analytics/corridors/:id` | Corridor-specific throughput metrics |
-| GET | `/reports` | Manifest & operational reports |
-| GET | `/audit-log` | Immutable admin action log |
+> 💡 **Demo Role Switcher**: When logged in, a top banner enables seamless switching between Command, Fleet, and Driver views without needing to re-login.
 
 ---
 
-## 🔌 Real-Time Events (Socket.io)
+## 🚑 AI Hospital Alert & Operator Workflow
 
-The backend broadcasts on two namespaces:
-
-### `/` (Default Namespace)
-| Event | Direction | Payload |
-|---|---|---|
-| `corridor:risk_update` | Server → Client | `{ corridorId, riskScore, segments }` |
-| `disruption:new` | Server → Client | Incident object |
-| `shipment:status_change` | Server → Client | `{ shipmentId, status, location }` |
-| `emergency:alert` | Server → Client | Emergency alert object |
-
-### `/tracking` Namespace
-| Event | Direction | Payload |
-|---|---|---|
-| `gps:ping` | Client → Server | `{ lat, lng, speed, heading, tripId }` |
-| `gps:broadcast` | Server → Client | Live vehicle location (all subscribers) |
-
-The frontend connects in [`src/lib/socket.ts`](frontend/src/lib/socket.ts) and subscribes from layout components to update the `AlertRibbon` and live map overlays.
+1. **AI Anomaly & Risk Detection**: The system continuously monitors corridors and vehicles. When risk score $\ge 70\%$ or an emergency SOS is received, an automated alert is generated.
+2. **Trauma Center Geosearch**: The backend automatically finds the nearest accredited trauma hospitals (e.g. AIIMS Delhi, Fortis, Apollo) with distance calculations.
+3. **Operator Verification Modal**: A confirmation modal is presented to the operator displaying the risk level, corridor details, incident cause, and the nearest hospitals.
+4. **Actionable Dispatch**: The operator can adjust the search radius (5–50 km), review hospital contact numbers, and click **"Dispatch Alert to Hospitals"**.
+5. **Real-Time Broadcast**: The alert is dispatched to the emergency response units and logged in the emergency operations room with live status updates.
 
 ---
 
-## 🤖 AI Integration — Current State & Remaining Work
+## 🧪 Testing & Verification
 
-### ✅ Currently Integrated
-
-| Feature | Status | Implementation |
-|---|---|---|
-| **AI Copilot API endpoint** | ✅ Backend module built | `POST /api/v1/copilot/chat` accepts messages, returns response |
-| **Copilot frontend UI** | ✅ Chat streaming interface | `/copilot` page with context hub glass panel |
-| **Risk Scoring Engine** | ✅ Production-grade | `riskScoring.service.ts` — Multi-factor (weather, incidents, speed deviation, congestion index) |
-| **Congestion Prediction** | ✅ Rule-based engine | `prediction.service.ts` — 24-48h forecast using corridor historical patterns |
-| **Simulation Engine** | ✅ Synthetic disruption vectors | `simulationFeed.service.ts` — Stress-tests corridors with configurable parameters |
-
----
-
-### 🔧 AI Integration — Remaining Work
-
-#### 1. LLM Backend for Copilot (`/api/v1/copilot/chat`)
-
-The copilot module scaffolding is complete with chat history persistence. The **LLM provider connection is pending**. To complete this:
-
-```
-backend/src/modules/copilot/copilot.controller.ts
-```
-
-**What's needed:**
-- Connect to an LLM API (OpenAI GPT-4o, Google Gemini, or Anthropic Claude)
-- Inject freight context into system prompt: active corridor risk scores, live disruptions, shipment manifests
-- Stream `text/event-stream` SSE response back to frontend
-
-**Example system prompt template to implement:**
-```typescript
-const systemPrompt = `
-You are FreightIntel Copilot, an AI assistant for NETRA — India's national freight intelligence platform.
-
-Current Operational Context:
-- Active Corridors: ${corridorCount} highways monitored
-- Live Disruptions: ${activeDisruptions.length} incidents
-- High-Risk Zones: ${highRiskCorridors.map(c => c.name).join(', ')}
-- Fleet Status: ${inTransitCount} vehicles in transit
-
-Answer logistics risk, route, and freight questions concisely.
-`;
-```
-
-**Environment variable to add:**
-```env
-OPENAI_API_KEY=sk-...
-# OR
-GEMINI_API_KEY=...
-# OR
-ANTHROPIC_API_KEY=sk-ant-...
-```
-
----
-
-#### 2. ML-Based Congestion Prediction (`prediction.service.ts`)
-
-Current prediction uses **rule-based heuristics** (hour-of-day, day-of-week, known toll bottleneck patterns). To upgrade to ML:
-
-**What's needed:**
-- Train a time-series model (LSTM / Prophet / XGBoost) on historical corridor speed data
-- Expose as a Python FastAPI microservice on port `5002`
-- Backend calls `http://localhost:5002/predict` with corridor telemetry history
-- Or use a managed ML API (AWS SageMaker, Google Vertex AI, Azure ML)
-
-**Endpoint contract to implement:**
-```
-POST http://localhost:5002/predict
-Body: { corridorId: string, history: [{ timestamp, avgSpeed, vehicleCount }] }
-Response: { congestionProbability: number, peakHour: string, severity: 'low'|'medium'|'high' }
-```
-
----
-
-#### 3. Automated Risk Intelligence Feed (`riskScoring.service.ts`)
-
-Current risk scoring uses **internal MongoDB data only**. To add external intelligence:
-
-**What's needed:**
-- **Weather API**: Integrate IMD (Indian Meteorological Department) or OpenWeatherMap for rainfall, fog, flood alerts affecting highway segments
-- **News Feed NLP**: Scrape NHAI press releases + scan for road closure keywords → feed into disruption module
-- **Satellite Traffic**: ISRO Bhuvan or Google Maps Routes API for real-time jam factor
-
-**Environment variables to add:**
-```env
-OPENWEATHER_API_KEY=
-IMD_API_TOKEN=
-GOOGLE_MAPS_API_KEY=
-```
-
----
-
-#### 4. Driver Fatigue Detection (HOS + Behavioral)
-
-Currently, Hours-of-Service (HOS) is rule-based (9-hour limit). To add ML fatigue scoring:
-
-**What's needed:**
-- Ingest GPS telemetry patterns: erratic speed changes, lane deviation proxies (sharp heading changes)
-- Calculate a **fatigue index** score from behavioral telemetry
-- Push alerts via Socket.io when fatigue index exceeds threshold
-
----
-
-#### 5. Document Intelligence for Cargo Manifests
-
-Planned but not yet built:
-
-**What's needed:**
-- Driver uploads E-Way Bill / customs form as PDF or image
-- OCR + LLM extracts: cargo type, weight, shipper, consignee, validity date
-- Auto-populates shipment record in `/api/v1/shipments`
-- Use: Google Document AI, AWS Textract, or open-source `surya` OCR
-
----
-
-## 🖥️ Frontend Screens
-
-### Command Center (National Logistics Operations)
-| Screen | Screenshot Ref | Key Glass Panel |
-|---|---|---|
-| **Dashboard** | Screenshot 1 | AI Recommendations & Contingency Dispatch |
-| **Network Intelligence Map** | Screenshot 2 | Incident & Bottleneck Feed |
-| **Corridor Intelligence** | Screenshot 3 | Risk Decomposition & Segment Metrics |
-| **Shipment Intelligence** | Screenshot 4 | Active Consignment Telematics |
-| **Route Optimizer** | Screenshot 5 | Route Comparison & Dispatch Approval |
-| **Disruptions Feed** | — | IoT Sensor Ingestion Gateway |
-| **Scenario Simulator** | — | Synthesized Contingency Vectors |
-| **Congestion Predictions** | — | ML Model Accuracy & Drift |
-| **Analytics** | — | Risk Factor Decomposition |
-| **AI Copilot** | — | Copilot Context Hub |
-| **Emergency Alerts** | — | Standby Response Units Console |
-| **Hospital Registry** | — | Trauma Hub Geocoords |
-| **Response Fleet** | — | Tactical Dispatch Console |
-| **Settings** | — | API Key Mgmt, Audit Logs |
-
-### Fleet Management Portal
-| Screen | Description |
-|---|---|
-| **Fleet Overview** | Utilization, fuel index, vehicle status donut |
-| **Truck Registry** | TPMS, maintenance, registration details |
-| **Driver Roster** | License verification, safety scores |
-| **Trip Assignments** | Haul allocation linking trucks, drivers, cargo |
-| **Live Fleet Map** | Dark Carto GPS radar + right glass telematic inspector |
-| **Compliance & Audit** | HOS fatigue, MoRTH statutory vault |
-
-### Driver Mobile Portal
-| Screen | Description |
-|---|---|
-| **Mission Cockpit** | Active journey timeline, pre-trip checklist |
-| **GPS Beacon** | Telemetry transmitter, corridor waypoints |
-| **SOS Panic** | One-touch emergency broadcast, helpline dials |
-| **Trauma Hubs** | Nearby Level 1 & 2 hospitals, one-tap calling |
-| **Profile & Credentials** | Digital driver badge, HOS remaining |
-
----
-
-## 🔐 Security
-
-- JWT access tokens (15min expiry) + HTTP-only refresh cookies (7 days)
-- `bcryptjs` password hashing (rounds: 12)
-- Helmet.js HTTP security headers
-- `@exortek/express-mongo-sanitize` — NoSQL injection prevention (Express 5 compatible)
-- Zod schema validation on all request bodies
-- Role-based access control (RBAC) on all protected routes
-- Immutable audit log for all admin and mutation actions
-- Rate limiting on auth endpoints (100 req/15min per IP)
-
----
-
-## 🧪 Testing & Validation
+Run these verification commands to ensure code quality and build integrity:
 
 ```bash
-# Type safety check (frontend)
-cd frontend && npm run typecheck    # Must exit with code 0
+# 1. Backend Typecheck
+cd backend && npm run typecheck
 
-# Type safety check (backend)
-cd backend && npm run typecheck     # Must exit with code 0
+# 2. Backend Unit Test Suite (Geo utilities & spatial math)
+cd backend && npm test
 
-# Production build verification
-cd frontend && npm run build        # 39 routes compiled
+# 3. Python ML Engine Pipeline Tests
+cd netra-ml-engine && python3 test_pipeline.py
 
-# Security audit
-cd backend && npm audit --audit-level=high
-
-# API integration testing
-# Import postman/Netra-AI.postman_collection.json into Postman
+# 4. Frontend Production Build
+cd frontend && npm run build
 ```
 
 ---
 
-## 📦 Deployment Notes
+## 📡 Key API Endpoints Reference
 
-### Backend (Production)
+All endpoints are mounted on `/api/v1`:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/auth/login` | Authenticate user & receive JWT cookies |
+| `GET` | `/corridors` | Real-time national corridors with live risk scores |
+| `GET` | `/corridors/:id/risk` | Segment-level risk breakdown for a specific highway |
+| `GET` | `/predictions` | ML-driven accident probability forecasts & congestion indices |
+| `GET` | `/hospitals/nearby` | Geospatial query for trauma centers near coordinates |
+| `POST` | `/emergency/alerts` | Create / broadcast emergency alerts to response units & hospitals |
+| `POST` | `/emergency/sos` | Driver emergency SOS panic broadcast |
+| `GET` | `/vehicles` | Commercial fleet registry & maintenance telemetry |
+| `POST` | `/tracking/ping` | Ingest real-time GPS telemetry from driver devices |
+| `POST` | `/copilot/chat` | AI Copilot conversational assistant |
+
+---
+
+## 🚢 Production Deployment
+
+### Backend (Node.js)
 ```bash
 cd backend
 npm run build
-npm start
+NODE_ENV=production node dist/server.js
 ```
-Environment: set `NODE_ENV=production`, `COOKIE_SECURE=true`, `CORS_ORIGIN=https://your-domain.com`
 
-### Frontend (Production)
+### Frontend (Next.js)
 ```bash
 cd frontend
 npm run build
 npm start
 ```
-Or deploy to **Vercel** (recommended for Next.js):
-```bash
-vercel --prod
-```
-Set env vars in Vercel dashboard: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SOCKET_URL`.
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/ai-copilot-llm`
-3. Commit your changes: `git commit -m 'feat: connect OpenAI GPT-4o to copilot endpoint'`
-4. Push to branch: `git push origin feature/ai-copilot-llm`
-5. Open a Pull Request
+*Alternatively, deploy the frontend to [Vercel](https://vercel.com) by setting `NEXT_PUBLIC_API_BASE_URL` and `NEXT_PUBLIC_SOCKET_URL` in project settings.*
 
 ---
 
 ## 📄 License
 
-MIT — see [LICENSE](LICENSE)
+Distributed under the MIT License. See `LICENSE` for more details.
 
 ---
 
 <div align="center">
 
-Built for India's ₹22 trillion freight logistics ecosystem 🇮🇳
-
-**NETRA — See Every Risk Before It Moves.**
+**NETRA AI — Protecting Every Kilometer, Predicting Every Risk 🇮🇳**
 
 </div>

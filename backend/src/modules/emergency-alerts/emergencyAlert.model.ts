@@ -4,14 +4,37 @@ import type { GeoPoint } from '../../utils/geo.js';
 export type EmergencyAlertDoc = {
   type: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
-  status: 'open' | 'acknowledged' | 'dispatched' | 'resolved';
+  status: 'pending_operator_approval' | 'open' | 'acknowledged' | 'dispatched' | 'resolved' | 'rejected';
   location: GeoPoint;
   corridorId?: mongoose.Types.ObjectId;
   shipmentId?: mongoose.Types.ObjectId;
-  triggeredBy: 'system' | 'manual' | 'driver_sos';
+  triggeredBy: 'system' | 'manual' | 'driver_sos' | 'ai_risk_agent';
   triggeredByDriverId?: mongoose.Types.ObjectId;
   acknowledgedBy?: mongoose.Types.ObjectId;
   dispatchedUnits: mongoose.Types.ObjectId[];
+  aiPrediction?: {
+    riskScore: number;
+    accidentProbability: number;
+    confidence: number;
+    reasoning: string;
+    highwayRef?: string;
+    nearbyHospitals?: Array<{
+      id?: string;
+      name: string;
+      phone?: string;
+      distanceKm: number;
+      etaMinutes: number;
+      bedsAvailable?: number;
+      traumaCenterLevel?: string;
+    }>;
+  };
+  operatorAction?: {
+    approvedBy?: mongoose.Types.ObjectId;
+    approvedAt?: Date;
+    rejectedBy?: mongoose.Types.ObjectId;
+    rejectedAt?: Date;
+    notes?: string;
+  };
   resolvedAt?: Date;
   slaMinutes: number;
   description?: string;
@@ -27,8 +50,8 @@ const alertSchema = new Schema<EmergencyAlertDoc>(
     severity: { type: String, enum: ['low', 'medium', 'high', 'critical'], default: 'critical' },
     status: {
       type: String,
-      enum: ['open', 'acknowledged', 'dispatched', 'resolved'],
-      default: 'open',
+      enum: ['pending_operator_approval', 'open', 'acknowledged', 'dispatched', 'resolved', 'rejected'],
+      default: 'pending_operator_approval',
     },
     location: {
       type: { type: String, enum: ['Point'], required: true },
@@ -36,10 +59,25 @@ const alertSchema = new Schema<EmergencyAlertDoc>(
     },
     corridorId: { type: Schema.Types.ObjectId, ref: 'Corridor' },
     shipmentId: { type: Schema.Types.ObjectId, ref: 'Shipment' },
-    triggeredBy: { type: String, enum: ['system', 'manual', 'driver_sos'], required: true },
+    triggeredBy: { type: String, enum: ['system', 'manual', 'driver_sos', 'ai_risk_agent'], required: true },
     triggeredByDriverId: { type: Schema.Types.ObjectId, ref: 'Driver' },
     acknowledgedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     dispatchedUnits: [{ type: Schema.Types.ObjectId, ref: 'ResponseUnit' }],
+    aiPrediction: {
+      riskScore: { type: Number },
+      accidentProbability: { type: Number },
+      confidence: { type: Number },
+      reasoning: { type: String },
+      highwayRef: { type: String },
+      nearbyHospitals: [Schema.Types.Mixed],
+    },
+    operatorAction: {
+      approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+      approvedAt: { type: Date },
+      rejectedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+      rejectedAt: { type: Date },
+      notes: { type: String },
+    },
     resolvedAt: { type: Date },
     slaMinutes: { type: Number, default: 30 },
     description: { type: String },

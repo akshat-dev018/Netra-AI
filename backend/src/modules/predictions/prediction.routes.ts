@@ -7,3 +7,4 @@ export const predictionRouter = Router();
 predictionRouter.use(requireAuth);
 predictionRouter.get('/', roleGuard(...ANY_AUTH), ctrl.listPredictions);
 predictionRouter.post('/recompute', roleGuard(...ANALYST_WRITE), ctrl.recompute);
+predictionRouter.post('/inference', roleGuard(...ANY_AUTH), ctrl.runInference);

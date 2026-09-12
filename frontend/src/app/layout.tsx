@@ -2,6 +2,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/auth/AuthProvider';
 import { TanStackProvider } from '@/contexts/providers/TanStackProvider';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Toaster } from 'react-hot-toast';
 import { RoleLayout } from '@/components/layout/RoleLayout';
 
@@ -18,24 +19,26 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`dark ${inter.variable}`}>
-      <body className={`${inter.className} bg-[#070B13] text-slate-100 antialiased`}>
+    <html lang="en" className={`light ${inter.variable}`} data-theme="light">
+      <body className={`${inter.className} bg-slate-50 text-slate-900 light antialiased`}>
         <TanStackProvider>
-          <AuthProvider>
-            <RoleLayout>{children}</RoleLayout>
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                style: {
-                  background: '#0E1626',
-                  color: '#F1F5F9',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  backdropFilter: 'blur(12px)',
-                  fontSize: '13px',
-                },
-              }}
-            />
-          </AuthProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <RoleLayout>{children}</RoleLayout>
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  style: {
+                    background: 'var(--bg-surface)',
+                    color: 'var(--text-main)',
+                    border: '1px solid var(--border-subtle)',
+                    backdropFilter: 'blur(12px)',
+                    fontSize: '13px',
+                  },
+                }}
+              />
+            </AuthProvider>
+          </ThemeProvider>
         </TanStackProvider>
       </body>
     </html>
