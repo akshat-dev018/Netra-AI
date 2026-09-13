@@ -12,53 +12,53 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function applyDomTheme(theme: Theme) {
+  const root = document.documentElement;
+  const body = document.body;
+
+  if (theme === 'light') {
+    root.classList.add('light');
+    root.classList.remove('dark');
+    root.setAttribute('data-theme', 'light');
+    body?.classList.add('light');
+    body?.classList.remove('dark');
+  } else {
+    root.classList.add('dark');
+    root.classList.remove('light');
+    root.setAttribute('data-theme', 'dark');
+    body?.classList.add('dark');
+    body?.classList.remove('light');
+  }
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light');
 
   useEffect(() => {
-    const saved = localStorage.getItem('netra_theme') as Theme;
+    const saved = localStorage.getItem('netra_theme');
     if (saved === 'dark' || saved === 'light') {
       setThemeState(saved);
+      applyDomTheme(saved);
     } else {
-      setThemeState('light'); // default to clean light theme
+      applyDomTheme('light');
     }
   }, []);
 
   useEffect(() => {
-    const root = document.documentElement;
-    const body = document.body;
-
-    if (theme === 'light') {
-      root.classList.add('light');
-      root.classList.remove('dark');
-      root.setAttribute('data-theme', 'light');
-      if (body) {
-        body.classList.add('light');
-        body.classList.remove('dark');
-        body.style.backgroundColor = '#F8FAFC';
-        body.style.color = '#0F172A';
-      }
-    } else {
-      root.classList.add('dark');
-      root.classList.remove('light');
-      root.setAttribute('data-theme', 'dark');
-      if (body) {
-        body.classList.add('dark');
-        body.classList.remove('light');
-        body.style.backgroundColor = '#070B13';
-        body.style.color = '#F1F5F9';
-      }
-    }
-
-    localStorage.setItem('netra_theme', theme);
+    applyDomTheme(theme);
   }, [theme]);
 
+  const persist = (next: Theme) => {
+    localStorage.setItem('netra_theme', next);
+    setThemeState(next);
+  };
+
   const toggleTheme = () => {
-    setThemeState((prev) => (prev === 'light' ? 'dark' : 'light'));
+    persist(theme === 'light' ? 'dark' : 'light');
   };
 
   const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
+    persist(newTheme);
   };
 
   return (
@@ -71,7 +71,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-    // Graceful fallback for non-themed components
     return {
       theme: 'light' as Theme,
       toggleTheme: () => {},

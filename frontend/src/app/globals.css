@@ -1,184 +1,192 @@
 @import "tailwindcss";
+@config "../../tailwind.config.ts";
 @import "leaflet/dist/leaflet.css";
 
-/* ─────────────── Design Tokens ─────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─────────────── Brand tokens (hex only here + theme/tokens.ts) ─────────────── */
 :root {
-  --bg-primary: #070B13;
-  --bg-secondary: #0A0F1D;
-  --bg-surface: #0E1626;
-  --bg-surface-elevated: #152238;
-  --bg-surface-glass: rgba(14, 22, 38, 0.65);
-  --bg-surface-glass-strong: rgba(21, 34, 56, 0.80);
-  --border-subtle: #1E293B;
-  --border-accent: #334155;
-  --border-glass: rgba(255, 255, 255, 0.08);
-  --border-glass-strong: rgba(255, 255, 255, 0.14);
-  --text-main: #F1F5F9;
-  --text-muted: #94A3B8;
-  --text-dim: #64748B;
-  --accent-cyan: #06B6D4;
-  --accent-blue: #3B82F6;
-  --accent-emerald: #10B981;
-  --accent-amber: #F59E0B;
-  --accent-rose: #EF4444;
-  --accent-purple: #8B5CF6;
-  --accent-indigo: #6366F1;
+  --color-surface: #DEEBEC;
+  --color-primary: #11315F;
+  --color-critical: #EF270B;
+  --color-warning: #EC7507;
+  --color-success: #278B56;
+  --color-black: #000000;
+
+  --color-primary-50: color-mix(in srgb, var(--color-primary) 8%, white);
+  --color-primary-100: color-mix(in srgb, var(--color-primary) 16%, white);
+  --color-primary-200: color-mix(in srgb, var(--color-primary) 28%, white);
+  --color-primary-300: color-mix(in srgb, var(--color-primary) 42%, white);
+  --color-primary-400: color-mix(in srgb, var(--color-primary) 58%, white);
+  --color-primary-500: color-mix(in srgb, var(--color-primary) 78%, white);
+  --color-primary-600: var(--color-primary);
+  --color-primary-700: color-mix(in srgb, var(--color-primary) 85%, black);
+  --color-primary-800: color-mix(in srgb, var(--color-primary) 70%, black);
+  --color-primary-900: color-mix(in srgb, var(--color-primary) 50%, black);
+
+  --color-critical-50: color-mix(in srgb, var(--color-critical) 12%, white);
+  --color-warning-50: color-mix(in srgb, var(--color-warning) 12%, white);
+  --color-success-50: color-mix(in srgb, var(--color-success) 12%, white);
+  --color-safe-bg: color-mix(in srgb, var(--color-success) 14%, white);
+
+  --bg-page: var(--color-surface);
+  --bg-card: color-mix(in srgb, var(--color-surface) 32%, white);
+  --bg-sidebar: var(--color-primary);
+  --text-main: var(--color-primary);
+  --text-strong: var(--color-black);
+  --text-muted: color-mix(in srgb, var(--color-primary) 72%, black);
+  --text-on-primary: color-mix(in srgb, var(--color-surface) 88%, white);
+  --border-subtle: var(--color-primary-100);
+
+  --bg-primary: var(--bg-page);
+  --bg-secondary: var(--color-surface);
+  --bg-surface: var(--bg-card);
+  --bg-surface-elevated: var(--bg-card);
+  --bg-surface-glass: var(--bg-card);
+  --bg-surface-glass-strong: var(--bg-card);
+  --border-accent: var(--color-primary-200);
+  --border-glass: var(--border-subtle);
+  --border-glass-strong: var(--color-primary-200);
+
   --sidebar-width: 260px;
   --topbar-height: 56px;
 }
 
-html.light, body.light, [data-theme="light"] {
-  --bg-primary: #F8FAFC;
-  --bg-secondary: #F1F5F9;
-  --bg-surface: #FFFFFF;
-  --bg-surface-elevated: #FFFFFF;
-  --bg-surface-glass: rgba(255, 255, 255, 0.85);
-  --bg-surface-glass-strong: rgba(255, 255, 255, 0.95);
-  --border-subtle: #E2E8F0;
-  --border-accent: #CBD5E1;
-  --border-glass: rgba(226, 232, 240, 0.8);
-  --border-glass-strong: rgba(203, 213, 225, 0.9);
-  --text-main: #0F172A;
-  --text-muted: #475569;
-  --text-dim: #64748B;
-  --accent-cyan: #0284C7;
-  --accent-blue: #2563EB;
-  --accent-emerald: #059669;
-  --accent-amber: #D97706;
-  --accent-rose: #DC2626;
-  --accent-purple: #7C3AED;
-  --accent-indigo: #4F46E5;
+html.dark,
+body.dark,
+[data-theme="dark"] {
+  --color-critical-50: color-mix(in srgb, var(--color-critical) 22%, var(--color-primary));
+  --color-warning-50: color-mix(in srgb, var(--color-warning) 22%, var(--color-primary));
+  --color-success-50: color-mix(in srgb, var(--color-success) 22%, var(--color-primary));
+  --color-safe-bg: color-mix(in srgb, var(--color-success) 20%, var(--color-primary));
+
+  --bg-page: var(--color-primary);
+  --bg-card: color-mix(in srgb, var(--color-primary) 86%, white);
+  --bg-sidebar: var(--color-primary-800);
+  --text-main: color-mix(in srgb, var(--color-surface) 92%, white);
+  --text-strong: white;
+  --text-muted: color-mix(in srgb, var(--color-surface) 72%, white);
+  --text-on-primary: var(--text-main);
+  --border-subtle: color-mix(in srgb, var(--color-surface) 18%, var(--color-primary));
+
+  --bg-primary: var(--bg-page);
+  --bg-secondary: var(--color-primary-800);
+  --bg-surface: var(--bg-card);
+  --bg-surface-elevated: var(--bg-card);
+  --bg-surface-glass: var(--bg-card);
+  --bg-surface-glass-strong: var(--bg-card);
+  --border-accent: var(--border-subtle);
+  --border-glass: var(--border-subtle);
+  --border-glass-strong: var(--border-subtle);
 }
 
-/* ─────────────── Base Styles ─────────────── */
+/* Semantic utilities (work even if Tailwind theme map misses a name) */
+.bg-page { background-color: var(--bg-page); }
+.bg-card { background-color: var(--bg-card); }
+.bg-sidebar { background-color: var(--bg-sidebar); }
+.bg-safe-bg { background-color: var(--color-safe-bg); }
+.text-main { color: var(--text-main); }
+.text-strong { color: var(--text-strong); }
+.text-muted { color: var(--text-muted); }
+.text-on-primary { color: var(--text-on-primary); }
+.border-subtle { border-color: var(--border-subtle); }
+
+/* ─────────────── Base ─────────────── */
+html,
 body {
-  background-color: var(--bg-primary);
+  background-color: var(--bg-page);
   color: var(--text-main);
+}
+
+body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─────────────── Glassmorphism & Panel Styles ─────────────── */
-.glass-panel {
-  background: var(--bg-surface-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-glass);
-  border-radius: 16px;
-}
-
-.glass-panel-elevated {
-  background: var(--bg-surface-glass-strong);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-glass-strong);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-}
-
-.glass-panel-right {
-  background: var(--bg-surface-glass-strong);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--border-glass);
-  border-radius: 16px;
-  box-shadow:
-    0 4px 30px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
+/* ─────────────── Panels (flat, dense, operational) ─────────────── */
+.glass-panel,
+.glass-panel-elevated,
+.glass-panel-right,
 .glass-card {
-  background: var(--bg-surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--bg-card);
+  color: var(--text-main);
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--color-primary) 8%, transparent);
 }
 
 .glass-card:hover {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 4px 20px rgba(2, 132, 199, 0.12);
-  transform: translateY(-1px);
+  border-color: var(--color-primary-200);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 
 .glass-input {
-  background: var(--bg-surface);
+  background: var(--bg-card);
   color: var(--text-main);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.glass-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.85;
 }
 
 .glass-input:focus {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 22%, transparent);
   outline: none;
 }
 
 .glass-sidebar {
-  background: var(--bg-surface);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid var(--border-subtle);
+  background: var(--bg-sidebar);
+  color: var(--text-on-primary);
+  border-right: 1px solid color-mix(in srgb, white 12%, var(--bg-sidebar));
 }
 
 .glass-topbar {
-  background: var(--bg-surface);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--bg-card);
+  color: var(--text-main);
   border-bottom: 1px solid var(--border-subtle);
 }
 
-/* ─────────────── Glow Effects ─────────────── */
-.glow-cyan {
-  box-shadow: 0 0 20px -3px rgba(6, 182, 212, 0.35);
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--text-on-primary);
+  border: 1px solid var(--color-primary-700);
+  border-radius: 4px;
 }
 
-.glow-emerald {
-  box-shadow: 0 0 20px -3px rgba(16, 185, 129, 0.35);
+.btn-primary:hover {
+  background: var(--color-primary-700);
 }
 
-.glow-rose {
-  box-shadow: 0 0 20px -3px rgba(239, 68, 68, 0.45);
+.btn-critical {
+  background: var(--color-critical);
+  color: white;
+  border: 1px solid var(--color-critical);
+  border-radius: 4px;
 }
 
-.glow-amber {
-  box-shadow: 0 0 20px -3px rgba(245, 158, 11, 0.35);
+.btn-warning {
+  background: var(--color-warning);
+  color: white;
+  border: 1px solid var(--color-warning);
+  border-radius: 4px;
 }
 
-.glow-purple {
-  box-shadow: 0 0 20px -3px rgba(139, 92, 246, 0.35);
+.btn-success {
+  background: var(--color-success);
+  color: white;
+  border: 1px solid var(--color-success);
+  border-radius: 4px;
 }
 
-/* ─────────────── Gradient Text ─────────────── */
-.gradient-text-cyan {
-  background: linear-gradient(135deg, #06B6D4, #3B82F6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-rose {
-  background: linear-gradient(135deg, #EF4444, #F59E0B);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ─────────────── Animations ─────────────── */
+/* ─────────────── Motion (functional only) ─────────────── */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
@@ -187,25 +195,13 @@ body {
 }
 
 @keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes shimmer {
@@ -214,18 +210,9 @@ body {
 }
 
 @keyframes pulse-ring {
-  0% {
-    transform: scale(0.95);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.4);
-    opacity: 0.2;
-  }
-  100% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 0.25; }
+  100% { transform: scale(1.6); opacity: 0; }
 }
 
 @keyframes live-radar-sweep {
@@ -233,50 +220,17 @@ body {
   to { transform: rotate(360deg); }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes glow-pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out forwards;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.5s ease-out forwards;
-}
-
-.animate-slide-in-left {
-  animation: slideInLeft 0.5s ease-out forwards;
-}
-
-.animate-pulse-ring {
-  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
-}
+.animate-fade-in-up { animation: fadeInUp 0.35s ease-out forwards; }
+.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+.animate-slide-in-right { animation: slideInRight 0.35s ease-out forwards; }
+.animate-slide-in-left { animation: slideInLeft 0.35s ease-out forwards; }
+.animate-pulse-ring { animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
 
 .radar-sweep {
   animation: live-radar-sweep 4s linear infinite;
   transform-origin: center center;
 }
 
-/* Stagger children animations */
 .stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
 .stagger-children > *:nth-child(2) { animation-delay: 0.10s; }
 .stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
@@ -286,90 +240,160 @@ body {
 .stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
 .stagger-children > *:nth-child(8) { animation-delay: 0.40s; }
 
-/* Shimmer skeleton loader */
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(30, 41, 59, 0.5) 0%,
-    rgba(51, 65, 85, 0.5) 50%,
-    rgba(30, 41, 59, 0.5) 100%
+    color-mix(in srgb, var(--color-primary) 8%, var(--bg-card)) 0%,
+    color-mix(in srgb, var(--color-primary) 16%, var(--bg-card)) 50%,
+    color-mix(in srgb, var(--color-primary) 8%, var(--bg-card)) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
-/* ─────────────── Status Badges ─────────────── */
+/* Status chips: tinted bg + saturated text */
 .badge-high {
-  background: rgba(239, 68, 68, 0.15);
-  color: #FCA5A5;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: var(--color-critical-50);
+  color: var(--color-critical);
+  border: 1px solid color-mix(in srgb, var(--color-critical) 35%, transparent);
+}
+
+html.dark .badge-high {
+  color: color-mix(in srgb, var(--color-critical) 35%, white);
 }
 
 .badge-medium {
-  background: rgba(245, 158, 11, 0.15);
-  color: #FCD34D;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: var(--color-warning-50);
+  color: var(--color-warning);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
+}
+
+html.dark .badge-medium {
+  color: color-mix(in srgb, var(--color-warning) 35%, white);
 }
 
 .badge-low {
-  background: rgba(16, 185, 129, 0.15);
-  color: #6EE7B7;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: var(--color-safe-bg);
+  color: var(--color-success);
+  border: 1px solid color-mix(in srgb, var(--color-success) 35%, transparent);
+}
+
+html.dark .badge-low {
+  color: color-mix(in srgb, var(--color-success) 40%, white);
 }
 
 .badge-info {
-  background: rgba(6, 182, 212, 0.15);
-  color: #67E8F9;
-  border: 1px solid rgba(6, 182, 212, 0.3);
+  background: var(--color-primary-50);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-200);
 }
 
-/* ─────────────── Custom Scrollbar ─────────────── */
+html.dark .badge-info {
+  color: var(--text-main);
+  background: color-mix(in srgb, var(--color-surface) 14%, var(--color-primary));
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090E17;
+  background: var(--bg-page);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1E293B;
-  border-radius: 4px;
+  background: var(--color-primary-300);
+  border-radius: 2px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+html.dark ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-surface) 28%, var(--color-primary));
 }
 
-/* Hide scrollbar utility */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ─────────────── Leaflet Dark Customization ─────────────── */
 .leaflet-container {
-  background-color: #070B13 !important;
+  background-color: var(--bg-page) !important;
   font-family: inherit;
 }
 
 .leaflet-popup-content-wrapper {
-  background: #0E1626 !important;
-  color: #F1F5F9 !important;
-  border: 1px solid #1E293B;
-  border-radius: 12px !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+.leaflet-popup-content {
+  color: var(--text-main) !important;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.leaflet-popup-content h1,
+.leaflet-popup-content h2,
+.leaflet-popup-content h3,
+.leaflet-popup-content h4,
+.leaflet-popup-content h5,
+.leaflet-popup-content h6,
+.leaflet-popup-content b,
+.leaflet-popup-content strong {
+  color: var(--text-strong) !important;
+}
+
+.leaflet-popup-content p,
+.leaflet-popup-content span {
+  color: var(--text-main) !important;
+}
+
+.leaflet-popup-content a {
+  color: var(--text-strong) !important;
+  text-decoration: underline;
 }
 
 .leaflet-popup-tip {
-  background: #0E1626 !important;
+  background: var(--bg-card) !important;
 }
 
-.leaflet-popup-close-button {
-  color: #94A3B8 !important;
+.leaflet-tooltip,
+.leaflet-dark-tooltip {
+  background: var(--color-primary) !important;
+  color: var(--text-on-primary) !important;
+  border: 1px solid color-mix(in srgb, var(--color-surface) 35%, transparent) !important;
+  border-radius: 4px !important;
+  padding: 6px 10px !important;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-black) 40%, transparent) !important;
 }
 
-/* Custom map marker styles */
+.leaflet-tooltip::before,
+.leaflet-dark-tooltip::before {
+  border-top-color: var(--color-primary) !important;
+  border-bottom-color: var(--color-primary) !important;
+}
+
+.leaflet-control-zoom a {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+.leaflet-control-attribution {
+  background: var(--bg-card) !important;
+  color: var(--text-muted) !important;
+}
+
+.map-overlay {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+}
+
 .map-marker-pulse {
   position: relative;
   width: 20px;
@@ -384,25 +408,54 @@ body {
   right: -6px;
   bottom: -6px;
   border-radius: 50%;
-  background: rgba(6, 182, 212, 0.4);
+  background: color-mix(in srgb, var(--color-primary) 40%, transparent);
   animation: pulse-ring 1.8s infinite;
 }
 
 .map-marker-pulse-critical::after {
-  background: rgba(239, 68, 68, 0.5);
+  background: color-mix(in srgb, var(--color-critical) 50%, transparent);
   animation: pulse-ring 1.2s infinite;
 }
 
-/* ─────────────── Progress Bar ─────────────── */
 .progress-bar {
   height: 6px;
-  border-radius: 3px;
-  background: rgba(30, 41, 59, 0.6);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-primary) 12%, var(--bg-card));
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  border-radius: 3px;
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px;
+  background: var(--color-primary);
+  transition: width 0.6s ease;
+}
+
+/* Contrast safety net: leftover palette utilities follow tokens */
+html.light :is(.text-white, .text-slate-100, .text-slate-200, .text-slate-50):not(.leaflet-container *):not(.leaflet-tooltip):not(.leaflet-dark-tooltip):not(.map-overlay *) {
+  color: var(--text-main);
+}
+html.light :is(.bg-primary, .bg-critical, .bg-warning, .bg-success, .btn-primary, .btn-critical, .btn-warning, .btn-success, .glass-sidebar, [class*="bg-primary"]) :is(.text-white, .text-on-primary, .text-slate-100) {
+  color: var(--text-on-primary) !important;
+}
+html.light :is(.text-cyan-300, .text-cyan-400, .text-sky-300, .text-indigo-300, .text-purple-300, .text-slate-400, .text-slate-500, .placeholder-slate-500) {
+  color: var(--text-muted);
+}
+html.light :is(.text-slate-300, .text-slate-600, .text-slate-700) {
+  color: var(--text-main);
+}
+html.light :is(.text-emerald-300, .text-emerald-400, .text-teal-300, .text-teal-400) {
+  color: var(--color-success);
+}
+html.light :is(.text-rose-300, .text-rose-400, .text-red-400) {
+  color: var(--color-critical);
+}
+html.light :is(.text-amber-300, .text-amber-400, .text-orange-400) {
+  color: var(--color-warning);
+}
+html.dark :is(.text-slate-900, .text-slate-800, .text-slate-700) {
+  color: var(--text-main);
+}
+html.dark :is(.text-slate-600, .text-slate-500, .text-slate-400) {
+  color: var(--text-muted);
 }

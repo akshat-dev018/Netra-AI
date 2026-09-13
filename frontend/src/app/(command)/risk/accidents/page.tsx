@@ -34,14 +34,14 @@ export default function AccidentRiskPage() {
       <div>
         <div className="flex items-center gap-2">
           <Flame className="w-5 h-5 text-rose-500" />
-          <h1 className="text-xl font-bold text-white font-mono tracking-tight">
+          <h1 className="text-xl font-bold text-main font-mono tracking-tight">
             ACCIDENT DENSITY & BLACKSPOT INTELLIGENCE
           </h1>
-          <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 text-[10px] font-mono font-semibold">
+          <span className="px-2 py-0.5 rounded bg-critical-50 text-critical text-[10px] font-mono font-semibold">
             HOTSPOT MAPPER
           </span>
         </div>
-        <p className="text-xs text-slate-400 mt-0.5">
+        <p className="text-xs text-muted mt-0.5">
           Spatial clustering analysis of historical collisions and dynamic hazard zones along NH-44 and NCR corridors.
         </p>
       </div>
@@ -51,33 +51,33 @@ export default function AccidentRiskPage() {
         {hotspots.map((h, i) => (
           <div
             key={i}
-            className="p-5 rounded-2xl bg-[#0E1626]/90 border border-slate-800 shadow-xl backdrop-blur-md space-y-4 hover:border-rose-500/40 transition-all"
+            className="p-5 rounded bg-card border border-subtle backdrop-blur-md space-y-4 hover:border-rose-500/40 transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 uppercase">
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-critical-50 text-critical border border-rose-500/40 uppercase">
                 {h.density}
               </span>
-              <span className="text-rose-400 font-mono font-bold text-sm">Cluster Risk: {h.score}/100</span>
+              <span className="text-critical font-mono font-bold text-sm">Cluster Risk: {h.score}/100</span>
             </div>
 
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-rose-400 shrink-0" />
+              <h3 className="text-sm font-bold text-main flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-critical shrink-0" />
                 <span>{h.name}</span>
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Root Cause: <b className="text-slate-200">{h.primaryCause}</b>
+              <p className="text-xs text-muted mt-1">
+                Root Cause: <b className="text-main">{h.primaryCause}</b>
               </p>
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
+            <div className="flex items-center justify-between p-3 rounded bg-card border border-subtle text-xs">
               <div>
-                <span className="text-slate-500 text-[10px] block">Quarterly Collisions</span>
-                <span className="font-mono font-bold text-white">{h.incidents} Recorded</span>
+                <span className="text-muted text-[10px] block">Quarterly Collisions</span>
+                <span className="font-mono font-bold text-main">{h.incidents} Recorded</span>
               </div>
               <div>
-                <span className="text-slate-500 text-[10px] block">Escort Recommended</span>
-                <span className="font-semibold text-amber-400">Yes (Night Shift)</span>
+                <span className="text-muted text-[10px] block">Escort Recommended</span>
+                <span className="font-semibold text-warning">Yes (Night Shift)</span>
               </div>
             </div>
           </div>

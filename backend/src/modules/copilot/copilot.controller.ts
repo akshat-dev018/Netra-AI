@@ -1,15 +1,25 @@
 import type { Request, Response } from 'express';
 import type { QueryFilter } from 'mongoose';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { env } from '../../config/env.js';
 import { AppError } from '../../utils/appError.js';
 import { Driver, type DriverDoc } from '../drivers/driver.model.js';
 import { Corridor, type CorridorDoc } from '../corridors/corridor.model.js';
 import { EmergencyAlert, type EmergencyAlertDoc } from '../emergency-alerts/emergencyAlert.model.js';
+import { Shipment, type ShipmentDoc } from '../shipments/shipment.model.js';
 import { CopilotConversation } from './copilotConversation.model.js';
 import { trustedOp } from '../../utils/trustedQuery.js';
 
+function redactSecrets(text: string) {
+  return text
+    .replace(/key=[^&\s'"]+/gi, 'key=[redacted]')
+    .replace(/Bearer\s+\S+/gi, 'Bearer [redacted]')
+    .replace(/AIza[0-9A-Za-z_-]+/g, '[redacted]')
+    .replace(/AQ\.[0-9A-Za-z_-]+/g, '[redacted]');
+}
+
 async function groundContext() {
-  const [driversSilent, topRisk, openAlerts] = await Promise.all([
+  const [driversSilent, topRisk, openAlerts, delayedShipments] = await Promise.all([
     Driver.find({
       isDeleted: false,
       lastPingAt: trustedOp({
@@ -17,61 +27,82 @@ async function groundContext() {
       } satisfies QueryFilter<DriverDoc>),
     })
       .select('_id status lastPingAt')
-      .limit(10),
+      .limit(10)
+      .lean(),
     Corridor.find({ isDeleted: false } satisfies QueryFilter<CorridorDoc>)
-      .sort({ riskScore: -1 }).limit(5).select('name highwayRef riskScore'),
+      .sort({ riskScore: -1 })
+      .limit(5)
+      .select('name highwayRef riskScore')
+      .lean(),
     EmergencyAlert.find({
       isDeleted: false,
       status: trustedOp({ $ne: 'resolved' }),
     } satisfies QueryFilter<EmergencyAlertDoc>)
       .select('type severity status')
-      .limit(5),
+      .limit(5)
+      .lean(),
+    Shipment.find({
+      isDeleted: false,
+      status: trustedOp({ $in: ['delayed', 'in_transit'] }),
+    } satisfies QueryFilter<ShipmentDoc>)
+      .select('reference origin destination status riskScore priority')
+      .limit(8)
+      .lean(),
   ]);
-  return { driversSilent, topRisk, openAlerts };
+  return { driversSilent, topRisk, openAlerts, delayedShipments };
 }
 
 export async function message(req: Request, res: Response) {
-  if (!env.ANTHROPIC_API_KEY) {
-    throw new AppError(503, 'COPILOT_UNAVAILABLE', 'Copilot is not configured');
+  const apiKey = env.GEMINI_API_KEY?.trim();
+  if (!apiKey) {
+    throw new AppError(503, 'COPILOT_UNAVAILABLE', 'Gemini Copilot API key is not configured');
   }
+
   const content = String(req.body.content ?? '').slice(0, 4000);
+  if (!content.trim()) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Message content is required');
+  }
+
   let convo = req.body.conversationId
     ? await CopilotConversation.findOne({ _id: req.body.conversationId, userId: req.user!.id })
     : await CopilotConversation.create({ userId: req.user!.id, messages: [], contextSnapshotIds: [] });
-  if (!convo) convo = await CopilotConversation.create({ userId: req.user!.id, messages: [], contextSnapshotIds: [] });
-  convo.messages.push({ role: 'user', content, createdAt: new Date() });
-  const ctx = await groundContext();
-  const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': env.ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-5',
-      max_tokens: 512,
-      system:
-        'You are NETRA Copilot. Answer only from the provided platform snapshot. Never invent live GPS. Do not execute writes.',
-      messages: [
-        {
-          role: 'user',
-          content: `Snapshot: ${JSON.stringify(ctx)}\n\nQuestion: ${content}`,
-        },
-      ],
-    }),
-  });
-  if (!anthropicRes.ok) {
-    throw new AppError(503, 'COPILOT_UNAVAILABLE', 'Copilot provider error');
+  if (!convo) {
+    convo = await CopilotConversation.create({ userId: req.user!.id, messages: [], contextSnapshotIds: [] });
   }
-  const json = (await anthropicRes.json()) as { content?: { text?: string }[] };
-  const reply = json.content?.[0]?.text ?? 'No response';
-  convo.messages.push({ role: 'assistant', content: reply, createdAt: new Date() });
-  await convo.save();
-  res.json({ success: true, data: { conversationId: convo._id, reply } });
+  convo.messages.push({ role: 'user', content, createdAt: new Date() });
+
+  const ctx = await groundContext();
+
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-3.6-flash',
+      systemInstruction:
+        'You are NETRA Copilot for an Indian national freight and emergency control tower. Answer from the platform snapshot when it is relevant. Do not invent live GPS coordinates. Be concise and operational. Format key findings with clean bullet points and markdown.',
+    });
+
+    const prompt = `[Platform live snapshot]\n${JSON.stringify(ctx, null, 2)}\n\n[Operator question]\n${content}`;
+    const result = await model.generateContent(prompt);
+    const reply = (result.response.text() ?? '').trim();
+    if (!reply) {
+      throw new AppError(502, 'COPILOT_PROVIDER_ERROR', 'Gemini returned an empty response');
+    }
+
+    convo.messages.push({ role: 'assistant', content: reply, createdAt: new Date() });
+    await convo.save();
+
+    res.json({ success: true, data: { conversationId: convo._id, reply, content: reply } });
+  } catch (err: unknown) {
+    if (err instanceof AppError) throw err;
+    const raw = err instanceof Error ? err.message : 'Failed to generate Copilot response';
+    throw new AppError(502, 'COPILOT_PROVIDER_ERROR', `Gemini API error: ${redactSecrets(raw)}`);
+  }
 }
 
 export async function getConversation(req: Request, res: Response) {
   const convo = await CopilotConversation.findOne({ _id: req.params.id, userId: req.user!.id });
+  if (!convo) {
+    throw new AppError(404, 'NOT_FOUND', 'Conversation not found');
+  }
   res.json({ success: true, data: convo });
 }

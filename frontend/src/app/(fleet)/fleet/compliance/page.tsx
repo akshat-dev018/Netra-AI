@@ -136,22 +136,22 @@ export default function FleetCompliancePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-5">
         <div>
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-emerald-400" />
-            <h1 className="text-xl font-bold text-white font-mono tracking-tight">
+            <ShieldCheck className="w-6 h-6 text-success" />
+            <h1 className="text-xl font-bold text-main font-mono tracking-tight">
               FLEET COMPLIANCE, SAFETY & AUDIT REGISTRY
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-success-50 border border-emerald-500/30 text-success text-[10px] font-mono font-bold">
               AUDIT GRADE A+
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-muted mt-1">
             Commercial motor vehicle compliance, Hours-of-Service (HOS) fatigue monitoring, and statutory registry.
           </p>
         </div>
 
         <button
           onClick={handleExportAudit}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-semibold font-mono transition-all shadow-md self-start sm:self-auto"
+          className="flex items-center gap-2 px-4 py-2 rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-subtle text-primary text-xs font-semibold font-mono transition-all shadow-md self-start sm:self-auto"
         >
           <Download className="w-4 h-4" />
           <span>EXPORT AUDIT REPORT</span>
@@ -160,43 +160,43 @@ export default function FleetCompliancePage() {
 
       {/* Top 3 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl glass-card relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-colors" />
+        <div className="p-5 rounded glass-card relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-safe-bg transition-colors" />
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-xs uppercase font-mono font-medium">Overall Safety Score</span>
-            <Award className="w-5 h-5 text-emerald-400" />
+            <span className="text-muted text-xs uppercase font-mono font-medium">Overall Safety Score</span>
+            <Award className="w-5 h-5 text-success" />
           </div>
-          <div className="text-3xl font-bold font-mono text-emerald-400 mt-3">
-            {compliance?.score ?? 96} <span className="text-sm font-sans text-slate-400 font-normal">/ 100</span>
+          <div className="text-3xl font-bold font-mono text-success mt-3">
+            {compliance?.score ?? 96} <span className="text-sm font-sans text-muted font-normal">/ 100</span>
           </div>
-          <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="text-[11px] text-muted mt-1 flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5 text-success" />
             <span>Zero critical safety violations in last 30 days</span>
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl glass-card relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl group-hover:bg-cyan-500/20 transition-colors" />
+        <div className="p-5 rounded glass-card relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-primary-50 rounded-full blur-xl group-hover:bg-cyan-500/20 transition-colors" />
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-xs uppercase font-mono font-medium">Commercial License Rate</span>
-            <FileCheck className="w-5 h-5 text-cyan-400" />
+            <span className="text-muted text-xs uppercase font-mono font-medium">Commercial License Rate</span>
+            <FileCheck className="w-5 h-5 text-primary" />
           </div>
-          <div className="text-3xl font-bold font-mono text-cyan-400 mt-3">100%</div>
-          <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="text-3xl font-bold font-mono text-primary mt-3">100%</div>
+          <div className="text-[11px] text-muted mt-1 flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
             <span>All pilot commercial licenses valid & unexpired</span>
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl glass-card relative overflow-hidden group">
+        <div className="p-5 rounded glass-card relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-colors" />
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-xs uppercase font-mono font-medium">Statutory Overdue Ratio</span>
+            <span className="text-muted text-xs uppercase font-mono font-medium">Statutory Overdue Ratio</span>
             <Clock className="w-5 h-5 text-purple-400" />
           </div>
-          <div className="text-3xl font-bold font-mono text-white mt-3">0 Trucks</div>
-          <div className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="text-3xl font-bold font-mono text-main mt-3">0 Trucks</div>
+          <div className="text-[11px] text-success mt-1 flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5 text-success" />
             <span>PUC, fitness, and national permits fully synchronized</span>
           </div>
         </div>
@@ -210,35 +210,35 @@ export default function FleetCompliancePage() {
           <div className="glass-panel p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-cyan-400" />
-                <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider">
+                <UserCheck className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-bold text-main uppercase font-mono tracking-wider">
                   DRIVER SAFETY SCORECARDS & HOS HOURS
                 </h3>
               </div>
-              <span className="text-xs text-slate-400 font-mono">Max 9h shift limit</span>
+              <span className="text-xs text-muted font-mono">Max 9h shift limit</span>
             </div>
 
             <div className="space-y-2.5">
               {drivers.map((d: any) => (
                 <div
                   key={d._id}
-                  className="p-3.5 rounded-xl bg-slate-900/60 border border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-cyan-500/30 transition-all"
+                  className="p-3.5 rounded bg-card border border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-subtle transition-all"
                 >
                   <div className="space-y-0.5">
-                    <div className="font-bold text-white text-sm">{d.name || d.licenseNumber}</div>
-                    <div className="text-slate-400 font-mono text-[11px]">
-                      License: <span className="text-slate-300">{d.licenseNumber}</span> • Exp:{' '}
-                      <span className="text-slate-300">{new Date(d.licenseExpiry).toLocaleDateString()}</span>
+                    <div className="font-bold text-main text-sm">{d.name || d.licenseNumber}</div>
+                    <div className="text-muted font-mono text-[11px]">
+                      License: <span className="text-main">{d.licenseNumber}</span> • Exp:{' '}
+                      <span className="text-main">{new Date(d.licenseExpiry).toLocaleDateString()}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
                     <div className="text-left sm:text-right">
-                      <span className="text-[10px] text-slate-500 font-mono uppercase block">HOS Shift Consumed</span>
-                      <span className="font-mono font-bold text-cyan-300">{d.hosHours || '5.5 / 9 hrs'}</span>
+                      <span className="text-[10px] text-muted font-mono uppercase block">HOS Shift Consumed</span>
+                      <span className="font-mono font-bold text-primary">{d.hosHours || '5.5 / 9 hrs'}</span>
                     </div>
 
-                    <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-success-50 border border-emerald-500/30 text-success">
                       SAFETY: {d.safetyScore || 98}/100
                     </span>
                   </div>
@@ -251,35 +251,35 @@ export default function FleetCompliancePage() {
           <div className="glass-panel p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Truck className="w-4 h-4 text-amber-400" />
-                <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider">
+                <Truck className="w-4 h-4 text-warning" />
+                <h3 className="text-sm font-bold text-main uppercase font-mono tracking-wider">
                   VEHICLE FITNESS & STATUTORY MAINTENANCE
                 </h3>
               </div>
-              <span className="text-xs text-slate-400 font-mono">100% roadworthy</span>
+              <span className="text-xs text-muted font-mono">100% roadworthy</span>
             </div>
 
             <div className="space-y-2.5">
               {vehicles.map((v: any) => (
                 <div
                   key={v._id}
-                  className="p-3.5 rounded-xl bg-slate-900/60 border border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-amber-500/30 transition-all"
+                  className="p-3.5 rounded bg-card border border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-amber-500/30 transition-all"
                 >
                   <div>
-                    <div className="font-bold text-amber-400 font-mono text-sm">{v.registrationNumber}</div>
-                    <div className="text-slate-400 text-[11px] mt-0.5">
+                    <div className="font-bold text-warning font-mono text-sm">{v.registrationNumber}</div>
+                    <div className="text-muted text-[11px] mt-0.5">
                       {v.type || '18T Commercial Carrier'} • PUC Valid:{' '}
-                      <span className="text-slate-300 font-mono">{v.pucValidUntil || '2026-11-20'}</span>
+                      <span className="text-main font-mono">{v.pucValidUntil || '2026-11-20'}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
                     <div className="text-left sm:text-right">
-                      <span className="text-[10px] text-slate-500 font-mono uppercase block">Service Due</span>
-                      <span className="font-mono text-slate-300">{v.nextServiceIn || '40 Days'}</span>
+                      <span className="text-[10px] text-muted font-mono uppercase block">Service Due</span>
+                      <span className="font-mono text-main">{v.nextServiceIn || '40 Days'}</span>
                     </div>
 
-                    <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-success-50 border border-emerald-500/30 text-success">
                       PASSED (GRADE A)
                     </span>
                   </div>
@@ -291,82 +291,82 @@ export default function FleetCompliancePage() {
 
         {/* Right 4 Cols: Glass Panel Right - Regulatory Vault */}
         <div className="lg:col-span-4 glass-panel-right p-5 space-y-5">
-          <div className="border-b border-white/[0.08] pb-3.5 flex items-center justify-between">
+          <div className="border-b border-subtle pb-3.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <div className="w-8 h-8 rounded-lg bg-safe-bg border border-emerald-500/30 flex items-center justify-center text-success">
                 <FileText className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-white font-mono uppercase tracking-wider">
+                <h3 className="text-xs font-bold text-main font-mono uppercase tracking-wider">
                   STATUTORY VAULT
                 </h3>
-                <p className="text-[10px] text-slate-400">MoRTH & NHAI Compliance</p>
+                <p className="text-[10px] text-muted">MoRTH & NHAI Compliance</p>
               </div>
             </div>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold">
+            <span className="px-2 py-0.5 rounded-full bg-safe-bg text-success font-mono text-[10px] font-bold">
               VERIFIED
             </span>
           </div>
 
           {/* Compliance Check Matrix */}
           <div className="space-y-2.5 text-xs">
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-white/[0.06] flex items-center justify-between">
+            <div className="p-3 rounded bg-card border border-subtle flex items-center justify-between">
               <div>
-                <div className="font-semibold text-white">All India Tourist & Freight Permit</div>
-                <div className="text-[10px] text-slate-400 font-mono">Central MoRTH Portal sync</div>
+                <div className="font-semibold text-main">All India Tourist & Freight Permit</div>
+                <div className="text-[10px] text-muted font-mono">Central MoRTH Portal sync</div>
               </div>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-white/[0.06] flex items-center justify-between">
+            <div className="p-3 rounded bg-card border border-subtle flex items-center justify-between">
               <div>
-                <div className="font-semibold text-white">FASTag Fleet Geofence Sync</div>
-                <div className="text-[10px] text-slate-400 font-mono">NPCI automated toll deduction</div>
+                <div className="font-semibold text-main">FASTag Fleet Geofence Sync</div>
+                <div className="text-[10px] text-muted font-mono">NPCI automated toll deduction</div>
               </div>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-white/[0.06] flex items-center justify-between">
+            <div className="p-3 rounded bg-card border border-subtle flex items-center justify-between">
               <div>
-                <div className="font-semibold text-white">AIS-140 GPS Device Certificate</div>
-                <div className="text-[10px] text-slate-400 font-mono">Emergency SOS beacon verified</div>
+                <div className="font-semibold text-main">AIS-140 GPS Device Certificate</div>
+                <div className="text-[10px] text-muted font-mono">Emergency SOS beacon verified</div>
               </div>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-white/[0.06] flex items-center justify-between">
+            <div className="p-3 rounded bg-card border border-subtle flex items-center justify-between">
               <div>
-                <div className="font-semibold text-white">Hazchem Handling Endorsement</div>
-                <div className="text-[10px] text-slate-400 font-mono">Rule 132 Central Motor Rules</div>
+                <div className="font-semibold text-main">Hazchem Handling Endorsement</div>
+                <div className="text-[10px] text-muted font-mono">Rule 132 Central Motor Rules</div>
               </div>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
             </div>
           </div>
 
           {/* Fatigue Monitoring Widget */}
-          <div className="p-4 rounded-xl bg-amber-950/20 border border-amber-500/30 space-y-2">
+          <div className="p-4 rounded bg-amber-950/20 border border-amber-500/30 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider">
+              <span className="text-[10px] font-mono text-warning font-bold uppercase tracking-wider">
                 DRIVER FATIGUE ADVISORY
               </span>
-              <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+              <AlertCircle className="w-3.5 h-3.5 text-warning" />
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Driver <span className="font-semibold text-white">Vikas Sharma</span> is approaching 8 hours of duty cycle. Mandatory 45-minute rest stop scheduled at Mathura Waypoint in 22 minutes.
+            <p className="text-xs text-main leading-relaxed">
+              Driver <span className="font-semibold text-main">Vikas Sharma</span> is approaching 8 hours of duty cycle. Mandatory 45-minute rest stop scheduled at Mathura Waypoint in 22 minutes.
             </p>
           </div>
 
           {/* Quick Actions */}
-          <div className="space-y-2 pt-2 border-t border-white/[0.06]">
+          <div className="space-y-2 pt-2 border-t border-subtle">
             <button
               onClick={() => toast.success('Regulatory sync initiated with MoRTH VAHAN & SARATHI databases')}
-              className="w-full py-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-semibold transition-all"
+              className="w-full py-2.5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-subtle text-primary text-xs font-mono font-semibold transition-all"
             >
               SYNC VAHAN / SARATHI
             </button>
             <button
               onClick={() => toast.success('Driver medical & eyesight certificates refreshed')}
-              className="w-full py-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-mono font-semibold transition-all"
+              className="w-full py-2.5 rounded bg-card hover:bg-primary-50 border border-subtle text-main text-xs font-mono font-semibold transition-all"
             >
               VERIFY MEDICAL RECORDS
             </button>

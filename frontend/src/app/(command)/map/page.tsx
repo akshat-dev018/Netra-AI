@@ -1,5 +1,6 @@
 'use client';
 
+import { TOKENS } from '@/theme/tokens';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { corridorsApi, hospitalsApi, emergencyApi, disruptionsApi, highwaysApi } from '@/lib/api';
@@ -18,6 +19,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import L from 'leaflet';
+import { getLeafletTileConfig } from '@/lib/mapTiles';
 
 export default function MapPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -80,11 +82,8 @@ export default function MapPage() {
 
     mapRef.current = map;
 
-    // Dark sleek map tiles
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd',
-    }).addTo(map);
+    const tiles = getLeafletTileConfig();
+    L.tileLayer(tiles.url, tiles.options).addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -135,7 +134,7 @@ export default function MapPage() {
         // Swap lng, lat to lat, lng for Leaflet
         const latLngs = coords.map((pt: [number, number]) => [pt[1], pt[0]] as [number, number]);
         const risk = c.riskScore || 30;
-        const color = risk > 60 ? '#EF4444' : risk > 35 ? '#F59E0B' : '#06B6D4';
+        const color = risk > 60 ? TOKENS.critical : risk > 35 ? TOKENS.warning : TOKENS.primary;
 
         const polyline = L.polyline(latLngs, {
           color,
@@ -171,8 +170,8 @@ export default function MapPage() {
         const icon = L.divIcon({
           className: 'custom-hospital-icon',
           html: `
-            <div style="background:#10B981; border:2px solid #FFFFFF; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(16,185,129,0.5);">
-              <span style="color:#FFFFFF; font-size:12px; font-weight:bold;">+</span>
+            <div style="background:${TOKENS.success}; border:2px solid ${TOKENS.white}; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(16,185,129,0.5);">
+              <span style="color:${TOKENS.white}; font-size:12px; font-weight:bold;">+</span>
             </div>
           `,
           iconSize: [24, 24],
@@ -181,11 +180,11 @@ export default function MapPage() {
 
         const marker = L.marker([lat, lng], { icon }).addTo(group);
         marker.bindPopup(`
-          <div style="font-family:sans-serif; min-width:160px;">
-            <h4 style="font-weight:bold; margin:0 0 4px 0; color:#06B6D4;">${h.name}</h4>
-            <p style="margin:2px 0; font-size:11px;">Trauma Level: <b>Level ${h.traumaLevel || 1}</b></p>
-            <p style="margin:2px 0; font-size:11px;">Capacity: <b>${h.capacityStatus || 'Available'}</b></p>
-            ${h.contactInfo?.phone ? `<p style="margin:4px 0 0 0; font-size:11px;"><a href="tel:${h.contactInfo.phone}" style="color:#10B981;">📞 ${h.contactInfo.phone}</a></p>` : ''}
+          <div style="font-family:sans-serif; min-width:160px; color:var(--text-main);">
+            <h4 style="font-weight:bold; margin:0 0 4px 0; color:var(--text-strong);">${h.name}</h4>
+            <p style="margin:2px 0; font-size:11px; color:var(--text-main);">Trauma Level: <b>Level ${h.traumaLevel || 1}</b></p>
+            <p style="margin:2px 0; font-size:11px; color:var(--text-main);">Capacity: <b>${h.capacityStatus || 'Available'}</b></p>
+            ${h.contactInfo?.phone ? `<p style="margin:4px 0 0 0; font-size:11px;"><a href="tel:${h.contactInfo.phone}" style="color:${TOKENS.success}; text-decoration:underline;">📞 ${h.contactInfo.phone}</a></p>` : ''}
           </div>
         `);
       }
@@ -207,8 +206,8 @@ export default function MapPage() {
         const icon = L.divIcon({
           className: 'custom-disruption-icon',
           html: `
-            <div style="background:#F97316; border:2px solid #FFFFFF; border-radius:6px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(249,115,22,0.6);">
-              <span style="color:#FFFFFF; font-size:13px;">⚠️</span>
+            <div style="background:${TOKENS.warning}; border:2px solid ${TOKENS.white}; border-radius:6px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(249,115,22,0.6);">
+              <span style="color:${TOKENS.white}; font-size:13px;">!</span>
             </div>
           `,
           iconSize: [26, 26],
@@ -217,10 +216,10 @@ export default function MapPage() {
 
         const marker = L.marker([lat, lng], { icon }).addTo(group);
         marker.bindPopup(`
-          <div style="font-family:sans-serif; min-width:180px;">
-            <h4 style="font-weight:bold; margin:0 0 4px 0; color:#F97316;">${d.type?.replace('_', ' ').toUpperCase()}</h4>
-            <p style="margin:2px 0; font-size:11px;">${d.description}</p>
-            <p style="margin:4px 0 0 0; font-size:10px; color:#94A3B8;">Severity: <b>${d.severity}</b></p>
+          <div style="font-family:sans-serif; min-width:180px; color:var(--text-main);">
+            <h4 style="font-weight:bold; margin:0 0 4px 0; color:${TOKENS.warning};">${d.type?.replace('_', ' ').toUpperCase()}</h4>
+            <p style="margin:2px 0; font-size:11px; color:var(--text-main);">${d.description}</p>
+            <p style="margin:4px 0 0 0; font-size:10px; color:var(--text-muted);">Severity: <b>${d.severity}</b></p>
           </div>
         `);
       }
@@ -244,8 +243,8 @@ export default function MapPage() {
           html: `
             <div style="position:relative; width:28px; height:28px; display:flex; align-items:center; justify-content:center;">
               <div style="position:absolute; width:100%; height:100%; border-radius:50%; background:rgba(239,68,68,0.4); animation:pulse-ring 1.5s infinite;"></div>
-              <div style="background:#EF4444; border:2px solid #FFFFFF; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 15px #EF4444;">
-                <span style="color:#FFFFFF; font-size:10px; font-weight:bold;">SOS</span>
+              <div style="background:${TOKENS.critical}; border:2px solid ${TOKENS.white}; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 15px ${TOKENS.critical};">
+                <span style="color:${TOKENS.white}; font-size:10px; font-weight:bold;">SOS</span>
               </div>
             </div>
           `,
@@ -255,11 +254,11 @@ export default function MapPage() {
 
         const marker = L.marker([lat, lng], { icon }).addTo(group);
         marker.bindPopup(`
-          <div style="font-family:sans-serif; min-width:180px;">
-            <h4 style="font-weight:bold; margin:0 0 4px 0; color:#EF4444;">🚨 ${a.type?.toUpperCase() || 'EMERGENCY SOS'}</h4>
-            <p style="margin:2px 0; font-size:11px;">${a.description}</p>
-            <p style="margin:2px 0; font-size:10px; color:#EF4444;">Status: <b>${a.status}</b></p>
-            <a href="/emergency/alerts" style="display:inline-block; margin-top:6px; font-size:11px; color:#38BDF8; font-weight:bold;">Open Response Action →</a>
+          <div style="font-family:sans-serif; min-width:180px; color:var(--text-main);">
+            <h4 style="font-weight:bold; margin:0 0 4px 0; color:${TOKENS.critical};">${a.type?.toUpperCase() || 'EMERGENCY SOS'}</h4>
+            <p style="margin:2px 0; font-size:11px; color:var(--text-main);">${a.description}</p>
+            <p style="margin:2px 0; font-size:10px; color:${TOKENS.critical};">Status: <b>${a.status}</b></p>
+            <a href="/emergency/alerts" style="display:inline-block; margin-top:6px; font-size:11px; color:var(--text-strong); font-weight:bold; text-decoration:underline;">Open Response Action →</a>
           </div>
         `);
       }
@@ -279,7 +278,7 @@ export default function MapPage() {
         className: 'custom-driver-truck',
         html: `
           <div style="position:relative; width:30px; height:30px; display:flex; align-items:center; justify-content:center;">
-            <div style="background:#0F172A; border:2px solid #06B6D4; border-radius:8px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(6,182,212,0.6);">
+            <div style="background:${TOKENS.primary}; border:2px solid ${TOKENS.surface}; border-radius:8px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(17,49,95,0.6);">
               <span style="font-size:12px;">🚚</span>
             </div>
           </div>
@@ -290,11 +289,11 @@ export default function MapPage() {
 
       const marker = L.marker([d.lat, d.lng], { icon }).addTo(group);
       marker.bindPopup(`
-        <div style="font-family:sans-serif; min-width:160px;">
-          <h4 style="font-weight:bold; margin:0 0 4px 0; color:#06B6D4;">${d.reg}</h4>
-          <p style="margin:2px 0; font-size:11px;">Driver: <b>${d.driver}</b></p>
-          <p style="margin:2px 0; font-size:11px;">Speed: <b>${d.speed} km/h</b></p>
-          <span style="display:inline-block; margin-top:4px; padding:2px 6px; border-radius:4px; font-size:9px; background:rgba(16,185,129,0.2); color:#10B981; font-weight:bold;">LIVE TELEMETRY</span>
+        <div style="font-family:sans-serif; min-width:160px; color:var(--text-main);">
+          <h4 style="font-weight:bold; margin:0 0 4px 0; color:var(--text-strong);">${d.reg}</h4>
+          <p style="margin:2px 0; font-size:11px; color:var(--text-main);">Driver: <b>${d.driver}</b></p>
+          <p style="margin:2px 0; font-size:11px; color:var(--text-main);">Speed: <b>${d.speed} km/h</b></p>
+          <span style="display:inline-block; margin-top:4px; padding:2px 6px; border-radius:4px; font-size:9px; background:rgba(39,139,86,0.2); color:${TOKENS.success}; font-weight:bold;">LIVE TELEMETRY</span>
         </div>
       `);
     });
@@ -313,36 +312,36 @@ export default function MapPage() {
   return (
     <div className="space-y-4 h-[calc(100vh-140px)] flex flex-col animate-fade-in-up">
       {/* Top Map Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 glass-card p-3 rounded-2xl">
+      <div className="flex flex-wrap items-center justify-between gap-3 glass-card p-3 rounded">
         <div className="flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-cyan-400" />
-          <h1 className="text-base font-bold text-white font-sans tracking-tight">
+          <MapPin className="w-5 h-5 text-main" />
+          <h1 className="text-base font-bold text-strong font-sans tracking-tight">
             National Control Map
           </h1>
-          <span className="hidden sm:inline px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] font-mono font-semibold">
+          <span className="hidden sm:inline px-2 py-0.5 rounded-full bg-primary-100 text-strong text-[10px] font-mono font-semibold border border-subtle">
             TELEMETRY v1.0
           </span>
         </div>
 
         {/* Multi-Layer Toggle Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-medium">
-          <span className="text-slate-400 text-[11px] font-semibold uppercase mr-1 hidden md:inline">Layers:</span>
+          <span className="text-muted text-[11px] font-semibold uppercase mr-1 hidden md:inline">Layers:</span>
           <button
             onClick={() => toggleLayer('corridors')}
-            className={`px-3 py-1 rounded-xl border transition-all ${
+            className={`px-3 py-1 rounded border transition-all ${
               layers.corridors
-                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-semibold'
-                : 'glass-card text-slate-400'
+                ? 'bg-[#11315F] dark:bg-primary-700 text-[#DEEBEC] dark:text-white border-primary-500 font-semibold shadow-sm'
+                : 'bg-card text-muted hover:text-main border-subtle'
             }`}
           >
             🛣️ Corridors
           </button>
           <button
             onClick={() => toggleLayer('drivers')}
-            className={`px-3 py-1 rounded-xl border transition-all ${
+            className={`px-3 py-1 rounded border transition-all ${
               layers.drivers
-                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold'
-                : 'glass-card text-slate-400'
+                ? 'bg-emerald-700 dark:bg-emerald-800 text-white border-emerald-500 font-semibold shadow-sm'
+                : 'bg-card text-muted hover:text-main border-subtle'
             }`}
           >
             🚚 Live Drivers
@@ -351,8 +350,8 @@ export default function MapPage() {
             onClick={() => toggleLayer('alerts')}
             className={`px-2.5 py-1 rounded-md border transition-all ${
               layers.alerts
-                ? 'bg-rose-500/20 text-rose-300 border-rose-500/50'
-                : 'bg-slate-900/60 text-slate-500 border-slate-800'
+                ? 'bg-rose-700 dark:bg-rose-800 text-white border-rose-500 font-semibold shadow-sm'
+                : 'bg-card text-muted hover:text-main border-subtle'
             }`}
           >
             🚨 SOS Alerts
@@ -361,8 +360,8 @@ export default function MapPage() {
             onClick={() => toggleLayer('disruptions')}
             className={`px-2.5 py-1 rounded-md border transition-all ${
               layers.disruptions
-                ? 'bg-orange-500/20 text-orange-300 border-orange-500/50'
-                : 'bg-slate-900/60 text-slate-500 border-slate-800'
+                ? 'bg-amber-700 dark:bg-amber-800 text-white border-amber-500 font-semibold shadow-sm'
+                : 'bg-card text-muted hover:text-main border-subtle'
             }`}
           >
             ⚠️ Disruptions
@@ -371,8 +370,8 @@ export default function MapPage() {
             onClick={() => toggleLayer('hospitals')}
             className={`px-2.5 py-1 rounded-md border transition-all ${
               layers.hospitals
-                ? 'bg-blue-500/20 text-blue-300 border-blue-500/50'
-                : 'bg-slate-900/60 text-slate-500 border-slate-800'
+                ? 'bg-teal-700 dark:bg-teal-800 text-white border-teal-500 font-semibold shadow-sm'
+                : 'bg-card text-muted hover:text-main border-subtle'
             }`}
           >
             🏥 Trauma Hubs
@@ -381,31 +380,31 @@ export default function MapPage() {
 
         <button
           onClick={recenter}
-          className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 transition-all text-xs flex items-center gap-1"
+          className="p-1.5 rounded-lg bg-card hover:bg-primary-50 border border-subtle text-main transition-all text-xs flex items-center gap-1"
           title="Recenter Map"
         >
-          <Navigation className="w-3.5 h-3.5 text-cyan-400" />
+          <Navigation className="w-3.5 h-3.5 text-main" />
           <span className="hidden sm:inline">Recenter</span>
         </button>
       </div>
 
       {/* Main Map View & Inspection Slideover */}
-      <div className="relative flex-1 rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
+      <div className="relative flex-1 rounded overflow-hidden border border-subtle ">
         <div ref={mapContainer} className="w-full h-full min-h-[480px] z-10" />
 
         {/* Corridor Telemetry Drawer when clicked */}
         {selectedCorridor && (
-          <div className="absolute top-4 left-4 z-20 w-80 bg-[#0E1626]/95 border border-cyan-500/40 rounded-xl p-4 shadow-2xl backdrop-blur-md animate-in slide-in-from-left duration-200">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="absolute top-4 left-4 z-20 w-80 bg-card border border-subtle rounded p-4 backdrop-blur-md animate-in slide-in-from-left duration-200 shadow-xl">
+            <div className="flex items-center justify-between pb-2 border-b border-subtle">
               <div>
-                <span className="text-[10px] font-mono uppercase text-cyan-400 font-bold">
+                <span className="text-[10px] font-mono uppercase text-muted font-bold">
                   {selectedCorridor.highwayRef || 'CORRIDOR'}
                 </span>
-                <h3 className="text-xs font-bold text-white leading-snug">{selectedCorridor.name}</h3>
+                <h3 className="text-xs font-bold text-strong leading-snug">{selectedCorridor.name}</h3>
               </div>
               <button
                 onClick={() => setSelectedCorridor(null)}
-                className="text-slate-400 hover:text-white text-xs px-1.5 py-0.5 rounded bg-slate-800"
+                className="text-muted hover:text-strong text-xs px-1.5 py-0.5 rounded bg-primary-100 border border-subtle"
               >
                 ✕
               </button>
@@ -413,38 +412,38 @@ export default function MapPage() {
 
             <div className="mt-3 space-y-3 text-xs">
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Node Endpoints:</span>
-                <span className="font-semibold text-slate-200">
+                <span className="text-muted">Node Endpoints:</span>
+                <span className="font-semibold text-strong">
                   {selectedCorridor.nodeStart} → {selectedCorridor.nodeEnd}
                 </span>
               </div>
 
               <div className="space-y-1">
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-slate-400">Current Utilization</span>
-                  <span className="font-mono text-cyan-400 font-bold">{selectedCorridor.currentUtilization}%</span>
+                  <span className="text-muted">Current Utilization</span>
+                  <span className="font-mono text-strong font-bold">{selectedCorridor.currentUtilization}%</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                  <div className="h-full bg-cyan-500" style={{ width: `${selectedCorridor.currentUtilization}%` }} />
+                <div className="w-full h-1.5 rounded-full bg-primary-100 overflow-hidden">
+                  <div className="h-full bg-primary dark:bg-primary-400" style={{ width: `${selectedCorridor.currentUtilization}%` }} />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-slate-400">Risk Severity Index</span>
+                  <span className="text-muted">Risk Severity Index</span>
                   <span
                     className={`font-mono font-bold ${
                       selectedCorridor.riskScore > 60
-                        ? 'text-rose-400'
+                        ? 'text-critical'
                         : selectedCorridor.riskScore > 35
-                        ? 'text-amber-400'
-                        : 'text-emerald-400'
+                        ? 'text-warning'
+                        : 'text-success'
                     }`}
                   >
                     {selectedCorridor.riskScore}/100
                   </span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-primary-100 overflow-hidden">
                   <div
                     className={`h-full ${
                       selectedCorridor.riskScore > 60
@@ -458,28 +457,28 @@ export default function MapPage() {
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 grid grid-cols-2 gap-2 text-[10px]">
+              <div className="p-2.5 rounded-lg bg-card border border-subtle grid grid-cols-2 gap-2 text-[10px]">
                 <div>
-                  <span className="text-slate-500 block">Congestion</span>
-                  <span className="font-mono font-semibold text-slate-200">
+                  <span className="text-muted block">Congestion</span>
+                  <span className="font-mono font-semibold text-strong">
                     {selectedCorridor.riskComponents?.congestion ?? 12}%
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block">Weather Risk</span>
-                  <span className="font-mono font-semibold text-emerald-400">
+                  <span className="text-muted block">Weather Risk</span>
+                  <span className="font-mono font-semibold text-success">
                     {selectedCorridor.riskComponents?.weather ?? 8}%
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block">Active Incidents</span>
-                  <span className="font-mono font-semibold text-amber-400">
+                  <span className="text-muted block">Active Incidents</span>
+                  <span className="font-mono font-semibold text-warning">
                     {selectedCorridor.riskComponents?.incidents ?? 8}%
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block">Accident Density</span>
-                  <span className="font-mono font-semibold text-rose-400">
+                  <span className="text-muted block">Accident Density</span>
+                  <span className="font-mono font-semibold text-critical">
                     {selectedCorridor.riskComponents?.accidentDensity ?? 10}%
                   </span>
                 </div>

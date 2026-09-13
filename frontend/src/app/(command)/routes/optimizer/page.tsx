@@ -1,51 +1,124 @@
 'use client';
 
+import { TOKENS } from '@/theme/tokens';
 import { useState, useEffect, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { routesApi } from '@/lib/api';
+import { getLeafletTileConfig } from '@/lib/mapTiles';
 import {
-  Route,
   Navigation,
-  ShieldCheck,
-  Zap,
-  Clock,
   MapPin,
-  Sparkles,
+  Bot,
   AlertTriangle,
   CheckCircle2,
   Hospital,
-  ArrowRight,
-  SlidersHorizontal,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+type Candidate = {
+  rank: number;
+  origin: string;
+  destination: string;
+  etaMinutes: number;
+  distanceKm: number;
+  costIndex: number;
+  riskScore: number;
+  breakdown?: { weather?: number; congestion?: number; accidentDensity?: number };
+};
+
+type RouteOption = {
+  rank: number;
+  title: string;
+  distance: string;
+  time: string;
+  riskScore: number;
+  safetyIndex: string;
+  costIndex: number;
+  points: string[];
+  kind: 'recommended' | 'alternate' | 'avoid';
+};
+
+const ORIGIN_COORD: [number, number] = [28.5355, 77.2678];
+const DEST_COORD: [number, number] = [27.1767, 78.0081];
+
+function formatEta(mins: number) {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (h <= 0) return `${m}m`;
+  return `${h}h ${String(m).padStart(2, '0')}m`;
+}
+
+function safetyFromRisk(risk: number) {
+  return `${Math.max(5, 100 - risk)}/100`;
+}
+
+function polylineForRank(rank: number): [number, number][] {
+  const drift = (rank - 1) * 0.18;
+  return [
+    ORIGIN_COORD,
+    [28.4595 - drift * 0.15, 77.526 + drift],
+    [28.1812 - drift * 0.4, 77.6841 + drift * 0.35],
+    [27.6823 - drift * 0.2, 77.7812 + drift * 0.55],
+    DEST_COORD,
+  ];
+}
+
+function mapCandidates(raw: unknown, origin: string, destination: string): RouteOption[] {
+  const list = Array.isArray(raw) ? (raw as Candidate[]) : [];
+  const sorted = [...list].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+  return sorted.map((c, i) => {
+    const kind: RouteOption['kind'] = i === 0 ? 'recommended' : i === 1 ? 'alternate' : 'avoid';
+    const weather = c.breakdown?.weather ?? 12;
+    const congestion = c.breakdown?.congestion ?? 18;
+    const accidents = c.breakdown?.accidentDensity ?? 15;
+    const points =
+      kind === 'recommended'
+        ? [
+            `Lowest composite risk (${c.riskScore}/100) for ${origin} → ${destination}`,
+            `Weather load ${weather}% · congestion ${congestion}% · accident density ${accidents}%`,
+            `Cost index ${c.costIndex} — preferred for ${kind === 'recommended' ? 'on-time dispatch' : 'backup'}`,
+          ]
+        : kind === 'alternate'
+        ? [
+            `Secondary path: +${Math.max(0, (c.etaMinutes ?? 0) - (sorted[0]?.etaMinutes ?? 0))} min vs AI primary`,
+            `Congestion share ${congestion}% — usable if primary is blocked`,
+            `Cost index ${c.costIndex}`,
+          ]
+        : [
+            `Highest risk in this set (${c.riskScore}/100) — avoid unless escort assigned`,
+            `Accident density ${accidents}% · congestion ${congestion}%`,
+            `Cost index ${c.costIndex} with longest ETA`,
+          ];
+    const titles = [
+      'AI incident-avoidance corridor',
+      'Alternate arterial (higher delay)',
+      'Direct urban artery (elevated risk)',
+    ];
+    return {
+      rank: c.rank ?? i + 1,
+      title: titles[i] ?? `Candidate ${i + 1}`,
+      distance: `${c.distanceKm} km`,
+      time: formatEta(c.etaMinutes),
+      riskScore: c.riskScore,
+      safetyIndex: safetyFromRisk(c.riskScore),
+      costIndex: c.costIndex,
+      points,
+      kind,
+    };
+  });
+}
 
 export default function RouteOptimizerPage() {
   const [origin, setOrigin] = useState('Tughlakabad ICD, Delhi');
   const [destination, setDestination] = useState('Agra Dry Port, UP');
   const [cargoType, setCargoType] = useState('container');
   const [priority, setPriority] = useState('high');
+  const [result, setResult] = useState<RouteOption[] | null>(null);
 
-  const [result, setResult] = useState<any | null>({
-    recommended: {
-      title: 'NH-44 Express Bypass via Eastern Peripheral',
-      distance: '214 km',
-      time: '3h 45m',
-      riskScore: 22,
-      safetyIndex: '92/100',
-      benefits: ['0 Active disruptions on proposed polyline', '3 Trauma Level 1 hospitals within 10km buffer', 'Avoids 45m Faridabad toll queue'],
-    },
-    standard: {
-      title: 'Direct NH-44 Artery (Urban Corridor)',
-      distance: '198 km',
-      time: '4h 30m (+45m delay)',
-      riskScore: 64,
-      safetyIndex: '58/100',
-      drawbacks: ['Faridabad lane closure hazard', 'Palwal toll plaza 35m delay'],
-    },
-  });
-
+  const resultsRef = useRef<HTMLDivElement>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
+  const overlayRef = useRef<any>(null);
 
   const optimizeMutation = useMutation({
     mutationFn: async () => {
@@ -58,25 +131,16 @@ export default function RouteOptimizerPage() {
       return res.data.data;
     },
     onSuccess: (data) => {
-      setResult({
-        recommended: {
-          title: 'NH-44 Express Bypass via Eastern Peripheral',
-          distance: '214 km',
-          time: '3h 45m',
-          riskScore: 22,
-          safetyIndex: '92/100',
-          benefits: ['0 Active disruptions on proposed polyline', '3 Trauma Level 1 hospitals within 10km buffer', 'Avoids 45m Faridabad toll queue'],
-        },
-        standard: {
-          title: 'Direct NH-44 Artery',
-          distance: '198 km',
-          time: '4h 30m (+45m delay)',
-          riskScore: 64,
-          safetyIndex: '58/100',
-          drawbacks: ['Faridabad lane closure hazard', 'Palwal toll plaza 35m delay'],
-        },
+      const options = mapCandidates(data, origin, destination);
+      if (!options.length) {
+        toast.error('Optimizer returned no route candidates');
+        return;
+      }
+      setResult(options);
+      toast.success(`${options.length} ranked AI route candidates ready`);
+      requestAnimationFrame(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
-      toast.success('Optimal freight route computed by NETRA AI Engine');
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.error?.message || 'Route optimization failed');
@@ -102,63 +166,16 @@ export default function RouteOptimizerPage() {
       const map = L.map(mapContainer.current, {
         zoomControl: false,
         attributionControl: false,
-      }).setView([27.8, 77.6], 8.5);
+      }).setView([27.85, 77.65], 8);
 
       mapInstance.current = map;
+      overlayRef.current = L.layerGroup().addTo(map);
 
-      L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-        { maxZoom: 18, subdomains: 'abcd' }
-      ).addTo(map);
+      const tiles = getLeafletTileConfig();
+      L.tileLayer(tiles.url, tiles.options).addTo(map);
 
-      // Route 1: Optimal (Cyan)
-      const optimalPts: [number, number][] = [
-        [28.5355, 77.2678],
-        [28.4595, 77.526],
-        [28.1812, 77.6841],
-        [27.6823, 77.7812],
-        [27.1767, 78.0081],
-      ];
-
-      L.polyline(optimalPts, {
-        color: '#06B6D4',
-        weight: 5,
-        opacity: 0.9,
-      }).addTo(map);
-
-      // Route 2: Standard Congested (Amber dashed)
-      const standardPts: [number, number][] = [
-        [28.5355, 77.2678],
-        [28.4089, 77.3178],
-        [28.1487, 77.3276],
-        [27.7942, 77.5841],
-        [27.1767, 78.0081],
-      ];
-
-      L.polyline(standardPts, {
-        color: '#F59E0B',
-        weight: 4,
-        dashArray: '8, 8',
-        opacity: 0.7,
-      }).addTo(map);
-
-      // Origin Marker (Green)
-      const startIcon = L.divIcon({
-        className: 'custom-pin',
-        html: `<div style="width: 14px; height: 14px; border-radius: 50%; background: #10B981; border: 2px solid white; box-shadow: 0 0 10px #10B981;"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
-      });
-      L.marker([28.5355, 77.2678], { icon: startIcon }).addTo(map).bindPopup('Origin: Tughlakabad ICD');
-
-      // Destination Marker (Red)
-      const endIcon = L.divIcon({
-        className: 'custom-pin',
-        html: `<div style="width: 14px; height: 14px; border-radius: 50%; background: #EF4444; border: 2px solid white; box-shadow: 0 0 10px #EF4444;"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
-      });
-      L.marker([27.1767, 78.0081], { icon: endIcon }).addTo(map).bindPopup('Destination: Agra Dry Port');
+      setTimeout(() => map.invalidateSize(), 80);
+      setTimeout(() => map.invalidateSize(), 400);
     }
 
     initMap();
@@ -168,288 +185,309 @@ export default function RouteOptimizerPage() {
       if (mapInstance.current) {
         mapInstance.current.remove();
         mapInstance.current = null;
+        overlayRef.current = null;
       }
     };
   }, []);
 
+  useEffect(() => {
+    const map = mapInstance.current;
+    const overlay = overlayRef.current;
+    if (!map || !overlay) return;
+
+    overlay.clearLayers();
+
+    import('leaflet').then(({ default: Leaflet }) => {
+      const layer = overlayRef.current;
+      const m = mapInstance.current;
+      if (!layer || !m) return;
+      layer.clearLayers();
+
+      const options = result ?? [];
+      const ranks = options.length ? options.map((o) => o.rank) : [1];
+
+      ranks.forEach((rank, i) => {
+        const kind = options[i]?.kind ?? 'recommended';
+        const color =
+          kind === 'recommended' ? TOKENS.success : kind === 'alternate' ? TOKENS.primary : TOKENS.warning;
+        const line = Leaflet.polyline(polylineForRank(rank), {
+          color,
+          weight: kind === 'recommended' ? 6 : 4,
+          opacity: kind === 'recommended' ? 0.95 : 0.75,
+          dashArray: kind === 'avoid' ? '8, 8' : undefined,
+        }).addTo(layer);
+        const label = options[i]?.title ?? 'Route';
+        line.bindTooltip(`${label} · rank ${rank}`, { sticky: true });
+      });
+
+      const startIcon = Leaflet.divIcon({
+        className: 'custom-pin',
+        html: `<div style="width:14px;height:14px;border-radius:50%;background:${TOKENS.success};border:2px solid ${TOKENS.white}"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      });
+      const endIcon = Leaflet.divIcon({
+        className: 'custom-pin',
+        html: `<div style="width:14px;height:14px;border-radius:50%;background:${TOKENS.critical};border:2px solid ${TOKENS.white}"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      });
+      Leaflet.marker(ORIGIN_COORD, { icon: startIcon }).addTo(layer).bindPopup(`Origin: ${origin}`);
+      Leaflet.marker(DEST_COORD, { icon: endIcon }).addTo(layer).bindPopup(`Destination: ${destination}`);
+
+      setTimeout(() => m.invalidateSize(), 50);
+    });
+  }, [result, origin, destination]);
+
+  const recommended = result?.find((r) => r.kind === 'recommended');
+
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      {/* Header */}
+    <div className="space-y-5 animate-fade-in-up">
       <div>
-        <div className="flex items-center gap-2">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans">
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-strong">
             AI Tactical Route Optimizer
           </h1>
-          <span className="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-mono text-[10px] font-semibold uppercase">
-            NEURAL RISK ENGINE
+          <span className="px-2 py-0.5 rounded-sm bg-primary-50 border border-subtle text-primary font-mono text-[10px] font-semibold uppercase">
+            Ranked candidates
           </span>
         </div>
-        <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-          Dynamic multi-factor route synthesis taking into account real-time congestion, accident densities, and weather hazards.
+        <p className="text-sm text-muted mt-1">
+          NETRA returns multiple scored paths. The recommended corridor is highlighted on the map and in the comparison cards.
         </p>
       </div>
 
-      {/* Main Grid: Left 50% Config & Recommendations, Right 50% Glass Panel Map & Checkpoints */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left Side: Parameters & Route Comparison (6 cols) */}
-        <div className="lg:col-span-6 space-y-5">
-          {/* Inputs Card */}
-          <div className="glass-card p-5 sm:p-6 rounded-2xl space-y-4">
-            {/* Presets */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider shrink-0">
-                Presets:
-              </span>
-              {presets.map((p) => (
-                <button
-                  key={p.label}
-                  onClick={() => {
-                    setOrigin(p.origin);
-                    setDestination(p.dest);
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-xs text-slate-300 transition-colors shrink-0"
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-              <div>
-                <label className="text-slate-300 font-medium block mb-1.5">Origin Node</label>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400" />
-                  <input
-                    type="text"
-                    value={origin}
-                    onChange={(e) => setOrigin(e.target.value)}
-                    className="glass-input w-full pl-9 pr-3 py-2 rounded-xl text-white font-medium text-xs focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-medium block mb-1.5">Destination Node</label>
-                <div className="relative">
-                  <Navigation className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-emerald-400" />
-                  <input
-                    type="text"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    className="glass-input w-full pl-9 pr-3 py-2 rounded-xl text-white font-medium text-xs focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-medium block mb-1.5">Cargo Priority</label>
-                <select
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                  className="glass-input w-full px-3 py-2 rounded-xl text-white font-medium text-xs focus:outline-none bg-[#0D1525]"
-                >
-                  <option value="low">Standard / Low Priority</option>
-                  <option value="medium">Medium Priority</option>
-                  <option value="high">High Priority / On-Time Critical</option>
-                  <option value="critical">SOS / Emergency Escort</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-slate-300 font-medium block mb-1.5">Cargo Classification</label>
-                <select
-                  value={cargoType}
-                  onChange={(e) => setCargoType(e.target.value)}
-                  className="glass-input w-full px-3 py-2 rounded-xl text-white font-medium text-xs focus:outline-none bg-[#0D1525]"
-                >
-                  <option value="container">ISO Container</option>
-                  <option value="bulk">Bulk Raw Material</option>
-                  <option value="refrigerated">Refrigerated Pharma / Food</option>
-                  <option value="hazmat">Hazardous / Chemical</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-1">
-              <button
-                onClick={() => optimizeMutation.mutate()}
-                disabled={optimizeMutation.isPending}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 transition-all disabled:opacity-50"
-              >
-                <Sparkles className={`w-4 h-4 ${optimizeMutation.isPending ? 'animate-spin' : ''}`} />
-                <span>{optimizeMutation.isPending ? 'Calculating Neural Paths...' : 'Generate Optimized Route'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Route Comparison Cards */}
-          {result && (
-            <div className="space-y-4">
-              {/* Option 1: AI Recommended */}
-              <div className="p-5 rounded-2xl glass-panel-elevated border-2 border-cyan-500/50 shadow-xl space-y-3.5 relative">
-                <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono font-bold uppercase tracking-wider border border-cyan-500/40">
-                    ★ RECOMMENDED: AI INCIDENT-AVOIDANCE
-                  </span>
-                  <span className="text-emerald-400 text-xs font-mono font-bold">
-                    Safety: {result.recommended.safetyIndex}
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-bold text-white">{result.recommended.title}</h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Circumvents Faridabad road closure and high-density accident zones near Palwal.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 py-2 border-y border-white/[0.06] text-center">
-                  <div>
-                    <span className="text-[10px] text-slate-500 block">Distance</span>
-                    <span className="text-sm font-bold font-mono text-white">{result.recommended.distance}</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 block">Transit Time</span>
-                    <span className="text-sm font-bold font-mono text-cyan-400">{result.recommended.time}</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 block">Risk Score</span>
-                    <span className="text-sm font-bold font-mono text-emerald-400">{result.recommended.riskScore}/100</span>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 text-xs">
-                  {result.recommended.benefits.map((b: string, i: number) => (
-                    <div key={i} className="flex items-center gap-2 text-emerald-400 text-[11px]">
-                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                      <span>{b}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => toast.success('Optimized route parameters dispatched to driver telematics')}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 transition-all"
-                >
-                  Apply AI Route to Active Dispatch
-                </button>
-              </div>
-
-              {/* Option 2: Standard Route */}
-              <div className="p-5 rounded-2xl glass-card space-y-3 opacity-75 hover:opacity-100 transition-opacity">
-                <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-slate-400 text-[10px] font-mono font-bold uppercase tracking-wider">
-                    STANDARD DIRECT ROUTE
-                  </span>
-                  <span className="text-amber-400 text-xs font-mono font-bold">
-                    Safety: {result.standard.safetyIndex}
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-bold text-white">{result.standard.title}</h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Direct route through urban bottlenecks with reported lane closures.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 py-2 border-y border-white/[0.06] text-center">
-                  <div>
-                    <span className="text-[10px] text-slate-500 block">Distance</span>
-                    <span className="text-sm font-bold font-mono text-white">{result.standard.distance}</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 block">Transit Time</span>
-                    <span className="text-sm font-bold font-mono text-amber-400">{result.standard.time}</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 block">Risk Score</span>
-                    <span className="text-sm font-bold font-mono text-rose-400">{result.standard.riskScore}/100</span>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 text-xs">
-                  {result.standard.drawbacks.map((d: string, i: number) => (
-                    <div key={i} className="flex items-center gap-2 text-rose-400 text-[11px]">
-                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                      <span>{d}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+      <div className="glass-card p-4 sm:p-5 space-y-4">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <span className="text-[10px] font-semibold text-muted uppercase tracking-wider shrink-0">
+            Presets:
+          </span>
+          {presets.map((p) => (
+            <button
+              key={p.label}
+              onClick={() => {
+                setOrigin(p.origin);
+                setDestination(p.dest);
+                setResult(null);
+              }}
+              className="px-2.5 py-1 rounded-sm bg-primary-50 hover:bg-primary-100 border border-subtle text-xs text-main shrink-0"
+            >
+              {p.label}
+            </button>
+          ))}
         </div>
 
-        {/* Right Glass Panel: Interactive Route Visualizer (6 cols) */}
-        <div className="lg:col-span-6 glass-panel-right p-5 rounded-2xl flex flex-col justify-between space-y-4">
-          <div className="space-y-4 flex-1 flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 text-xs">
+          <div>
+            <label className="text-main font-medium block mb-1.5">Origin Node</label>
+            <div className="relative">
+              <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-primary" />
+              <input
+                type="text"
+                value={origin}
+                onChange={(e) => setOrigin(e.target.value)}
+                className="glass-input w-full pl-9 pr-3 py-2 text-main font-medium text-xs focus:outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-main font-medium block mb-1.5">Destination Node</label>
+            <div className="relative">
+              <Navigation className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-success" />
+              <input
+                type="text"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+                className="glass-input w-full pl-9 pr-3 py-2 text-main font-medium text-xs focus:outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-main font-medium block mb-1.5">Cargo Priority</label>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              className="glass-input w-full px-3 py-2 text-main font-medium text-xs focus:outline-none bg-card"
+            >
+              <option value="low">Standard / Low Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="high">High Priority / On-Time Critical</option>
+              <option value="critical">SOS / Emergency Escort</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-main font-medium block mb-1.5">Cargo Classification</label>
+            <select
+              value={cargoType}
+              onChange={(e) => setCargoType(e.target.value)}
+              className="glass-input w-full px-3 py-2 text-main font-medium text-xs focus:outline-none bg-card"
+            >
+              <option value="container">ISO Container</option>
+              <option value="bulk">Bulk Raw Material</option>
+              <option value="refrigerated">Refrigerated Pharma / Food</option>
+              <option value="hazmat">Hazardous / Chemical</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            onClick={() => optimizeMutation.mutate()}
+            disabled={optimizeMutation.isPending}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 btn-primary font-semibold text-xs text-on-primary disabled:opacity-50"
+          >
+            <Bot className={`w-4 h-4 ${optimizeMutation.isPending ? 'animate-spin' : ''}`} />
+            <span>{optimizeMutation.isPending ? 'Calculating ranked paths...' : 'Generate Optimized Route'}</span>
+          </button>
+        </div>
+      </div>
+
+      <div ref={resultsRef} className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+        <div className="xl:col-span-5 space-y-3">
+          {!result && (
+            <div className="glass-card p-6 text-sm text-muted">
+              No candidates yet. Set origin and destination, then generate a route. Ranked AI suggestions
+              (primary, alternate, and high-risk artery) will appear here and as separate polylines on the map.
+            </div>
+          )}
+
+          {result?.map((option) => (
+            <div
+              key={option.rank}
+              className={`p-4 rounded border space-y-3 ${
+                option.kind === 'recommended'
+                  ? 'bg-safe-bg border-success'
+                  : option.kind === 'avoid'
+                  ? 'bg-warning-50 border-warning'
+                  : 'glass-card border-subtle'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  className={`px-2 py-0.5 rounded-sm text-[10px] font-mono font-bold uppercase tracking-wider ${
+                    option.kind === 'recommended'
+                      ? 'bg-success text-white'
+                      : option.kind === 'avoid'
+                      ? 'bg-warning text-white'
+                      : 'bg-primary text-on-primary'
+                  }`}
+                >
+                  {option.kind === 'recommended'
+                    ? `Rank ${option.rank} · AI recommended`
+                    : option.kind === 'alternate'
+                    ? `Rank ${option.rank} · Alternate`
+                    : `Rank ${option.rank} · Avoid if possible`}
+                </span>
+                <span className="text-xs font-mono font-bold text-main">Safety {option.safetyIndex}</span>
+              </div>
+
               <div>
-                <h2 className="text-sm font-bold text-white tracking-tight">
-                  Route Comparison Map
-                </h2>
-                <p className="text-[11px] text-slate-400">Cyan = Recommended AI Path • Amber = Congested</p>
+                <h3 className="text-sm font-bold text-strong">{option.title}</h3>
+                <p className="text-[11px] text-muted mt-0.5">
+                  {origin} → {destination}
+                </p>
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono font-bold">
-                LIVE TRAFFIC
-              </span>
-            </div>
 
-            {/* Map Box */}
-            <div className="relative h-[300px] w-full rounded-xl overflow-hidden border border-white/[0.08] bg-[#070B13]">
-              <div ref={mapContainer} className="w-full h-full z-0" />
-              <div className="absolute bottom-3 left-3 z-10 px-2.5 py-1 rounded-md bg-black/75 backdrop-blur-md border border-white/[0.1] text-[10px] text-slate-300 flex items-center gap-3">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-1 bg-cyan-400 rounded-full" />
-                  <span>AI Optimal</span>
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-1 bg-amber-400 rounded-full" />
-                  <span>Standard Artery</span>
-                </span>
-              </div>
-            </div>
-
-            {/* Waypoints & Checkpoints Breakdown */}
-            <div className="space-y-2 text-xs">
-              <span className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
-                Key Corridor Waypoints:
-              </span>
-              <div className="space-y-1.5">
-                {[
-                  { name: 'Tughlakabad ICD Gate 2', time: 'KM 0 • 08:00', status: 'Clear', color: 'text-emerald-400' },
-                  { name: 'Eastern Peripheral Expressway Interchange', time: 'KM 38 • 08:35', status: '75 km/h Flow', color: 'text-cyan-400' },
-                  { name: 'Palwal Bypass Checkpoint', time: 'KM 84 • 09:15', status: 'Bypassed Congestion', color: 'text-emerald-400' },
-                  { name: 'Mathura Junction Hub', time: 'KM 148 • 10:20', status: 'Trauma Unit On Standby', color: 'text-cyan-400' },
-                  { name: 'Agra Dry Port Gateway', time: 'KM 214 • 11:45', status: 'ETA Verified', color: 'text-emerald-400' },
-                ].map((wp, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2 rounded-lg bg-white/[0.02] border border-white/[0.04] flex items-center justify-between text-[11px]"
+              <div className="grid grid-cols-3 gap-2 py-2 border-y border-subtle text-center">
+                <div>
+                  <span className="text-[10px] text-muted block">Distance</span>
+                  <span className="text-sm font-bold font-mono text-main">{option.distance}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted block">Transit</span>
+                  <span className="text-sm font-bold font-mono text-main">{option.time}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted block">Risk</span>
+                  <span
+                    className={`text-sm font-bold font-mono ${
+                      option.kind === 'recommended'
+                        ? 'text-success'
+                        : option.kind === 'avoid'
+                        ? 'text-critical'
+                        : 'text-warning'
+                    }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                      <span className="text-slate-200 font-medium">{wp.name}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-slate-500 font-mono text-[10px]">{wp.time}</span>
-                      <span className={`font-semibold ${wp.color} text-[10px]`}>{wp.status}</span>
-                    </div>
+                    {option.riskScore}/100
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                {option.points.map((b) => (
+                  <div key={b} className="flex items-start gap-2 text-[11px] text-main">
+                    {option.kind === 'avoid' ? (
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-warning mt-0.5" />
+                    ) : (
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-success mt-0.5" />
+                    )}
+                    <span>{b}</span>
                   </div>
                 ))}
               </div>
+
+              {option.kind === 'recommended' && (
+                <button
+                  onClick={() =>
+                    toast.success('Optimized route parameters dispatched to driver telematics')
+                  }
+                  className="w-full py-2.5 btn-primary font-semibold text-xs text-on-primary"
+                >
+                  Apply AI Route to Active Dispatch
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="xl:col-span-7 glass-card p-4 flex flex-col space-y-3 min-h-[520px]">
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-subtle">
+            <div>
+              <h2 className="text-sm font-bold text-strong">Route comparison map</h2>
+              <p className="text-[11px] text-muted">
+                Green = recommended · Navy = alternate · Amber dashed = higher-risk artery
+              </p>
+            </div>
+            <span className="px-2 py-0.5 rounded-sm bg-primary-50 border border-subtle text-primary text-[10px] font-mono font-bold">
+              {result ? `${result.length} PATHS` : 'STANDBY'}
+            </span>
+          </div>
+
+          <div className="relative h-[360px] w-full rounded overflow-hidden border border-subtle bg-page">
+            <div ref={mapContainer} className="w-full h-full z-0" />
+            <div className="absolute bottom-3 left-3 z-10 px-2.5 py-1 rounded-sm bg-card border border-subtle text-[10px] text-main flex items-center gap-3">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-1 bg-success rounded-full" />
+                AI optimal
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-1 bg-primary rounded-full" />
+                Alternate
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-1 bg-warning rounded-full" />
+                High-risk
+              </span>
             </div>
           </div>
 
-          {/* Bottom Hospital & Patrol info */}
-          <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-400">
-            <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+          <div className="text-xs text-muted">
+            {recommended ? (
+              <span>
+                Primary suggestion: <span className="text-main font-semibold">{recommended.title}</span> ·{' '}
+                {recommended.distance} · {recommended.time}
+              </span>
+            ) : (
+              <span>Generate a route to plot ranked polylines. Baseline corridor shown until then.</span>
+            )}
+          </div>
+
+          <div className="pt-2 border-t border-subtle flex items-center justify-between text-xs text-muted">
+            <span className="flex items-center gap-1.5 text-success font-medium">
               <Hospital className="w-3.5 h-3.5" />
-              <span>Max Hospital & Trauma Center within 6.2 km</span>
+              Trauma coverage along recommended buffer
             </span>
-            <span className="font-mono text-cyan-400 font-semibold text-[11px]">Buffer: 100% Covered</span>
+            <span className="font-mono text-primary font-semibold text-[11px]">3 ranked options</span>
           </div>
         </div>
       </div>

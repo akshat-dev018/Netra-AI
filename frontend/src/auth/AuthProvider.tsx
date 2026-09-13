@@ -154,12 +154,11 @@ export function useAuth() {
 
 function FullPageSpinner() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-full bg-[#070B13] text-slate-200">
+    <div className="flex flex-col items-center justify-center h-screen w-full bg-page text-main">
       <div className="relative flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full border-4 border-cyan-500/20 border-t-cyan-500 animate-spin"></div>
-        <div className="absolute w-8 h-8 rounded-full bg-cyan-500/20 animate-pulse"></div>
+        <div className="w-16 h-16 rounded-full border-4 border-primary-200 border-t-primary animate-spin"></div>
       </div>
-      <p className="mt-4 text-sm font-medium tracking-wider text-cyan-400/80 uppercase">
+      <p className="mt-4 text-sm font-medium tracking-wider text-muted uppercase">
         Initializing NETRA Control Tower...
       </p>
     </div>

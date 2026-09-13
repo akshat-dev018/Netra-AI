@@ -17,7 +17,6 @@ import {
   Volume2,
   VolumeX,
   Hospital,
-  Sparkles,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -157,15 +156,15 @@ export default function EmergencyAlertsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <AlertOctagon className="w-5 h-5 text-rose-400 animate-pulse" />
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans">
+            <AlertOctagon className="w-5 h-5 text-critical animate-pulse" />
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-main font-sans">
               Emergency SOS & Dispatch
             </h1>
-            <span className="px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 font-mono text-[10px] font-semibold uppercase">
+            <span className="px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-critical font-mono text-[10px] font-semibold uppercase">
               TRIAGE ACTIVE
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-muted mt-0.5">
             Rapid response queue for distress beacons, collision notifications, and ambulance mobilizations.
           </p>
         </div>
@@ -173,14 +172,14 @@ export default function EmergencyAlertsPage() {
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setAudioEnabled(!audioEnabled)}
-            className="p-2.5 rounded-xl glass-card text-slate-400 hover:text-white transition-all"
+            className="p-2.5 rounded glass-card text-muted hover:text-main transition-all"
             title={audioEnabled ? 'Mute alert sounds' : 'Enable alert sounds'}
           >
-            {audioEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
+            {audioEnabled ? <Volume2 className="w-4 h-4 text-success" /> : <VolumeX className="w-4 h-4" />}
           </button>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white text-xs font-semibold shadow-lg shadow-rose-500/20 transition-all"
+            className="flex items-center gap-2 px-4 py-2.5 rounded btn-critical text-xs font-semibold text-white transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Broadcast SOS Beacon</span>
@@ -200,10 +199,10 @@ export default function EmergencyAlertsPage() {
           <button
             key={tab.key}
             onClick={() => setFilter(tab.key)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all ${
+            className={`px-3.5 py-1.5 rounded text-xs font-medium transition-all ${
               filter === tab.key
-                ? 'bg-rose-500/20 text-white border border-rose-500/40 font-semibold shadow-sm'
-                : 'glass-card text-slate-400 hover:text-slate-200'
+                ? 'bg-critical-50 text-main border border-rose-500/40 font-semibold shadow-sm'
+                : 'glass-card text-muted hover:text-main'
             }`}
           >
             {tab.label}
@@ -223,7 +222,7 @@ export default function EmergencyAlertsPage() {
               return (
                 <div
                   key={alert._id}
-                  className={`p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-4 ${
+                  className={`p-5 rounded border transition-all flex flex-col justify-between space-y-4 ${
                     isResolved
                       ? 'glass-card opacity-60'
                       : isCritical
@@ -237,14 +236,14 @@ export default function EmergencyAlertsPage() {
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
                             isCritical
-                              ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                              : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                              ? 'bg-critical-50 text-critical border border-rose-500/30'
+                              : 'bg-warning-50 text-warning border border-amber-500/30'
                           }`}
                         >
                           {alert.severity}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-slate-500" />
+                        <span className="text-[10px] text-muted font-mono flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-muted" />
                           {new Date(alert.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -252,12 +251,12 @@ export default function EmergencyAlertsPage() {
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${
                           alert.status === 'open'
-                            ? 'bg-rose-500 text-white animate-pulse'
+                            ? 'bg-rose-500 text-main animate-pulse'
                             : alert.status === 'acknowledged'
-                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                            ? 'bg-warning-50 text-warning border border-amber-500/30'
                             : alert.status === 'dispatched'
                             ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                            : 'bg-white/10 text-slate-400'
+                            : 'bg-white/10 text-muted'
                         }`}
                       >
                         {alert.status}
@@ -265,13 +264,13 @@ export default function EmergencyAlertsPage() {
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-bold text-white capitalize">{alert.type?.replace('_', ' ') || 'Emergency SOS'}</h3>
-                      <p className="text-xs text-slate-300 mt-1 leading-relaxed">{alert.description}</p>
+                      <h3 className="text-sm font-bold text-main capitalize">{alert.type?.replace('_', ' ') || 'Emergency SOS'}</h3>
+                      <p className="text-xs text-main mt-1 leading-relaxed">{alert.description}</p>
                     </div>
 
                     {alert.location?.coordinates && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono">
-                        <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-muted font-mono">
+                        <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
                         <span>Lat: {alert.location.coordinates[1]}, Lng: {alert.location.coordinates[0]}</span>
                       </div>
                     )}
@@ -283,7 +282,7 @@ export default function EmergencyAlertsPage() {
                       <button
                         onClick={() => acknowledgeMutation.mutate(alert._id)}
                         disabled={acknowledgeMutation.isPending}
-                        className="w-full py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 font-semibold text-xs transition-all"
+                        className="w-full py-2.5 rounded bg-warning-50 hover:bg-amber-500/30 border border-amber-500/30 text-warning font-semibold text-xs transition-all"
                       >
                         1. Acknowledge SOS
                       </button>
@@ -292,7 +291,7 @@ export default function EmergencyAlertsPage() {
                     {alert.status === 'acknowledged' && (
                       <button
                         onClick={() => setSelectedAlert(alert)}
-                        className="w-full py-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-300 font-semibold text-xs transition-all"
+                        className="w-full py-2.5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-subtle text-primary font-semibold text-xs transition-all"
                       >
                         2. Dispatch Tactical Unit
                       </button>
@@ -302,14 +301,14 @@ export default function EmergencyAlertsPage() {
                       <button
                         onClick={() => resolveMutation.mutate(alert._id)}
                         disabled={resolveMutation.isPending}
-                        className="w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-semibold text-xs transition-all"
+                        className="w-full py-2.5 rounded bg-safe-bg hover:bg-emerald-500/30 border border-emerald-500/30 text-success font-semibold text-xs transition-all"
                       >
                         3. Mark Incident Resolved
                       </button>
                     )}
 
                     {alert.status === 'resolved' && (
-                      <div className="flex items-center justify-center gap-1.5 text-xs text-emerald-400 font-medium py-1">
+                      <div className="flex items-center justify-center gap-1.5 text-xs text-success font-medium py-1">
                         <CheckCircle2 className="w-4 h-4" />
                         <span>Incident Resolved</span>
                       </div>
@@ -322,18 +321,18 @@ export default function EmergencyAlertsPage() {
         </div>
 
         {/* Right Glass Panel: Standby Triage Unit Status (4 cols) */}
-        <div className="lg:col-span-4 glass-panel-right p-5 rounded-2xl flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-4 glass-panel-right p-5 rounded flex flex-col justify-between space-y-4">
           <div className="space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+            <div className="flex items-center justify-between pb-3 border-b border-subtle">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                <div className="w-7 h-7 rounded-lg bg-critical-50 border border-rose-500/30 flex items-center justify-center text-critical">
                   <LifeBuoy className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-xs font-bold text-white uppercase tracking-wider">
+                  <h2 className="text-xs font-bold text-main uppercase tracking-wider">
                     Standby Units & Trauma
                   </h2>
-                  <p className="text-[10px] text-slate-400 font-mono">EMERGENCY NETWORK</p>
+                  <p className="text-[10px] text-muted font-mono">EMERGENCY NETWORK</p>
                 </div>
               </div>
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -341,54 +340,54 @@ export default function EmergencyAlertsPage() {
 
             {/* Ready Response Units */}
             <div className="space-y-2.5 text-xs">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
                 Mobilized & Ready Units
               </span>
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between">
+              <div className="p-3 rounded bg-white/[0.02] border border-subtle flex items-center justify-between">
                 <div>
-                  <div className="font-semibold text-white">NCR Mobile Trauma 1</div>
-                  <span className="text-[10px] text-slate-400">ALS Ambulance • Base: Delhi ICD</span>
+                  <div className="font-semibold text-main">NCR Mobile Trauma 1</div>
+                  <span className="text-[10px] text-muted">ALS Ambulance • Base: Delhi ICD</span>
                 </div>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono text-success font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
                   READY
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between">
+              <div className="p-3 rounded bg-white/[0.02] border border-subtle flex items-center justify-between">
                 <div>
-                  <div className="font-semibold text-white">Highway Patrol Unit 08</div>
-                  <span className="text-[10px] text-slate-400">Interceptor • KM 84 NH-44</span>
+                  <div className="font-semibold text-main">Highway Patrol Unit 08</div>
+                  <span className="text-[10px] text-muted">Interceptor • KM 84 NH-44</span>
                 </div>
-                <span className="text-[10px] font-mono text-cyan-400 font-bold bg-cyan-500/10 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono text-primary font-bold bg-primary-50 px-2 py-0.5 rounded">
                   ON PATROL
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between">
+              <div className="p-3 rounded bg-white/[0.02] border border-subtle flex items-center justify-between">
                 <div>
-                  <div className="font-semibold text-white">Agra Emergency Mobile</div>
-                  <span className="text-[10px] text-slate-400">Trauma Unit • Base: Mathura</span>
+                  <div className="font-semibold text-main">Agra Emergency Mobile</div>
+                  <span className="text-[10px] text-muted">Trauma Unit • Base: Mathura</span>
                 </div>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono text-success font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
                   READY
                 </span>
               </div>
             </div>
 
             {/* Trauma Facilities Availability */}
-            <div className="p-3.5 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20 space-y-1.5 text-xs">
-              <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+            <div className="p-3.5 rounded bg-emerald-500/[0.06] border border-emerald-500/20 space-y-1.5 text-xs">
+              <span className="text-[10px] font-semibold text-success uppercase tracking-wider flex items-center gap-1">
                 <Hospital className="w-3.5 h-3.5" /> Trauma Level 1 ICU Capacity
               </span>
-              <p className="text-[11px] text-slate-300">
+              <p className="text-[11px] text-main">
                 AIIMS New Delhi & Safdarjung Trauma have 6 ICU beds reserved for highway emergency protocol.
               </p>
             </div>
           </div>
 
-          <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-slate-400">
+          <div className="pt-3 border-t border-subtle flex items-center justify-between text-[11px] text-muted">
             <span>Average Dispatch Latency</span>
-            <span className="text-emerald-400 font-mono font-bold">1.2 mins</span>
+            <span className="text-success font-mono font-bold">1.2 mins</span>
           </div>
         </div>
       </div>
@@ -396,29 +395,29 @@ export default function EmergencyAlertsPage() {
       {/* Dispatch Unit Modal */}
       {selectedAlert && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-md glass-panel-elevated p-6 rounded-2xl border border-white/[0.1] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+          <div className="w-full max-w-md glass-panel-elevated p-6 rounded border border-white/[0.1] space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-subtle">
               <div className="flex items-center gap-2">
-                <LifeBuoy className="w-5 h-5 text-cyan-400" />
-                <h3 className="text-base font-bold text-white">Mobilize Emergency Unit</h3>
+                <LifeBuoy className="w-5 h-5 text-primary" />
+                <h3 className="text-base font-bold text-main">Mobilize Emergency Unit</h3>
               </div>
-              <button onClick={() => setSelectedAlert(null)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setSelectedAlert(null)} className="text-muted hover:text-main">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold">Incident:</span>
-                <p className="text-slate-200 mt-0.5">{selectedAlert.description}</p>
+              <div className="p-3 rounded bg-white/[0.02] border border-white/[0.04]">
+                <span className="text-[10px] text-muted uppercase font-semibold">Incident:</span>
+                <p className="text-main mt-0.5">{selectedAlert.description}</p>
               </div>
 
               <div>
-                <label className="text-slate-300 font-medium block mb-1.5">Select Ready Response Unit *</label>
+                <label className="text-main font-medium block mb-1.5">Select Ready Response Unit *</label>
                 <select
                   value={selectedUnit}
                   onChange={(e) => setSelectedUnit(e.target.value)}
-                  className="glass-input w-full p-2.5 rounded-xl text-white text-xs focus:outline-none bg-[#0D1525]"
+                  className="glass-input w-full p-2.5 rounded text-main text-xs focus:outline-none bg-card"
                 >
                   <option value="">-- Choose Ready Unit --</option>
                   <option value="unit-1">NCR Mobile Trauma 1 (ALS Ambulance - Ready)</option>
@@ -428,17 +427,17 @@ export default function EmergencyAlertsPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/[0.06]">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-subtle">
               <button
                 onClick={() => setSelectedAlert(null)}
-                className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.08] text-slate-300 text-xs font-medium"
+                className="px-4 py-2 rounded bg-white/[0.05] hover:bg-white/[0.08] text-main text-xs font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={() => dispatchMutation.mutate({ alertId: selectedAlert._id, unitId: selectedUnit || undefined })}
                 disabled={dispatchMutation.isPending}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20"
+                className="px-4 py-2 rounded btn-primary text-xs font-semibold text-on-primary"
               >
                 {dispatchMutation.isPending ? 'Mobilizing...' : 'Confirm Dispatch'}
               </button>
@@ -450,24 +449,24 @@ export default function EmergencyAlertsPage() {
       {/* Broadcast SOS Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-md glass-panel-elevated p-6 rounded-2xl border border-white/[0.1] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+          <div className="w-full max-w-md glass-panel-elevated p-6 rounded border border-white/[0.1] space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-subtle">
               <div className="flex items-center gap-2">
-                <AlertOctagon className="w-5 h-5 text-rose-400" />
-                <h3 className="text-base font-bold text-white">Broadcast Emergency SOS Beacon</h3>
+                <AlertOctagon className="w-5 h-5 text-critical" />
+                <h3 className="text-base font-bold text-main">Broadcast Emergency SOS Beacon</h3>
               </div>
-              <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setShowCreateModal(false)} className="text-muted hover:text-main">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="text-slate-300 font-medium block mb-1">Incident Type</label>
+                <label className="text-main font-medium block mb-1">Incident Type</label>
                 <select
                   value={newAlert.type}
                   onChange={(e) => setNewAlert({ ...newAlert, type: e.target.value })}
-                  className="glass-input w-full p-2.5 rounded-xl text-white text-xs focus:outline-none bg-[#0D1525]"
+                  className="glass-input w-full p-2.5 rounded text-main text-xs focus:outline-none bg-card"
                 >
                   <option value="accident">Severe Collision / Accident</option>
                   <option value="medical">Medical Distress / Driver Health</option>
@@ -478,11 +477,11 @@ export default function EmergencyAlertsPage() {
               </div>
 
               <div>
-                <label className="text-slate-300 font-medium block mb-1">Severity Level</label>
+                <label className="text-main font-medium block mb-1">Severity Level</label>
                 <select
                   value={newAlert.severity}
                   onChange={(e) => setNewAlert({ ...newAlert, severity: e.target.value })}
-                  className="glass-input w-full p-2.5 rounded-xl text-white text-xs focus:outline-none bg-[#0D1525]"
+                  className="glass-input w-full p-2.5 rounded text-main text-xs focus:outline-none bg-card"
                 >
                   <option value="critical">Critical (Immediate Life-Threatening)</option>
                   <option value="high">High Priority</option>
@@ -491,21 +490,21 @@ export default function EmergencyAlertsPage() {
               </div>
 
               <div>
-                <label className="text-slate-300 font-medium block mb-1">Incident Description *</label>
+                <label className="text-main font-medium block mb-1">Incident Description *</label>
                 <textarea
                   rows={3}
                   placeholder="Describe location, casualties, vehicle condition..."
                   value={newAlert.description}
                   onChange={(e) => setNewAlert({ ...newAlert, description: e.target.value })}
-                  className="glass-input w-full p-2.5 rounded-xl text-white text-xs focus:outline-none"
+                  className="glass-input w-full p-2.5 rounded text-main text-xs focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/[0.06]">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-subtle">
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.08] text-slate-300 text-xs font-medium"
+                className="px-4 py-2 rounded bg-white/[0.05] hover:bg-white/[0.08] text-main text-xs font-medium"
               >
                 Cancel
               </button>
@@ -518,7 +517,7 @@ export default function EmergencyAlertsPage() {
                   createAlertMutation.mutate(newAlert);
                 }}
                 disabled={createAlertMutation.isPending}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white text-xs font-semibold shadow-lg shadow-rose-500/20"
+                className="px-4 py-2 rounded btn-critical text-xs font-semibold text-white"
               >
                 {createAlertMutation.isPending ? 'Broadcasting...' : 'Broadcast SOS Beacon'}
               </button>

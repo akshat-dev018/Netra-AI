@@ -1,5 +1,6 @@
 'use client';
 
+import { TOKENS } from '@/theme/tokens';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { vehiclesApi, corridorsApi } from '@/lib/api';
@@ -20,6 +21,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import L from 'leaflet';
+import { getLeafletTileConfig } from '@/lib/mapTiles';
 
 interface FleetVehicle {
   _id: string;
@@ -148,11 +150,8 @@ export default function FleetMapPage() {
 
     mapRef.current = map;
 
-    // Dark carto basemap
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd',
-    }).addTo(map);
+    const tiles = getLeafletTileConfig();
+    L.tileLayer(tiles.url, tiles.options).addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -177,7 +176,7 @@ export default function FleetMapPage() {
         if (coords.length > 0) {
           const latLngs = coords.map((pt: [number, number]) => [pt[1], pt[0]] as [number, number]);
           L.polyline(latLngs, {
-            color: '#06B6D4',
+            color: TOKENS.primary,
             weight: 3,
             opacity: 0.6,
             dashArray: '6, 6',
@@ -190,7 +189,7 @@ export default function FleetMapPage() {
     vehicles.forEach((veh) => {
       const isSelected = veh._id === selectedVehicleId;
       const isTransit = veh.status === 'in_transit';
-      const color = isTransit ? '#10B981' : veh.status === 'idle' ? '#F59E0B' : '#64748B';
+      const color = isTransit ? TOKENS.success : veh.status === 'idle' ? TOKENS.warning : TOKENS.primary;
 
       const icon = L.divIcon({
         className: 'custom-truck-pin',
@@ -199,7 +198,7 @@ export default function FleetMapPage() {
             position: relative;
             width: ${isSelected ? '38px' : '30px'};
             height: ${isSelected ? '38px' : '30px'};
-            background: #0B132B;
+            background: ${TOKENS.primary};
             border: 2px solid ${color};
             border-radius: 10px;
             display: flex;
@@ -210,7 +209,7 @@ export default function FleetMapPage() {
             transition: all 0.2s ease;
           ">
             <span style="font-size:${isSelected ? '16px' : '13px'};">🚛</span>
-            ${isTransit ? `<span style="position:absolute; top:-3px; right:-3px; width:8px; height:8px; border-radius:50%; background:#10B981; animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></span>` : ''}
+            ${isTransit ? `<span style="position:absolute; top:-3px; right:-3px; width:8px; height:8px; border-radius:50%; background:${TOKENS.success}; animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></span>` : ''}
           </div>
         `,
         iconSize: [36, 36],
@@ -241,35 +240,35 @@ export default function FleetMapPage() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 glass-panel p-4">
         <div>
           <div className="flex items-center gap-2">
-            <Truck className="w-5 h-5 text-cyan-400" />
-            <h1 className="text-lg font-bold text-white font-mono tracking-tight uppercase">
+            <Truck className="w-5 h-5 text-primary" />
+            <h1 className="text-lg font-bold text-main font-mono tracking-tight uppercase">
               LIVE FLEET TELEMATICS RADAR
             </h1>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-semibold flex items-center gap-1">
+            <span className="px-2 py-0.5 rounded-full bg-success-50 border border-emerald-500/30 text-success text-[10px] font-mono font-semibold flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               GPS ENGINE ACTIVE
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-muted mt-1">
             Real-time geospatial tracking, sensor diagnostics, and corridor geofence monitoring.
           </p>
         </div>
 
         {/* Quick Fleet Counters */}
         <div className="flex items-center gap-3">
-          <div className="px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-center">
-            <span className="text-[10px] font-mono text-slate-400 uppercase block">Total Fleet</span>
-            <span className="text-sm font-bold font-mono text-white">{vehicles.length}</span>
+          <div className="px-3 py-1.5 rounded bg-card border border-subtle text-center">
+            <span className="text-[10px] font-mono text-muted uppercase block">Total Fleet</span>
+            <span className="text-sm font-bold font-mono text-main">{vehicles.length}</span>
           </div>
-          <div className="px-3 py-1.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-center">
-            <span className="text-[10px] font-mono text-emerald-400 uppercase block">In Transit</span>
-            <span className="text-sm font-bold font-mono text-emerald-400">
+          <div className="px-3 py-1.5 rounded bg-emerald-950/30 border border-emerald-500/30 text-center">
+            <span className="text-[10px] font-mono text-success uppercase block">In Transit</span>
+            <span className="text-sm font-bold font-mono text-success">
               {vehicles.filter((v) => v.status === 'in_transit').length}
             </span>
           </div>
-          <div className="px-3 py-1.5 rounded-xl bg-amber-950/30 border border-amber-500/30 text-center">
-            <span className="text-[10px] font-mono text-amber-400 uppercase block">Idle / Depot</span>
-            <span className="text-sm font-bold font-mono text-amber-400">
+          <div className="px-3 py-1.5 rounded bg-amber-950/30 border border-amber-500/30 text-center">
+            <span className="text-[10px] font-mono text-warning uppercase block">Idle / Depot</span>
+            <span className="text-sm font-bold font-mono text-warning">
               {vehicles.filter((v) => v.status === 'idle').length}
             </span>
           </div>
@@ -279,29 +278,29 @@ export default function FleetMapPage() {
       {/* Main Map + Right Glass Inspector Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 h-[calc(100vh-210px)] min-h-[620px]">
         {/* Map & Vehicle Selector Area */}
-        <div className="lg:col-span-8 flex flex-col glass-panel overflow-hidden relative border border-white/[0.08]">
+        <div className="lg:col-span-8 flex flex-col glass-panel overflow-hidden relative border border-subtle">
           {/* Map Controls Floating Bar */}
           <div className="absolute top-3 left-3 right-3 z-[400] flex flex-wrap items-center justify-between gap-2 pointer-events-none">
-            <div className="flex items-center gap-2 pointer-events-auto bg-slate-950/80 backdrop-blur-md p-1.5 rounded-xl border border-white/10 shadow-lg">
-              <Search className="w-3.5 h-3.5 text-slate-400 ml-2" />
+            <div className="flex items-center gap-2 pointer-events-auto bg-card backdrop-blur-md p-1.5 rounded border border-white/10 shadow-lg">
+              <Search className="w-3.5 h-3.5 text-muted ml-2" />
               <input
                 type="text"
                 placeholder="Search truck ID, model, driver..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent text-xs text-white placeholder-slate-500 outline-none w-48 sm:w-64"
+                className="bg-transparent text-xs text-main placeholder:text-muted outline-none w-48 sm:w-64"
               />
             </div>
 
-            <div className="flex items-center gap-1.5 pointer-events-auto bg-slate-950/80 backdrop-blur-md p-1 rounded-xl border border-white/10 shadow-lg">
+            <div className="flex items-center gap-1.5 pointer-events-auto bg-card backdrop-blur-md p-1 rounded border border-white/10 shadow-lg">
               {['all', 'in_transit', 'idle'].map((st) => (
                 <button
                   key={st}
                   onClick={() => setFilterStatus(st)}
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-mono uppercase font-semibold transition-all ${
                     filterStatus === st
-                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-[#11315F] dark:bg-primary-700 text-[#DEEBEC] dark:text-white border border-primary-500 shadow-sm'
+                      : 'text-muted hover:text-main'
                   }`}
                 >
                   {st.replace('_', ' ')}
@@ -314,7 +313,7 @@ export default function FleetMapPage() {
           <div ref={mapContainer} className="w-full h-full min-h-[480px] z-10" />
 
           {/* Bottom Vehicle Quick Carousel */}
-          <div className="p-3 bg-slate-950/90 backdrop-blur-md border-t border-white/10 flex items-center gap-2.5 overflow-x-auto z-20">
+          <div className="p-3 bg-card backdrop-blur-md border-t border-white/10 flex items-center gap-2.5 overflow-x-auto z-20">
             {filteredVehicles.map((v) => {
               const isSel = v._id === selectedVehicleId;
               return (
@@ -324,21 +323,21 @@ export default function FleetMapPage() {
                     setSelectedVehicleId(v._id);
                     mapRef.current?.flyTo([v.lat, v.lng], 12);
                   }}
-                  className={`px-3 py-2 rounded-xl text-left shrink-0 transition-all border ${
+                  className={`px-3 py-2 rounded text-left shrink-0 transition-all border ${
                     isSel
-                      ? 'bg-cyan-500/20 border-cyan-500/50 shadow-md shadow-cyan-500/10'
-                      : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                      ? 'bg-primary-50 border-subtle '
+                      : 'bg-card border-subtle hover:border-subtle'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-white">{v.registrationNumber}</span>
+                    <span className="font-mono text-xs font-bold text-main">{v.registrationNumber}</span>
                     <span
                       className={`w-2 h-2 rounded-full ${
                         v.status === 'in_transit' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
                       }`}
                     />
                   </div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">
+                  <div className="text-[10px] text-muted mt-0.5">
                     {v.speed && v.speed > 0 ? `${v.speed} km/h • ` : 'Idle • '}
                     {v.driver?.name}
                   </div>
@@ -351,23 +350,23 @@ export default function FleetMapPage() {
         {/* RIGHT GLASS TELEMATICS INSPECTOR */}
         <div className="lg:col-span-4 glass-panel-right flex flex-col overflow-y-auto space-y-4 p-5">
           {/* Panel Header */}
-          <div className="border-b border-white/[0.08] pb-3.5 flex items-center justify-between">
+          <div className="border-b border-subtle pb-3.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+              <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-subtle flex items-center justify-center text-primary">
                 <Truck className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-xs font-bold text-white font-mono uppercase tracking-wider">
+                <h2 className="text-xs font-bold text-main font-mono uppercase tracking-wider">
                   VEHICLE TELEMATICS
                 </h2>
-                <p className="text-[10px] text-slate-400 font-mono">{selectedVehicle.registrationNumber}</p>
+                <p className="text-[10px] text-muted font-mono">{selectedVehicle.registrationNumber}</p>
               </div>
             </div>
             <span
               className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                 selectedVehicle.status === 'in_transit'
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                  ? 'bg-success-50 text-success border border-emerald-500/30'
+                  : 'bg-amber-500/15 text-warning border border-amber-500/30'
               }`}
             >
               {selectedVehicle.status.toUpperCase()}
@@ -375,58 +374,58 @@ export default function FleetMapPage() {
           </div>
 
           {/* Vehicle Profile Summary */}
-          <div className="p-3.5 rounded-xl bg-slate-900/60 border border-white/[0.06] space-y-2 text-xs">
+          <div className="p-3.5 rounded bg-card border border-subtle space-y-2 text-xs">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Model Chassis</span>
-              <span className="font-semibold text-white">{selectedVehicle.model}</span>
+              <span className="text-muted">Model Chassis</span>
+              <span className="font-semibold text-main">{selectedVehicle.model}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Payload Capacity</span>
-              <span className="font-mono text-cyan-400 font-bold">{selectedVehicle.capacityTon} MT</span>
+              <span className="text-muted">Payload Capacity</span>
+              <span className="font-mono text-primary font-bold">{selectedVehicle.capacityTon} MT</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Current Corridor</span>
-              <span className="font-mono text-amber-300 font-semibold">{selectedVehicle.corridor}</span>
+              <span className="text-muted">Current Corridor</span>
+              <span className="font-mono text-warning font-semibold">{selectedVehicle.corridor}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">GPS Ping Latency</span>
-              <span className="font-mono text-emerald-400">{selectedVehicle.lastPing}</span>
+              <span className="text-muted">GPS Ping Latency</span>
+              <span className="font-mono text-success">{selectedVehicle.lastPing}</span>
             </div>
           </div>
 
           {/* Sensor Telemetry Gauges */}
           <div className="space-y-2">
-            <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold">
+            <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted font-bold">
               DIAGNOSTIC TELEMETRY MATRIX
             </h3>
             <div className="grid grid-cols-2 gap-2.5">
               {/* Speed Gauge */}
-              <div className="p-3 rounded-xl bg-slate-900/70 border border-white/[0.06] space-y-1">
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
+              <div className="p-3 rounded bg-card border border-subtle space-y-1">
+                <div className="flex items-center justify-between text-[11px] text-muted">
                   <span>Cruising Speed</span>
-                  <Gauge className="w-3.5 h-3.5 text-cyan-400" />
+                  <Gauge className="w-3.5 h-3.5 text-primary" />
                 </div>
-                <div className="text-xl font-mono font-bold text-white">
-                  {selectedVehicle.speed ?? 0} <span className="text-[10px] text-slate-400">km/h</span>
+                <div className="text-xl font-mono font-bold text-main">
+                  {selectedVehicle.speed ?? 0} <span className="text-[10px] text-muted">km/h</span>
                 </div>
-                <div className="w-full bg-slate-800 rounded-full h-1 mt-1.5 overflow-hidden">
+                <div className="w-full bg-primary-100 rounded-full h-1 mt-1.5 overflow-hidden">
                   <div
-                    className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full rounded-full"
+                    className="bg-primary h-full rounded-full"
                     style={{ width: `${Math.min(100, ((selectedVehicle.speed ?? 0) / 90) * 100)}%` }}
                   />
                 </div>
               </div>
 
               {/* Fuel Level */}
-              <div className="p-3 rounded-xl bg-slate-900/70 border border-white/[0.06] space-y-1">
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
+              <div className="p-3 rounded bg-card border border-subtle space-y-1">
+                <div className="flex items-center justify-between text-[11px] text-muted">
                   <span>Fuel Tank</span>
-                  <Fuel className="w-3.5 h-3.5 text-amber-400" />
+                  <Fuel className="w-3.5 h-3.5 text-warning" />
                 </div>
-                <div className="text-xl font-mono font-bold text-amber-400">
+                <div className="text-xl font-mono font-bold text-warning">
                   {selectedVehicle.fuelLevel ?? 75}%
                 </div>
-                <div className="w-full bg-slate-800 rounded-full h-1 mt-1.5 overflow-hidden">
+                <div className="w-full bg-primary-100 rounded-full h-1 mt-1.5 overflow-hidden">
                   <div
                     className="bg-amber-400 h-full rounded-full"
                     style={{ width: `${selectedVehicle.fuelLevel ?? 75}%` }}
@@ -435,47 +434,47 @@ export default function FleetMapPage() {
               </div>
 
               {/* Engine Temp */}
-              <div className="p-3 rounded-xl bg-slate-900/70 border border-white/[0.06] space-y-1">
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
+              <div className="p-3 rounded bg-card border border-subtle space-y-1">
+                <div className="flex items-center justify-between text-[11px] text-muted">
                   <span>Engine Temp</span>
-                  <Thermometer className="w-3.5 h-3.5 text-emerald-400" />
+                  <Thermometer className="w-3.5 h-3.5 text-success" />
                 </div>
-                <div className="text-xl font-mono font-bold text-emerald-400">
+                <div className="text-xl font-mono font-bold text-success">
                   88°C
                 </div>
-                <span className="text-[10px] text-emerald-400/80 font-mono">Nominal Range</span>
+                <span className="text-[10px] text-success/80 font-mono">Nominal Range</span>
               </div>
 
               {/* Tire Pressure */}
-              <div className="p-3 rounded-xl bg-slate-900/70 border border-white/[0.06] space-y-1">
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
+              <div className="p-3 rounded bg-card border border-subtle space-y-1">
+                <div className="flex items-center justify-between text-[11px] text-muted">
                   <span>TPMS Sensors</span>
-                  <Activity className="w-3.5 h-3.5 text-cyan-400" />
+                  <Activity className="w-3.5 h-3.5 text-primary" />
                 </div>
-                <div className="text-xl font-mono font-bold text-white">
-                  120 <span className="text-[10px] text-slate-400">PSI</span>
+                <div className="text-xl font-mono font-bold text-main">
+                  120 <span className="text-[10px] text-muted">PSI</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono">10/10 wheels OK</span>
+                <span className="text-[10px] text-muted font-mono">10/10 wheels OK</span>
               </div>
             </div>
           </div>
 
           {/* Assigned Driver Card */}
-          <div className="p-3.5 rounded-xl bg-cyan-950/20 border border-cyan-500/30 space-y-2.5">
+          <div className="p-3.5 rounded bg-cyan-950/20 border border-subtle space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-400 font-bold">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-primary font-bold">
                 COMMERCIAL PILOT
               </span>
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <ShieldCheck className="w-4 h-4 text-success" />
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-bold text-white">{selectedVehicle.driver?.name}</div>
-                <div className="text-xs text-slate-400 font-mono">{selectedVehicle.driver?.phone}</div>
+                <div className="text-sm font-bold text-main">{selectedVehicle.driver?.name}</div>
+                <div className="text-xs text-muted font-mono">{selectedVehicle.driver?.phone}</div>
               </div>
               <a
                 href={`tel:${selectedVehicle.driver?.phone}`}
-                className="p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 transition-all shadow-sm"
+                className="p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-subtle text-primary transition-all shadow-sm"
               >
                 <Phone className="w-4 h-4" />
               </a>
@@ -483,23 +482,23 @@ export default function FleetMapPage() {
           </div>
 
           {/* Live Incident / Telemetry Stream */}
-          <div className="space-y-2 pt-2 border-t border-white/[0.06]">
-            <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold">
+          <div className="space-y-2 pt-2 border-t border-subtle">
+            <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted font-bold">
               EVENT LOG
             </h3>
             <div className="space-y-1.5 text-xs">
-              <div className="p-2.5 rounded-lg bg-slate-900/50 border border-slate-800 flex items-start gap-2">
+              <div className="p-2.5 rounded-lg bg-card border border-subtle flex items-start gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
                 <div>
-                  <div className="font-medium text-slate-200">Palwal Toll Plaza Cross Event</div>
-                  <div className="text-[10px] text-slate-500 font-mono">FASTag verified • 14:22 IST</div>
+                  <div className="font-medium text-main">Palwal Toll Plaza Cross Event</div>
+                  <div className="text-[10px] text-muted font-mono">FASTag verified • 14:22 IST</div>
                 </div>
               </div>
-              <div className="p-2.5 rounded-lg bg-slate-900/50 border border-slate-800 flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
+              <div className="p-2.5 rounded-lg bg-card border border-subtle flex items-start gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-success mt-1.5 shrink-0" />
                 <div>
-                  <div className="font-medium text-slate-200">Driver Rest Break Completed</div>
-                  <div className="text-[10px] text-slate-500 font-mono">HOS Compliant 45m • 13:30 IST</div>
+                  <div className="font-medium text-main">Driver Rest Break Completed</div>
+                  <div className="text-[10px] text-muted font-mono">HOS Compliant 45m • 13:30 IST</div>
                 </div>
               </div>
             </div>

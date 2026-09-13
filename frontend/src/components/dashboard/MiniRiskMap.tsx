@@ -1,5 +1,7 @@
 'use client';
 
+import { TOKENS } from '@/theme/tokens';
+import { getLeafletTileConfig } from '@/lib/mapTiles';
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Maximize2, ShieldAlert } from 'lucide-react';
@@ -32,14 +34,8 @@ export default function MiniRiskMap({ corridors, alerts }: MiniRiskMapProps) {
 
       mapInstance.current = map;
 
-      // Dark Matter CartoDB tiles
-      L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-        {
-          maxZoom: 18,
-          subdomains: 'abcd',
-        }
-      ).addTo(map);
+      const tiles = getLeafletTileConfig();
+      L.tileLayer(tiles.url, tiles.options).addTo(map);
 
       // Render default corridors if not provided or empty
       const corridorData = corridors && corridors.length > 0 ? corridors : [
@@ -89,10 +85,10 @@ export default function MiniRiskMap({ corridors, alerts }: MiniRiskMapProps) {
         if (latLngs.length > 1) {
           const color =
             c.riskScore > 65
-              ? '#F43F5E' // rose
+              ? TOKENS.critical // rose
               : c.riskScore > 40
-              ? '#F59E0B' // amber
-              : '#06B6D4'; // cyan
+              ? TOKENS.warning // amber
+              : TOKENS.primary; // cyan
 
           L.polyline(latLngs, {
             color,
@@ -126,13 +122,13 @@ export default function MiniRiskMap({ corridors, alerts }: MiniRiskMapProps) {
   }, [corridors]);
 
   return (
-    <div className="relative w-full h-[260px] rounded-xl overflow-hidden border border-white/[0.06] bg-[#070B13]">
+    <div className="relative w-full h-[260px] rounded overflow-hidden border border-subtle bg-page">
       <div ref={mapContainer} className="w-full h-full z-0" />
 
       {/* Glass Overlay Badges */}
       <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
-        <span className="px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md border border-white/[0.1] text-[10px] font-mono font-medium text-cyan-400 flex items-center gap-1.5 shadow-lg">
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+        <span className="map-overlay px-2.5 py-1 rounded-md text-[10px] font-mono font-medium flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-success animate-ping" />
           NATIONAL RADAR
         </span>
       </div>
@@ -140,30 +136,30 @@ export default function MiniRiskMap({ corridors, alerts }: MiniRiskMapProps) {
       <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
         <Link
           href="/network"
-          className="p-1.5 rounded-lg bg-black/70 backdrop-blur-md border border-white/[0.1] text-slate-300 hover:text-white hover:border-cyan-500/40 transition-all flex items-center gap-1 text-[11px]"
+          className="map-overlay p-1.5 rounded-lg transition-colors flex items-center gap-1 text-[11px]"
           title="Open Full Network Map"
         >
-          <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
+          <Maximize2 className="w-3.5 h-3.5" />
         </Link>
       </div>
 
       {/* Bottom Legend */}
-      <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between px-3 py-1.5 rounded-lg bg-black/70 backdrop-blur-md border border-white/[0.08] text-[10px] text-slate-300">
+      <div className="map-overlay absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between px-3 py-1.5 rounded-lg text-[10px]">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400/50" />
-            <span className="text-slate-400">Low Risk (&lt;40)</span>
+            <span className="w-2 h-2 rounded-full bg-success shadow-sm shadow-cyan-400/50" />
+            <span>Low Risk (&lt;40)</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50" />
-            <span className="text-slate-400">Moderate</span>
+            <span>Moderate</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500/50" />
-            <span className="text-slate-400">Severe Hazard</span>
+            <span>Severe Hazard</span>
           </span>
         </div>
-        <span className="font-mono text-cyan-400 font-semibold text-[10px]">14 Corridors Active</span>
+        <span className="font-mono font-semibold text-[10px]">14 Corridors Active</span>
       </div>
     </div>
   );

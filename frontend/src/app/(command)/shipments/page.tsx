@@ -16,7 +16,7 @@ import {
   MapPin,
   Calendar,
   X,
-  Sparkles,
+  Bot,
   ArrowRight,
   ShieldAlert,
   Radio,
@@ -148,14 +148,14 @@ export default function ShipmentsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-main font-sans">
               Shipment Intelligence
             </h1>
-            <span className="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-mono text-[10px] font-semibold uppercase">
+            <span className="px-2 py-0.5 rounded-full bg-primary-50 border border-subtle text-primary font-mono text-[10px] font-semibold uppercase">
               MANIFEST CONTROL
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-muted mt-0.5">
             Real-time tracking, dynamic risk scoring, and predictive ETA modeling across Indian freight corridors.
           </p>
         </div>
@@ -163,14 +163,14 @@ export default function ShipmentsPage() {
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setShowImportModal(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl glass-card text-xs font-medium text-slate-200 hover:text-white hover:border-cyan-500/40 transition-all shadow-sm"
+            className="flex items-center gap-2 px-3.5 py-2 rounded glass-card text-xs font-medium text-main hover:text-main hover:border-subtle transition-all shadow-sm"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+            <FileSpreadsheet className="w-3.5 h-3.5 text-success" />
             <span>Bulk CSV Import</span>
           </button>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 transition-all"
+            className="flex items-center gap-2 px-3.5 py-2 rounded btn-primary text-xs font-semibold text-on-primary transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Register Shipment</span>
@@ -180,41 +180,41 @@ export default function ShipmentsPage() {
 
       {/* KPI Stats Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="glass-card p-4 rounded-xl space-y-1">
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="glass-card p-4 rounded space-y-1">
+          <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
             Total Monitored
           </span>
-          <div className="text-2xl font-bold font-mono text-white">{totalCount}</div>
-          <span className="text-[10px] text-slate-400">All registered consignments</span>
+          <div className="text-2xl font-bold font-mono text-main">{totalCount}</div>
+          <span className="text-[10px] text-muted">All registered consignments</span>
         </div>
 
-        <div className="glass-card p-4 rounded-xl space-y-1">
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="glass-card p-4 rounded space-y-1">
+          <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
             En-Route Active
           </span>
-          <div className="text-2xl font-bold font-mono text-cyan-400">{inTransitCount}</div>
-          <span className="text-[10px] text-emerald-400">Live GPS tracking</span>
+          <div className="text-2xl font-bold font-mono text-primary">{inTransitCount}</div>
+          <span className="text-[10px] text-success">Live GPS tracking</span>
         </div>
 
-        <div className="glass-card p-4 rounded-xl space-y-1">
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="glass-card p-4 rounded space-y-1">
+          <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
             High Risk / Delayed
           </span>
-          <div className="text-2xl font-bold font-mono text-rose-400">{delayedCount}</div>
-          <span className="text-[10px] text-rose-400/80">Requires dispatcher intervention</span>
+          <div className="text-2xl font-bold font-mono text-critical">{delayedCount}</div>
+          <span className="text-[10px] text-critical/80">Requires dispatcher intervention</span>
         </div>
 
-        <div className="glass-card p-4 rounded-xl space-y-1">
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+        <div className="glass-card p-4 rounded space-y-1">
+          <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
             Delivered (24h)
           </span>
-          <div className="text-2xl font-bold font-mono text-emerald-400">{deliveredCount}</div>
-          <span className="text-[10px] text-slate-400">On-time rate 94.2%</span>
+          <div className="text-2xl font-bold font-mono text-success">{deliveredCount}</div>
+          <span className="text-[10px] text-muted">On-time rate 94.2%</span>
         </div>
       </div>
 
       {/* Filters & Search */}
-      <div className="glass-card p-3 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="glass-card p-3 rounded flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 overflow-x-auto text-xs pb-1 md:pb-0">
           {[
             { key: 'all', label: 'All Manifests' },
@@ -229,8 +229,8 @@ export default function ShipmentsPage() {
               onClick={() => setFilterStatus(tab.key)}
               className={`px-3 py-1.5 rounded-lg transition-all ${
                 filterStatus === tab.key
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-semibold'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-cyan-500/20 text-primary border border-subtle font-semibold'
+                  : 'text-muted hover:text-main'
               }`}
             >
               {tab.label}
@@ -239,13 +239,13 @@ export default function ShipmentsPage() {
         </div>
 
         <div className="relative min-w-[240px]">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
             type="text"
             placeholder="Search reference, origin, carrier..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="glass-input w-full pl-9 pr-3 py-1.5 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
+            className="glass-input w-full pl-9 pr-3 py-1.5 rounded text-xs text-main placeholder:text-muted focus:outline-none"
           />
         </div>
       </div>
@@ -253,11 +253,11 @@ export default function ShipmentsPage() {
       {/* Main Grid: Left 65% Table, Right 35% Glass Panel Inspection */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left Side: Manifest Table (8 cols) */}
-        <div className="lg:col-span-8 glass-card rounded-2xl overflow-hidden flex flex-col justify-between">
+        <div className="lg:col-span-8 glass-card rounded overflow-hidden flex flex-col justify-between">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-white/[0.06] text-slate-400 bg-white/[0.02]">
+                <tr className="border-b border-subtle text-muted bg-white/[0.02]">
                   <th className="py-3 px-4 font-semibold">Reference</th>
                   <th className="py-3 px-4 font-semibold">Route</th>
                   <th className="py-3 px-4 font-semibold">Carrier</th>
@@ -277,31 +277,31 @@ export default function ShipmentsPage() {
                       onClick={() => setSelectedShipment(s)}
                       className={`cursor-pointer transition-colors ${
                         isSelected
-                          ? 'bg-cyan-500/10'
+                          ? 'bg-primary-50'
                           : 'hover:bg-white/[0.02]'
                       }`}
                     >
-                      <td className="py-3 px-4 font-mono font-bold text-cyan-300">
+                      <td className="py-3 px-4 font-mono font-bold text-primary">
                         {s.reference}
                       </td>
-                      <td className="py-3 px-4 font-sans text-slate-200">
+                      <td className="py-3 px-4 font-sans text-main">
                         <div className="font-medium truncate max-w-[180px]">
                           {s.origin} → {s.destination}
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-sans text-slate-300 truncate max-w-[120px]">
+                      <td className="py-3 px-4 font-sans text-main truncate max-w-[120px]">
                         {s.carrier || 'NETRA Freight'}
                       </td>
                       <td className="py-3 px-4">
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${
                             s.status === 'in_transit'
-                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                              ? 'bg-success-50 text-success border border-emerald-500/30'
                               : s.status === 'delayed'
-                              ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                              ? 'bg-amber-500/15 text-warning border border-amber-500/30'
                               : s.status === 'delivered'
                               ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
-                              : 'bg-slate-800 text-slate-400'
+                              : 'bg-primary-100 text-muted'
                           }`}
                         >
                           {s.status}
@@ -309,7 +309,7 @@ export default function ShipmentsPage() {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-10 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                          <div className="w-10 h-1.5 rounded-full bg-primary-100 overflow-hidden">
                             <div
                               className={`h-full rounded-full ${
                                 isHighRisk ? 'bg-rose-500' : 'bg-cyan-500'
@@ -317,12 +317,12 @@ export default function ShipmentsPage() {
                               style={{ width: `${s.riskScore || 25}%` }}
                             />
                           </div>
-                          <span className="font-mono text-slate-400 text-[11px]">
+                          <span className="font-mono text-muted text-[11px]">
                             {s.riskScore ?? 25}
                           </span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-right font-mono text-slate-400 text-[11px]">
+                      <td className="py-3 px-4 text-right font-mono text-muted text-[11px]">
                         {s.eta ? new Date(s.eta).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '14:30'}
                       </td>
                     </tr>
@@ -330,7 +330,7 @@ export default function ShipmentsPage() {
                 })}
                 {(!filtered || filtered.length === 0) && (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-500 text-xs">
+                    <td colSpan={6} className="py-12 text-center text-muted text-xs">
                       No shipments found matching filters.
                     </td>
                   </tr>
@@ -341,24 +341,24 @@ export default function ShipmentsPage() {
         </div>
 
         {/* Right Glass Panel: Detailed Shipment Inspection (4 cols) */}
-        <div className="lg:col-span-4 glass-panel-right p-5 rounded-2xl flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-4 glass-panel-right p-5 rounded flex flex-col justify-between space-y-4">
           {inspected ? (
             <div className="space-y-4">
               {/* Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+              <div className="flex items-center justify-between pb-3 border-b border-subtle">
                 <div>
-                  <span className="text-[10px] font-mono uppercase text-cyan-400 font-bold tracking-wider">
+                  <span className="text-[10px] font-mono uppercase text-primary font-bold tracking-wider">
                     {inspected.reference}
                   </span>
-                  <h2 className="text-sm font-bold text-white tracking-tight">
+                  <h2 className="text-sm font-bold text-main tracking-tight">
                     Active Consignment Telematics
                   </h2>
                 </div>
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${
                     inspected.status === 'in_transit'
-                      ? 'bg-emerald-500/20 text-emerald-400'
-                      : 'bg-amber-500/20 text-amber-400'
+                      ? 'bg-safe-bg text-success'
+                      : 'bg-warning-50 text-warning'
                   }`}
                 >
                   {inspected.status}
@@ -366,55 +366,55 @@ export default function ShipmentsPage() {
               </div>
 
               {/* Endpoints & Live Ping */}
-              <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2">
+              <div className="p-3.5 rounded bg-white/[0.02] border border-subtle space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <div>
-                    <span className="text-[10px] text-slate-500 block uppercase">Origin Node</span>
-                    <span className="font-semibold text-white">{inspected.origin}</span>
+                    <span className="text-[10px] text-muted block uppercase">Origin Node</span>
+                    <span className="font-semibold text-main">{inspected.origin}</span>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-cyan-400" />
+                  <ArrowRight className="w-4 h-4 text-primary" />
                   <div className="text-right">
-                    <span className="text-[10px] text-slate-500 block uppercase">Destination</span>
-                    <span className="font-semibold text-white">{inspected.destination}</span>
+                    <span className="text-[10px] text-muted block uppercase">Destination</span>
+                    <span className="font-semibold text-main">{inspected.destination}</span>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-slate-400">
+                <div className="pt-2 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-muted">
                   <span className="flex items-center gap-1">
-                    <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" /> Live Telematics Ping:
+                    <Radio className="w-3.5 h-3.5 text-primary animate-pulse" /> Live Telematics Ping:
                   </span>
-                  <span className="font-mono text-slate-300">KM 184 • NH-48</span>
+                  <span className="font-mono text-main">KM 184 • NH-48</span>
                 </div>
               </div>
 
               {/* Carrier & Driver Info */}
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                  <span className="text-[10px] text-slate-500 block uppercase">Carrier Entity</span>
-                  <span className="font-semibold text-slate-200">{inspected.carrier || 'NETRA Freight'}</span>
+                <div className="p-2.5 rounded bg-white/[0.02] border border-subtle">
+                  <span className="text-[10px] text-muted block uppercase">Carrier Entity</span>
+                  <span className="font-semibold text-main">{inspected.carrier || 'NETRA Freight'}</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                  <span className="text-[10px] text-slate-500 block uppercase">Assigned Priority</span>
-                  <span className="font-semibold text-amber-400 capitalize">{inspected.priority || 'High'}</span>
+                <div className="p-2.5 rounded bg-white/[0.02] border border-subtle">
+                  <span className="text-[10px] text-muted block uppercase">Assigned Priority</span>
+                  <span className="font-semibold text-warning capitalize">{inspected.priority || 'High'}</span>
                 </div>
               </div>
 
               {/* AI Delay & Risk Prediction Box */}
-              <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-2 text-xs">
+              <div className="p-3.5 rounded bg-white/[0.03] border border-subtle space-y-2 text-xs">
                 <div className="flex items-center justify-between text-[10px]">
-                  <span className="font-semibold text-cyan-400 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-cyan-400" /> AI DELAY FORECAST
+                  <span className="font-semibold text-primary flex items-center gap-1">
+                    <Bot className="w-3 h-3 text-primary" /> AI DELAY FORECAST
                   </span>
-                  <span className="font-mono text-rose-400 font-bold">+1h 45m Delay</span>
+                  <span className="font-mono text-critical font-bold">+1h 45m Delay</span>
                 </div>
-                <p className="text-[11px] text-slate-300 leading-snug">
+                <p className="text-[11px] text-main leading-snug">
                   Corridor bottleneck detected on NH-48 Jaipur stretch. Recommend dynamic bypass via SH-12.
                 </p>
 
                 <div className="pt-2 flex items-center gap-2">
                   <Link
                     href="/routes/optimizer"
-                    className="flex-1 py-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-300 text-center text-xs font-semibold transition-all flex items-center justify-center gap-1"
+                    className="flex-1 py-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-subtle text-primary text-center text-xs font-semibold transition-all flex items-center justify-center gap-1"
                   >
                     <Navigation className="w-3.5 h-3.5" />
                     <span>Optimize Route</span>
@@ -423,20 +423,20 @@ export default function ShipmentsPage() {
               </div>
 
               {/* Transition Lifecycle Controls */}
-              <div className="space-y-2 pt-2 border-t border-white/[0.06]">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
+              <div className="space-y-2 pt-2 border-t border-subtle">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted block">
                   Quick State Transition:
                 </span>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => updateStatusMutation.mutate({ id: inspected._id, status: 'in_transit' })}
-                    className="py-2 px-3 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold transition-all"
+                    className="py-2 px-3 rounded-lg bg-success-50 hover:bg-emerald-500/25 border border-emerald-500/30 text-success text-xs font-semibold transition-all"
                   >
                     Mark In-Transit
                   </button>
                   <button
                     onClick={() => updateStatusMutation.mutate({ id: inspected._id, status: 'delayed' })}
-                    className="py-2 px-3 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-semibold transition-all"
+                    className="py-2 px-3 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-warning text-xs font-semibold transition-all"
                   >
                     Flag Delayed
                   </button>
@@ -448,7 +448,7 @@ export default function ShipmentsPage() {
                   </button>
                   <button
                     onClick={() => updateStatusMutation.mutate({ id: inspected._id, status: 'cancelled' })}
-                    className="py-2 px-3 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold transition-all"
+                    className="py-2 px-3 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-critical text-xs font-semibold transition-all"
                   >
                     Cancel Shipment
                   </button>
@@ -456,7 +456,7 @@ export default function ShipmentsPage() {
               </div>
             </div>
           ) : (
-            <div className="py-16 text-center text-slate-500 text-xs">
+            <div className="py-16 text-center text-muted text-xs">
               Select a shipment from the manifest to inspect telematics.
             </div>
           )}
@@ -466,15 +466,15 @@ export default function ShipmentsPage() {
       {/* Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg glass-panel-elevated p-6 rounded-2xl border border-white/[0.1] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+          <div className="w-full max-w-lg glass-panel-elevated p-6 rounded border border-white/[0.1] space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-subtle">
               <div className="flex items-center gap-2">
-                <Package className="w-5 h-5 text-cyan-400" />
-                <h3 className="text-base font-bold text-white">Create New Freight Shipment</h3>
+                <Package className="w-5 h-5 text-primary" />
+                <h3 className="text-base font-bold text-main">Create New Freight Shipment</h3>
               </div>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="p-1 rounded-lg hover:bg-white/[0.06] text-slate-400 hover:text-white"
+                className="p-1 rounded-lg hover:bg-white/[0.06] text-muted hover:text-main"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -482,55 +482,55 @@ export default function ShipmentsPage() {
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="col-span-2">
-                <label className="text-slate-300 font-medium block mb-1">Shipment Reference *</label>
+                <label className="text-main font-medium block mb-1">Shipment Reference *</label>
                 <input
                   type="text"
                   placeholder="e.g. SHP-NCR-2026-009"
                   value={newShipment.reference}
                   onChange={(e) => setNewShipment({ ...newShipment, reference: e.target.value })}
-                  className="glass-input w-full p-2.5 rounded-xl text-white font-mono text-xs focus:outline-none"
+                  className="glass-input w-full p-2.5 rounded text-main font-mono text-xs focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-slate-300 font-medium block mb-1">Origin Node *</label>
+                <label className="text-main font-medium block mb-1">Origin Node *</label>
                 <input
                   type="text"
                   placeholder="e.g. Tughlakabad ICD"
                   value={newShipment.origin}
                   onChange={(e) => setNewShipment({ ...newShipment, origin: e.target.value })}
-                  className="glass-input w-full p-2.5 rounded-xl text-white text-xs focus:outline-none"
+                  className="glass-input w-full p-2.5 rounded text-main text-xs focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-slate-300 font-medium block mb-1">Destination Node *</label>
+                <label className="text-main font-medium block mb-1">Destination Node *</label>
                 <input
                   type="text"
                   placeholder="e.g. Agra Dry Port"
                   value={newShipment.destination}
                   onChange={(e) => setNewShipment({ ...newShipment, destination: e.target.value })}
-                  className="glass-input w-full p-2.5 rounded-xl text-white text-xs focus:outline-none"
+                  className="glass-input w-full p-2.5 rounded text-main text-xs focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-slate-300 font-medium block mb-1">Carrier Entity</label>
+                <label className="text-main font-medium block mb-1">Carrier Entity</label>
                 <input
                   type="text"
                   placeholder="NETRA Logistics"
                   value={newShipment.carrier}
                   onChange={(e) => setNewShipment({ ...newShipment, carrier: e.target.value })}
-                  className="glass-input w-full p-2.5 rounded-xl text-white text-xs focus:outline-none"
+                  className="glass-input w-full p-2.5 rounded text-main text-xs focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-slate-300 font-medium block mb-1">Priority Level</label>
+                <label className="text-main font-medium block mb-1">Priority Level</label>
                 <select
                   value={newShipment.priority}
                   onChange={(e) => setNewShipment({ ...newShipment, priority: e.target.value })}
-                  className="glass-input w-full p-2.5 rounded-xl text-white text-xs focus:outline-none bg-[#0D1525]"
+                  className="glass-input w-full p-2.5 rounded text-main text-xs focus:outline-none bg-card"
                 >
                   <option value="low">Low Priority</option>
                   <option value="medium">Medium Priority</option>
@@ -540,10 +540,10 @@ export default function ShipmentsPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/[0.06]">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-subtle">
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.08] text-slate-300 text-xs font-medium"
+                className="px-4 py-2 rounded bg-white/[0.05] hover:bg-white/[0.08] text-main text-xs font-medium"
               >
                 Cancel
               </button>
@@ -556,7 +556,7 @@ export default function ShipmentsPage() {
                   createMutation.mutate(newShipment);
                 }}
                 disabled={createMutation.isPending}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 disabled:opacity-50"
+                className="px-4 py-2 rounded btn-primary text-xs font-semibold text-on-primary disabled:opacity-50"
               >
                 {createMutation.isPending ? 'Registering...' : 'Confirm Shipment'}
               </button>
@@ -568,43 +568,43 @@ export default function ShipmentsPage() {
       {/* CSV Bulk Import Modal */}
       {showImportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg glass-panel-elevated p-6 rounded-2xl border border-white/[0.1] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+          <div className="w-full max-w-lg glass-panel-elevated p-6 rounded border border-white/[0.1] space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-subtle">
               <div className="flex items-center gap-2">
-                <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
-                <h3 className="text-base font-bold text-white">Bulk CSV Shipment Ingestion</h3>
+                <FileSpreadsheet className="w-5 h-5 text-success" />
+                <h3 className="text-base font-bold text-main">Bulk CSV Shipment Ingestion</h3>
               </div>
               <button
                 onClick={() => setShowImportModal(false)}
-                className="p-1 rounded-lg hover:bg-white/[0.06] text-slate-400 hover:text-white"
+                className="p-1 rounded-lg hover:bg-white/[0.06] text-muted hover:text-main"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-2 text-xs">
-              <p className="text-slate-400">
-                Paste CSV data below with headers: <code className="text-cyan-400 font-mono">reference, origin, destination, carrier, priority, cargoType</code>
+              <p className="text-muted">
+                Paste CSV data below with headers: <code className="text-primary font-mono">reference, origin, destination, carrier, priority, cargoType</code>
               </p>
               <textarea
                 rows={8}
                 value={csvContent}
                 onChange={(e) => setCsvContent(e.target.value)}
-                className="glass-input w-full p-3 rounded-xl text-slate-200 font-mono text-xs focus:outline-none"
+                className="glass-input w-full p-3 rounded text-main font-mono text-xs focus:outline-none"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/[0.06]">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-subtle">
               <button
                 onClick={() => setShowImportModal(false)}
-                className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.08] text-slate-300 text-xs font-medium"
+                className="px-4 py-2 rounded bg-white/[0.05] hover:bg-white/[0.08] text-main text-xs font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={() => importMutation.mutate(csvContent)}
                 disabled={importMutation.isPending}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-950/50 disabled:opacity-50"
+                className="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-main text-xs font-semibold shadow-lg shadow-emerald-950/50 disabled:opacity-50"
               >
                 {importMutation.isPending ? 'Ingesting...' : 'Import Shipments'}
               </button>

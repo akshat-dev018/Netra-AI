@@ -11,7 +11,6 @@ import {
   Activity,
   AlertTriangle,
   CheckCircle2,
-  Sparkles,
   CloudRain,
   Car,
 } from 'lucide-react';
@@ -92,14 +91,14 @@ export default function RiskPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-main font-sans">
               National Corridor Risk Engine
             </h1>
-            <span className="px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 font-mono text-[10px] font-semibold uppercase">
+            <span className="px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-warning font-mono text-[10px] font-semibold uppercase">
               AI RISK MATRIX
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-muted mt-0.5">
             Real-time composite scoring aggregating road geometry, weather sensors, historical accident clusters, and live congestion.
           </p>
         </div>
@@ -107,7 +106,7 @@ export default function RiskPage() {
         <button
           onClick={() => recomputeMutation.mutate()}
           disabled={recomputeMutation.isPending}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-xs font-semibold shadow-lg shadow-amber-500/20 transition-all self-start sm:self-auto disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2.5 rounded btn-warning text-xs font-semibold text-white transition-all self-start sm:self-auto disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${recomputeMutation.isPending ? 'animate-spin' : ''}`} />
           <span>{recomputeMutation.isPending ? 'Recomputing AI Matrix...' : 'Trigger Full Recomputation'}</span>
@@ -127,7 +126,7 @@ export default function RiskPage() {
               return (
                 <div
                   key={c._id || c.name}
-                  className={`p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-4 ${
+                  className={`p-5 rounded border transition-all flex flex-col justify-between space-y-4 ${
                     isElevated
                       ? 'glass-panel-elevated border-rose-500/40 hover:border-rose-500/60'
                       : isModerate
@@ -137,12 +136,12 @@ export default function RiskPage() {
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 text-cyan-400">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 text-primary">
                         {c.highwayRef || 'CORRIDOR'}
                       </span>
                       <span
                         className={`text-lg font-bold font-mono ${
-                          isElevated ? 'text-rose-400' : isModerate ? 'text-amber-400' : 'text-emerald-400'
+                          isElevated ? 'text-critical' : isModerate ? 'text-warning' : 'text-success'
                         }`}
                       >
                         {score}/100
@@ -150,14 +149,14 @@ export default function RiskPage() {
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-bold text-white">{c.name}</h3>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <h3 className="text-sm font-bold text-main">{c.name}</h3>
+                      <p className="text-xs text-muted mt-0.5">
                         {c.nodeStart || 'Delhi'} → {c.nodeEnd || 'Agra'} ({c.currentUtilization || 42}% utilization)
                       </p>
                     </div>
 
                     <div className="space-y-1">
-                      <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                      <div className="w-full h-1.5 rounded-full bg-primary-100 overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
                             score > 60 ? 'bg-rose-500' : score > 35 ? 'bg-amber-500' : 'bg-emerald-500'
@@ -168,27 +167,27 @@ export default function RiskPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
-                      <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                        <span className="text-slate-400 block text-[10px]">Congestion</span>
-                        <span className="font-mono font-semibold text-amber-300">
+                      <div className="p-2 rounded bg-white/[0.02] border border-white/[0.04]">
+                        <span className="text-muted block text-[10px]">Congestion</span>
+                        <span className="font-mono font-semibold text-warning">
                           {c.riskComponents?.congestion ?? 12}%
                         </span>
                       </div>
-                      <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                        <span className="text-slate-400 block text-[10px]">Weather</span>
-                        <span className="font-mono font-semibold text-emerald-400">
+                      <div className="p-2 rounded bg-white/[0.02] border border-white/[0.04]">
+                        <span className="text-muted block text-[10px]">Weather</span>
+                        <span className="font-mono font-semibold text-success">
                           {c.riskComponents?.weather ?? 8}%
                         </span>
                       </div>
-                      <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                        <span className="text-slate-400 block text-[10px]">Incidents</span>
+                      <div className="p-2 rounded bg-white/[0.02] border border-white/[0.04]">
+                        <span className="text-muted block text-[10px]">Incidents</span>
                         <span className="font-mono font-semibold text-orange-400">
                           {c.riskComponents?.incidents ?? 8}%
                         </span>
                       </div>
-                      <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                        <span className="text-slate-400 block text-[10px]">Accident Hotspots</span>
-                        <span className="font-mono font-semibold text-rose-400">
+                      <div className="p-2 rounded bg-white/[0.02] border border-white/[0.04]">
+                        <span className="text-muted block text-[10px]">Accident Hotspots</span>
+                        <span className="font-mono font-semibold text-critical">
                           {c.riskComponents?.accidentDensity ?? 10}%
                         </span>
                       </div>
@@ -201,53 +200,53 @@ export default function RiskPage() {
         </div>
 
         {/* Right Glass Panel: National Aggregate Risk (4 cols) */}
-        <div className="lg:col-span-4 glass-panel-right p-5 rounded-2xl flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-4 glass-panel-right p-5 rounded flex flex-col justify-between space-y-4">
           <div className="space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+            <div className="flex items-center justify-between pb-3 border-b border-subtle">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <div className="w-7 h-7 rounded-lg bg-warning-50 border border-amber-500/30 flex items-center justify-center text-warning">
                   <ShieldAlert className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-xs font-bold text-white uppercase tracking-wider">
+                  <h2 className="text-xs font-bold text-main uppercase tracking-wider">
                     National Risk Summary
                   </h2>
-                  <p className="text-[10px] text-slate-400 font-mono">AGGREGATE INDEX</p>
+                  <p className="text-[10px] text-muted font-mono">AGGREGATE INDEX</p>
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold">
+              <span className="px-2 py-0.5 rounded-full bg-warning-50 text-warning text-[10px] font-mono font-bold">
                 MODERATE
               </span>
             </div>
 
-            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] text-center space-y-1">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
+            <div className="p-4 rounded bg-white/[0.02] border border-subtle text-center space-y-1">
+              <span className="text-[10px] text-muted uppercase tracking-wider block">
                 Weighted National Index
               </span>
-              <div className="text-4xl font-bold font-mono text-amber-400">48 / 100</div>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <div className="text-4xl font-bold font-mono text-warning">48 / 100</div>
+              <p className="text-[11px] text-muted mt-1">
                 Monitored across 14 freight arteries covering 18,400+ kilometers.
               </p>
             </div>
 
             <div className="space-y-2.5 text-xs">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
                 Primary Volatility Triggers:
               </span>
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] space-y-1">
-                <div className="font-semibold text-rose-400 text-xs">1. Monsoon Flash Flood (NH-48)</div>
-                <p className="text-[11px] text-slate-300">Contributes +18 pts to Northern grid risk index.</p>
+              <div className="p-3 rounded bg-white/[0.02] border border-white/[0.04] space-y-1">
+                <div className="font-semibold text-critical text-xs">1. Monsoon Flash Flood (NH-48)</div>
+                <p className="text-[11px] text-main">Contributes +18 pts to Northern grid risk index.</p>
               </div>
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] space-y-1">
-                <div className="font-semibold text-amber-400 text-xs">2. Toll Plaza Gantry Delays</div>
-                <p className="text-[11px] text-slate-300">Affecting Panipat & Gurugram interchanges.</p>
+              <div className="p-3 rounded bg-white/[0.02] border border-white/[0.04] space-y-1">
+                <div className="font-semibold text-warning text-xs">2. Toll Plaza Gantry Delays</div>
+                <p className="text-[11px] text-main">Affecting Panipat & Gurugram interchanges.</p>
               </div>
             </div>
           </div>
 
-          <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-slate-400">
+          <div className="pt-3 border-t border-subtle flex items-center justify-between text-[11px] text-muted">
             <span>Model: Neural Risk Engine v2</span>
-            <span className="text-emerald-400 font-mono">Synced</span>
+            <span className="text-success font-mono">Synced</span>
           </div>
         </div>
       </div>

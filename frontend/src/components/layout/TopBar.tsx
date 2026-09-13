@@ -32,62 +32,55 @@ export function TopBar() {
   const breadcrumb = BREADCRUMB_MAP[pathname] || { section: 'FreightIntel Control Tower', page: '' };
 
   return (
-    <header className="h-14 glass-topbar text-slate-800 dark:text-slate-200 flex items-center justify-between px-5 z-20 shrink-0 border-b border-slate-200 dark:border-white/[0.06]">
-      {/* Left: Breadcrumb */}
+    <header className="h-14 glass-topbar flex items-center justify-between px-5 z-20 shrink-0">
       <div className="flex items-center gap-2 min-w-0">
-        <h2 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+        <h2 className="text-sm font-bold text-strong truncate">
           {breadcrumb.section}
         </h2>
         {breadcrumb.page && (
           <>
-            <span className="text-slate-400 dark:text-slate-600">/</span>
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-400 truncate">{breadcrumb.page}</span>
+            <span className="text-muted">/</span>
+            <span className="text-sm font-medium text-muted truncate">{breadcrumb.page}</span>
           </>
         )}
       </div>
 
-      {/* Right: Actions */}
       <div className="flex items-center gap-3">
-        {/* Theme Switcher Toggle */}
         <button
           onClick={toggleTheme}
           title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/[0.12] transition-all font-medium text-xs shadow-sm"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-subtle bg-card text-main hover:bg-primary-50 transition-colors font-medium text-xs"
         >
           {theme === 'light' ? (
             <>
-              <Moon className="w-4 h-4 text-indigo-600" />
+              <Moon className="w-4 h-4" />
               <span>Dark Theme</span>
             </>
           ) : (
             <>
-              <Sun className="w-4 h-4 text-amber-400" />
+              <Sun className="w-4 h-4" />
               <span>Light Theme</span>
             </>
           )}
         </button>
 
-        {/* All Corridors filter */}
-        <button className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/[0.07] transition-all">
+        <button className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded border border-subtle bg-card text-xs font-medium text-main hover:bg-primary-50 transition-colors">
           <span>All Corridors</span>
-          <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          <ChevronDown className="w-3.5 h-3.5 text-muted" />
         </button>
 
-        {/* Today filter */}
-        <button className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/[0.07] transition-all">
-          <Calendar className="w-3.5 h-3.5 text-slate-500" />
+        <button className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded border border-subtle bg-card text-xs font-medium text-main hover:bg-primary-50 transition-colors">
+          <Calendar className="w-3.5 h-3.5 text-muted" />
           <span>Today</span>
         </button>
 
-        {/* Notification bell */}
-        <button className="relative p-2 rounded-xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
+        <button className="relative p-2 rounded border border-subtle bg-card text-main hover:bg-primary-50 transition-colors">
           <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-critical" />
         </button>
 
-        {/* User Avatar */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-md">
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-on-primary">
             {user?.name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || 'OP'}
           </div>
         </div>

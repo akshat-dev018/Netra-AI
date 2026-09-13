@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 
@@ -20,10 +21,12 @@ export interface MLInferenceResult {
 export async function runMLInference(payload: Record<string, any>): Promise<MLInferenceResult> {
   const projectRoot = path.resolve(process.cwd(), '..');
   const cliScriptPath = path.join(projectRoot, 'netra-ml-engine', 'predict_cli.py');
+  const venvPythonPath = path.join(projectRoot, 'netra-ml-engine', 'venv', 'bin', 'python3');
+  const pythonBin = fs.existsSync(venvPythonPath) ? venvPythonPath : 'python3';
 
   try {
     const payloadJson = JSON.stringify(payload);
-    const { stdout } = await execFileAsync('python3', [cliScriptPath, payloadJson], {
+    const { stdout } = await execFileAsync(pythonBin, [cliScriptPath, payloadJson], {
       timeout: 10000,
     });
 

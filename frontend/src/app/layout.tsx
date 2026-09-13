@@ -17,10 +17,15 @@ export const metadata = {
   description: 'National Emergency & Transport Risk Analytics — Real-time freight intelligence, corridor monitoring, and predictive logistics control tower.',
 };
 
+const THEME_INIT = `(function(){try{var t=localStorage.getItem('netra_theme');if(t==='dark'){document.documentElement.classList.remove('light');document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`light ${inter.variable}`} data-theme="light">
-      <body className={`${inter.className} bg-slate-50 text-slate-900 light antialiased`}>
+    <html lang="en" className={`light ${inter.variable}`} data-theme="light" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
+      <body className={`${inter.className} bg-page text-main light antialiased`}>
         <TanStackProvider>
           <ThemeProvider>
             <AuthProvider>
@@ -29,10 +34,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 position="top-right"
                 toastOptions={{
                   style: {
-                    background: 'var(--bg-surface)',
+                    background: 'var(--bg-card)',
                     color: 'var(--text-main)',
                     border: '1px solid var(--border-subtle)',
-                    backdropFilter: 'blur(12px)',
                     fontSize: '13px',
                   },
                 }}

@@ -25,7 +25,7 @@ export function FleetSidebar() {
     <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
       {sections.map((section) => (
         <div key={section.title} className="space-y-1">
-          <div className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+          <div className="px-3 text-[10px] font-bold text-on-primary/60 uppercase tracking-widest">
             {section.title}
           </div>
           {section.items.map((item) => {
@@ -35,22 +35,17 @@ export function FleetSidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 group relative ${
+                className={`flex items-center gap-2.5 px-3 py-2 rounded text-[13px] font-medium transition-colors group relative ${
                   isActive
-                    ? 'bg-amber-500/12 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                    ? 'bg-white/12 text-on-primary font-semibold border border-white/20'
+                    : 'text-on-primary/80 hover:text-on-primary hover:bg-white/8'
                 }`}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-amber-400" />
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-on-primary" />
                 )}
-                <Icon
-                  className={`w-[18px] h-[18px] shrink-0 transition-colors ${
-                    isActive ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-400'
-                  }`}
-                />
+                <Icon className="w-[18px] h-[18px] shrink-0" />
                 <span className="truncate">{item.label}</span>
-                {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></span>}
               </Link>
             );
           })}

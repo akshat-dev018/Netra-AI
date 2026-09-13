@@ -11,7 +11,7 @@ import {
   Clock,
   DollarSign,
   ShieldAlert,
-  Sparkles,
+  Bot,
   CheckCircle2,
   RefreshCw,
   Zap,
@@ -99,21 +99,21 @@ export default function SimulatorPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-main font-sans">
             What-If Disruption Simulator
           </h1>
-          <span className="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-mono text-[10px] font-semibold uppercase">
+          <span className="px-2 py-0.5 rounded-full bg-primary-50 border border-subtle text-primary font-mono text-[10px] font-semibold uppercase">
             CONTINGENCY MODELING
           </span>
         </div>
-        <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+        <p className="text-xs sm:text-sm text-muted mt-0.5">
           Model catastrophic bottlenecks, extreme weather events, and transport strikes before they disrupt live supply chains.
         </p>
       </div>
 
       {/* Preset Scenarios Selector */}
       <div className="space-y-2">
-        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+        <span className="text-[10px] font-semibold text-muted uppercase tracking-wider">
           Pre-Configured Contingency Scenarios:
         </span>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -128,15 +128,15 @@ export default function SimulatorPage() {
                   setSeverityMultiplier(p.severity);
                   setAffectedVolume(p.volume);
                 }}
-                className={`p-4 rounded-xl border text-left transition-all duration-200 ${
+                className={`p-4 rounded border text-left transition-all duration-200 ${
                   isSelected
-                    ? 'bg-cyan-500/15 border-cyan-500/50 shadow-lg shadow-cyan-500/10'
+                    ? 'bg-primary-50 border-cyan-500/50 '
                     : 'glass-card hover:border-white/[0.12]'
                 }`}
               >
-                <div className="font-bold text-xs text-white">{p.name}</div>
-                <div className="text-[11px] text-slate-400 mt-1 line-clamp-2">{p.desc}</div>
-                <div className="mt-2 text-[10px] font-mono text-cyan-400 flex items-center justify-between">
+                <div className="font-bold text-xs text-main">{p.name}</div>
+                <div className="text-[11px] text-muted mt-1 line-clamp-2">{p.desc}</div>
+                <div className="mt-2 text-[10px] font-mono text-primary flex items-center justify-between">
                   <span>Duration: {p.duration}h</span>
                   <span>Severity: {p.severity}x</span>
                 </div>
@@ -149,24 +149,24 @@ export default function SimulatorPage() {
       {/* Main Grid: Left Config (7 cols), Right Glass Panel Results (5 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left Side: Parameters Slider Panel (7 cols) */}
-        <div className="lg:col-span-7 glass-card p-6 rounded-2xl space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+        <div className="lg:col-span-7 glass-card p-6 rounded space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-subtle">
             <div>
-              <h2 className="text-sm font-bold text-white tracking-tight">
+              <h2 className="text-sm font-bold text-main tracking-tight">
                 Scenario Variables Configuration
               </h2>
-              <p className="text-[11px] text-slate-400">Tweak parameters to compute network ripple effects</p>
+              <p className="text-[11px] text-muted">Tweak parameters to compute network ripple effects</p>
             </div>
-            <span className="text-xs font-mono text-cyan-400 font-semibold">
+            <span className="text-xs font-mono text-primary font-semibold">
               ACTIVE SELECTION
             </span>
           </div>
 
           <div className="space-y-4 text-xs">
-            <div className="space-y-2 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div className="space-y-2 p-3.5 rounded bg-white/[0.02] border border-white/[0.04]">
               <div className="flex justify-between items-center">
-                <span className="text-slate-300 font-medium">Incident Duration:</span>
-                <span className="font-mono text-white font-bold text-sm bg-white/10 px-2 py-0.5 rounded">
+                <span className="text-main font-medium">Incident Duration:</span>
+                <span className="font-mono text-main font-bold text-sm bg-white/10 px-2 py-0.5 rounded">
                   {durationHours} Hours
                 </span>
               </div>
@@ -176,19 +176,19 @@ export default function SimulatorPage() {
                 max={48}
                 value={durationHours}
                 onChange={(e) => setDurationHours(parseInt(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
+                className="w-full accent-primary cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between text-[10px] text-muted font-mono">
                 <span>1 Hour</span>
                 <span>24 Hours</span>
                 <span>48 Hours</span>
               </div>
             </div>
 
-            <div className="space-y-2 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div className="space-y-2 p-3.5 rounded bg-white/[0.02] border border-white/[0.04]">
               <div className="flex justify-between items-center">
-                <span className="text-slate-300 font-medium">Severity / Impact Multiplier:</span>
-                <span className="font-mono text-amber-400 font-bold text-sm bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                <span className="text-main font-medium">Severity / Impact Multiplier:</span>
+                <span className="font-mono text-warning font-bold text-sm bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
                   {severityMultiplier}x
                 </span>
               </div>
@@ -201,17 +201,17 @@ export default function SimulatorPage() {
                 onChange={(e) => setSeverityMultiplier(parseFloat(e.target.value))}
                 className="w-full accent-amber-400 cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between text-[10px] text-muted font-mono">
                 <span>1.0x (Moderate)</span>
                 <span>2.0x (Severe)</span>
                 <span>3.0x (Catastrophic)</span>
               </div>
             </div>
 
-            <div className="space-y-2 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div className="space-y-2 p-3.5 rounded bg-white/[0.02] border border-white/[0.04]">
               <div className="flex justify-between items-center">
-                <span className="text-slate-300 font-medium">Potentially Impacted Freight Volume:</span>
-                <span className="font-mono text-cyan-400 font-bold text-sm bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                <span className="text-main font-medium">Potentially Impacted Freight Volume:</span>
+                <span className="font-mono text-primary font-bold text-sm bg-primary-50 px-2 py-0.5 rounded border border-cyan-500/20">
                   {affectedVolume} Trucks
                 </span>
               </div>
@@ -222,9 +222,9 @@ export default function SimulatorPage() {
                 step={50}
                 value={affectedVolume}
                 onChange={(e) => setAffectedVolume(parseInt(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
+                className="w-full accent-primary cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between text-[10px] text-muted font-mono">
                 <span>50 Trucks</span>
                 <span>1,000 Trucks</span>
                 <span>2,000 Trucks</span>
@@ -236,7 +236,7 @@ export default function SimulatorPage() {
             <button
               onClick={() => runMutation.mutate()}
               disabled={runMutation.isPending}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 transition-all disabled:opacity-50"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded btn-primary font-semibold text-xs text-on-primary transition-all disabled:opacity-50"
             >
               <Play className={`w-4 h-4 ${runMutation.isPending ? 'animate-spin' : ''}`} />
               <span>{runMutation.isPending ? 'Simulating Dynamic Vectors...' : 'Execute What-If Simulation'}</span>
@@ -245,21 +245,21 @@ export default function SimulatorPage() {
         </div>
 
         {/* Right Glass Panel: Simulation Impact Vectors (5 cols) */}
-        <div className="lg:col-span-5 glass-panel-right p-5 rounded-2xl flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-5 glass-panel-right p-5 rounded flex flex-col justify-between space-y-4">
           <div className="space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+            <div className="flex items-center justify-between pb-3 border-b border-subtle">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                  <Sparkles className="w-4 h-4" />
+                <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-subtle flex items-center justify-center text-primary">
+                  <Bot className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-xs font-bold text-white uppercase tracking-wider">
+                  <h2 className="text-xs font-bold text-main uppercase tracking-wider">
                     Synthesized Contingency Vectors
                   </h2>
-                  <p className="text-[10px] text-slate-400 font-mono">NEURAL DISRUPTION FORECAST</p>
+                  <p className="text-[10px] text-muted font-mono">NEURAL DISRUPTION FORECAST</p>
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold">
+              <span className="px-2 py-0.5 rounded-full bg-safe-bg text-success text-[10px] font-mono font-bold">
                 98% ACCURACY
               </span>
             </div>
@@ -267,59 +267,59 @@ export default function SimulatorPage() {
             {simulationResult && (
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-2.5">
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">
+                  <div className="p-3 rounded bg-white/[0.02] border border-subtle">
+                    <span className="text-[10px] text-muted uppercase font-semibold block">
                       Avg Transit Delay
                     </span>
-                    <div className="text-xl font-bold font-mono text-amber-400 mt-1">
+                    <div className="text-xl font-bold font-mono text-warning mt-1">
                       {simulationResult.delay}
                     </div>
-                    <span className="text-[10px] text-slate-500">Above nominal baseline</span>
+                    <span className="text-[10px] text-muted">Above nominal baseline</span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">
+                  <div className="p-3 rounded bg-white/[0.02] border border-subtle">
+                    <span className="text-[10px] text-muted uppercase font-semibold block">
                       Estimated Cost Impact
                     </span>
-                    <div className="text-xl font-bold font-mono text-rose-400 mt-1">
+                    <div className="text-xl font-bold font-mono text-critical mt-1">
                       {simulationResult.costDelta}
                     </div>
-                    <span className="text-[10px] text-slate-500">Fuel, detention & toll</span>
+                    <span className="text-[10px] text-muted">Fuel, detention & toll</span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">
+                  <div className="p-3 rounded bg-white/[0.02] border border-subtle">
+                    <span className="text-[10px] text-muted uppercase font-semibold block">
                       High-Vulnerability Units
                     </span>
-                    <div className="text-xl font-bold font-mono text-rose-300 mt-1">
+                    <div className="text-xl font-bold font-mono text-critical mt-1">
                       {simulationResult.atRisk} Trucks
                     </div>
-                    <span className="text-[10px] text-rose-400">Immediate detour needed</span>
+                    <span className="text-[10px] text-critical">Immediate detour needed</span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">
+                  <div className="p-3 rounded bg-white/[0.02] border border-subtle">
+                    <span className="text-[10px] text-muted uppercase font-semibold block">
                       Network Recovery
                     </span>
-                    <div className="text-xl font-bold font-mono text-cyan-400 mt-1">
+                    <div className="text-xl font-bold font-mono text-primary mt-1">
                       {simulationResult.recoveryTime}
                     </div>
-                    <span className="text-[10px] text-slate-500">To reach normal flow</span>
+                    <span className="text-[10px] text-muted">To reach normal flow</span>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-2 text-xs">
-                  <span className="text-xs font-semibold text-white block">
+                <div className="p-3.5 rounded bg-white/[0.03] border border-subtle space-y-2 text-xs">
+                  <span className="text-xs font-semibold text-main block">
                     Recommended Bypass Artery:
                   </span>
-                  <div className="flex items-center justify-between text-[11px] text-slate-300">
+                  <div className="flex items-center justify-between text-[11px] text-main">
                     <span>Eastern Peripheral Expressway</span>
-                    <span className="font-mono text-emerald-400 font-bold">+38% Load</span>
+                    <span className="font-mono text-success font-bold">+38% Load</span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-primary-100 overflow-hidden">
                     <div className="h-full bg-emerald-400 rounded-full" style={{ width: '68%' }} />
                   </div>
-                  <p className="text-[11px] text-slate-400 pt-1">
+                  <p className="text-[11px] text-muted pt-1">
                     Bypassing traffic along Eastern Peripheral avoids 4.5h delay for Delhi–Agra consignments.
                   </p>
                 </div>
@@ -327,10 +327,10 @@ export default function SimulatorPage() {
             )}
           </div>
 
-          <div className="pt-3 border-t border-white/[0.06]">
+          <div className="pt-3 border-t border-subtle">
             <button
               onClick={() => toast.success('Contingency reroute playbook staged for operator dispatch')}
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded btn-primary font-semibold text-xs text-on-primary transition-all flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Stage Contingency Playbook</span>

@@ -97,12 +97,12 @@ export default function DriverLocationPage() {
       {/* Header */}
       <div className="glass-panel p-5">
         <div className="flex items-center gap-2">
-          <Radio className="w-5 h-5 text-emerald-400 animate-pulse" />
-          <h1 className="text-xl font-bold text-white font-mono tracking-tight">
+          <Radio className="w-5 h-5 text-success animate-pulse" />
+          <h1 className="text-xl font-bold text-main font-mono tracking-tight">
             LIVE GPS TELEMATICS BEACON
           </h1>
         </div>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-muted mt-1">
           Simulate or broadcast real-time vehicle GPS coordinates to the FreightIntel Control Tower along the NH-44 corridor.
         </p>
       </div>
@@ -110,15 +110,15 @@ export default function DriverLocationPage() {
       {/* Main Beacon Transmitter Card */}
       <div className="glass-panel p-6 space-y-5 text-center relative overflow-hidden">
         {/* Glow backdrop */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-primary-50 rounded-full blur-2xl pointer-events-none" />
 
         {/* Pulse Visualizer */}
         <div className="relative inline-flex items-center justify-center">
           <div
             className={`w-28 h-28 rounded-full flex items-center justify-center border-2 transition-all ${
               isSimulating
-                ? 'border-emerald-400/50 bg-emerald-500/15 text-emerald-400 shadow-xl shadow-emerald-500/20'
-                : 'border-cyan-400/40 bg-cyan-500/10 text-cyan-400 shadow-lg shadow-cyan-500/10'
+                ? 'border-emerald-400/50 bg-success-50 text-success  shadow-emerald-500/20'
+                : 'border-cyan-400/40 bg-primary-50 text-primary '
             }`}
           >
             <Radio className={`w-12 h-12 ${isSimulating ? 'animate-bounce' : ''}`} />
@@ -129,11 +129,11 @@ export default function DriverLocationPage() {
         </div>
 
         <div>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-muted font-bold">
             ACTIVE WAYPOINT FIX
           </div>
-          <h2 className="text-lg font-bold text-white font-mono mt-1">{currentPt.name}</h2>
-          <div className="text-xs font-mono text-cyan-400 mt-1 flex items-center justify-center gap-3">
+          <h2 className="text-lg font-bold text-main font-mono mt-1">{currentPt.name}</h2>
+          <div className="text-xs font-mono text-primary mt-1 flex items-center justify-center gap-3">
             <span>Lat: {currentPt.lat.toFixed(4)}° N</span>
             <span>•</span>
             <span>Lng: {currentPt.lng.toFixed(4)}° E</span>
@@ -142,27 +142,27 @@ export default function DriverLocationPage() {
 
         {/* Speedometer & Transmission Stats */}
         <div className="grid grid-cols-3 gap-2.5 pt-2 text-xs">
-          <div className="p-3 rounded-xl bg-slate-900/70 border border-white/[0.06]">
-            <span className="text-[10px] text-slate-500 font-mono uppercase block">SPEED</span>
-            <span className="text-xl font-bold font-mono text-emerald-400 mt-0.5 block">{speed} km/h</span>
+          <div className="p-3 rounded bg-card border border-subtle">
+            <span className="text-[10px] text-muted font-mono uppercase block">SPEED</span>
+            <span className="text-xl font-bold font-mono text-success mt-0.5 block">{speed} km/h</span>
           </div>
-          <div className="p-3 rounded-xl bg-slate-900/70 border border-white/[0.06]">
-            <span className="text-[10px] text-slate-500 font-mono uppercase block">BEACONS</span>
-            <span className="text-xl font-bold font-mono text-cyan-400 mt-0.5 block">{pingCount}</span>
+          <div className="p-3 rounded bg-card border border-subtle">
+            <span className="text-[10px] text-muted font-mono uppercase block">BEACONS</span>
+            <span className="text-xl font-bold font-mono text-primary mt-0.5 block">{pingCount}</span>
           </div>
-          <div className="p-3 rounded-xl bg-slate-900/70 border border-white/[0.06]">
-            <span className="text-[10px] text-slate-500 font-mono uppercase block">LAST BROADCAST</span>
-            <span className="text-xs font-bold font-mono text-white mt-1.5 block truncate">
+          <div className="p-3 rounded bg-card border border-subtle">
+            <span className="text-[10px] text-muted font-mono uppercase block">LAST BROADCAST</span>
+            <span className="text-xs font-bold font-mono text-main mt-1.5 block truncate">
               {lastPingTime}
             </span>
           </div>
         </div>
 
         {/* Speed Adjustment Slider */}
-        <div className="p-3.5 rounded-xl bg-slate-900/50 border border-white/[0.06] text-left space-y-2">
+        <div className="p-3.5 rounded bg-card border border-subtle text-left space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-400 font-mono">Simulate Cruising Speed:</span>
-            <span className="text-cyan-400 font-mono font-bold">{speed} km/h</span>
+            <span className="text-muted font-mono">Simulate Cruising Speed:</span>
+            <span className="text-primary font-mono font-bold">{speed} km/h</span>
           </div>
           <input
             type="range"
@@ -170,7 +170,7 @@ export default function DriverLocationPage() {
             max="100"
             value={speed}
             onChange={(e) => setSpeed(Number(e.target.value))}
-            className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+            className="w-full h-1.5 bg-primary-100 rounded-lg appearance-none cursor-pointer accent-primary"
           />
         </div>
 
@@ -178,10 +178,10 @@ export default function DriverLocationPage() {
         <div className="space-y-2.5 pt-2">
           <button
             onClick={toggleSimulation}
-            className={`w-full py-3 rounded-xl font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 ${
+            className={`w-full py-3 rounded font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 ${
               isSimulating
-                ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/20'
-                : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/20'
+                ? 'bg-warning hover:bg-warning/90 text-white'
+                : 'bg-success hover:bg-success/90 text-white'
             }`}
           >
             {isSimulating ? <Square className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
@@ -191,9 +191,9 @@ export default function DriverLocationPage() {
           <button
             onClick={sendSinglePing}
             disabled={isSimulating || pingMutation.isPending}
-            className="w-full py-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-slate-200 font-mono font-semibold text-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-2.5 rounded bg-card hover:bg-primary-50 border border-white/10 text-main font-mono font-semibold text-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            <Send className="w-3.5 h-3.5 text-cyan-400" />
+            <Send className="w-3.5 h-3.5 text-primary" />
             <span>TRANSMIT SINGLE TELEMATICS PACKET</span>
           </button>
         </div>
@@ -202,10 +202,10 @@ export default function DriverLocationPage() {
       {/* Corridor Waypoints Progression */}
       <div className="glass-panel p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold text-white font-mono uppercase tracking-wider">
+          <h3 className="text-xs font-bold text-main font-mono uppercase tracking-wider">
             CORRIDOR WAYPOINTS CHECKLIST
           </h3>
-          <span className="text-[10px] font-mono text-cyan-400">NH-44 SECTION</span>
+          <span className="text-[10px] font-mono text-primary">NH-44 SECTION</span>
         </div>
 
         <div className="space-y-2">
@@ -220,38 +220,38 @@ export default function DriverLocationPage() {
                   pingMutation.mutate({ lat: wp.lat, lng: wp.lng, speed });
                   toast.success(`Jumped to checkpoint: ${wp.name}`);
                 }}
-                className={`w-full p-3 rounded-xl border flex items-center justify-between text-left transition-all ${
+                className={`w-full p-3 rounded border flex items-center justify-between text-left transition-all ${
                   isCurrent
-                    ? 'bg-cyan-500/15 border-cyan-500/40 shadow-md shadow-cyan-500/10'
+                    ? 'bg-primary-50 border-subtle '
                     : isPassed
-                    ? 'bg-slate-900/40 border-white/[0.04] opacity-75'
-                    : 'bg-slate-900/60 border-white/[0.06] hover:border-slate-700'
+                    ? 'bg-card border-white/[0.04] opacity-75'
+                    : 'bg-card border-subtle hover:border-subtle'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold ${
                       isCurrent
-                        ? 'bg-cyan-400 text-slate-950 ring-4 ring-cyan-500/20'
+                        ? 'bg-success text-white'
                         : isPassed
-                        ? 'bg-emerald-500/20 text-emerald-400'
-                        : 'bg-slate-800 text-slate-400'
+                        ? 'bg-safe-bg text-success'
+                        : 'bg-primary-100 text-muted'
                     }`}
                   >
                     {idx + 1}
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white">{wp.name}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">
+                    <div className="text-xs font-bold text-main">{wp.name}</div>
+                    <div className="text-[10px] text-muted font-mono">
                       {wp.lat.toFixed(3)}°N, {wp.lng.toFixed(3)}°E
                     </div>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[11px] font-mono text-slate-300 font-semibold">{wp.km}</span>
+                  <span className="text-[11px] font-mono text-main font-semibold">{wp.km}</span>
                   {isCurrent && (
-                    <span className="block text-[9px] font-mono text-cyan-400 uppercase font-bold">
+                    <span className="block text-[9px] font-mono text-primary uppercase font-bold">
                       CURRENT FIX
                     </span>
                   )}

@@ -79,12 +79,12 @@ export default function DriverHospitalsPage() {
       {/* Header */}
       <div className="glass-panel p-5">
         <div className="flex items-center gap-2">
-          <Hospital className="w-5 h-5 text-emerald-400" />
-          <h1 className="text-xl font-bold text-white font-mono tracking-tight">
+          <Hospital className="w-5 h-5 text-success" />
+          <h1 className="text-xl font-bold text-main font-mono tracking-tight">
             EMERGENCY TRAUMA HUBS NEAR YOU
           </h1>
         </div>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-muted mt-1">
           Nearest verified Level 1 & 2 trauma centers along the NH-44 corridor with 24/7 emergency surgeon standby.
         </p>
       </div>
@@ -97,10 +97,10 @@ export default function DriverHospitalsPage() {
             className="glass-panel p-4 space-y-3 text-xs hover:border-emerald-500/30 transition-all group"
           >
             <div className="flex items-center justify-between">
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold">
+              <span className="px-2.5 py-0.5 rounded-full bg-success-50 border border-emerald-500/30 text-success text-[10px] font-mono font-bold">
                 TRAUMA LEVEL {h.traumaLevel || 1}
               </span>
-              <span className="text-emerald-400 font-semibold font-mono text-[11px] flex items-center gap-1">
+              <span className="text-success font-semibold font-mono text-[11px] flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {h.capacityStatus || 'Available'}
               </span>
@@ -108,28 +108,28 @@ export default function DriverHospitalsPage() {
 
             <div>
               <div className="flex items-start justify-between">
-                <h3 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
+                <h3 className="text-sm font-bold text-main group-hover:text-primary transition-colors">
                   {h.name}
                 </h3>
-                <span className="font-mono text-cyan-400 font-bold ml-2 shrink-0">
+                <span className="font-mono text-primary font-bold ml-2 shrink-0">
                   {h.distanceKm || '12 km away'}
                 </span>
               </div>
-              <p className="text-slate-400 text-[11px] mt-1 flex items-start gap-1">
-                <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
+              <p className="text-muted text-[11px] mt-1 flex items-start gap-1">
+                <MapPin className="w-3.5 h-3.5 text-muted shrink-0 mt-0.5" />
                 <span>{h.contactInfo?.address || 'NCR Highway Arterial Zone'}</span>
               </p>
             </div>
 
-            <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between gap-2">
-              <div className="text-[10px] font-mono text-slate-400">
-                ICU Beds: <span className="text-white font-bold">{h.availableBeds ?? 14} Available</span>
+            <div className="pt-2 border-t border-subtle flex items-center justify-between gap-2">
+              <div className="text-[10px] font-mono text-muted">
+                ICU Beds: <span className="text-main font-bold">{h.availableBeds ?? 14} Available</span>
               </div>
 
               {h.contactInfo?.phone && (
                 <a
                   href={`tel:${h.contactInfo.phone}`}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs transition-all shadow-md shadow-emerald-950/50"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-main font-mono font-bold text-xs transition-all shadow-md shadow-emerald-950/50"
                 >
                   <PhoneCall className="w-3.5 h-3.5" />
                   <span>Call Hospital</span>

@@ -23,11 +23,11 @@ export default function Home() {
   }, [user, loading, router]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-full bg-[#070B13] text-slate-200">
+    <div className="flex flex-col items-center justify-center h-screen w-full bg-page text-main">
       <div className="relative flex items-center justify-center">
-        <div className="w-14 h-14 rounded-full border-4 border-cyan-500/20 border-t-cyan-500 animate-spin"></div>
+        <div className="w-14 h-14 rounded-full border-4 border-primary-200 border-t-primary animate-spin"></div>
       </div>
-      <p className="mt-4 text-xs font-mono tracking-widest text-cyan-400 uppercase">
+      <p className="mt-4 text-xs font-mono tracking-widest text-muted uppercase">
         CONNECTING TO NETRA CONTROL TOWER...
       </p>
     </div>

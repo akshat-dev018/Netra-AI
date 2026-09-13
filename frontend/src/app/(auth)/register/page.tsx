@@ -41,28 +41,27 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B13] text-slate-100 flex items-center justify-center p-4 lg:p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-page text-main flex items-center justify-center p-4 lg:p-8 relative overflow-hidden">
       {/* Glows */}
-      <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-10 right-1/3 w-[450px] h-[450px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="w-full max-w-lg space-y-6 relative z-10 animate-fade-in-up">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500/20 via-blue-500/20 to-indigo-500/20 border border-cyan-500/30 p-2.5 shadow-xl shadow-cyan-500/10 mb-1">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded bg-card border border-subtle p-2.5 mb-1">
             <Image
               src="/netra_logo.png"
               alt="NETRA"
               width={48}
               height={48}
-              className="object-contain filter invert brightness-200"
+              className="object-contain "
               priority
             />
           </div>
-          <h1 className="text-2xl font-bold font-sans tracking-tight text-white">
-            Provision Operator <span className="text-cyan-400 font-mono">NETRA</span>
+          <h1 className="text-2xl font-bold font-sans tracking-tight text-main">
+            Provision Operator <span className="text-primary font-mono">NETRA</span>
           </h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-muted">
             Register new personnel to the National Freight Intelligence Network
           </p>
         </div>
@@ -70,42 +69,42 @@ export default function RegisterPage() {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="glass-panel-elevated p-6 sm:p-8 rounded-2xl border border-white/[0.08] shadow-2xl space-y-4 text-xs"
+          className="glass-panel-elevated p-6 sm:p-8 rounded border border-subtle space-y-4 text-xs"
         >
           <div>
-            <label className="text-slate-300 font-medium block mb-1.5">Full Name</label>
+            <label className="text-main font-medium block mb-1.5">Full Name</label>
             <div className="relative">
-              <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
                 placeholder="Ramesh Kumar"
-                className="glass-input w-full pl-10 pr-3 py-2.5 rounded-xl text-white placeholder-slate-500 text-xs focus:outline-none"
+                className="glass-input w-full pl-10 pr-3 py-2.5 rounded text-main placeholder:text-muted text-xs focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-slate-300 font-medium block mb-1.5">Email Address</label>
+            <label className="text-main font-medium block mb-1.5">Email Address</label>
             <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="ramesh@netra.local"
-                className="glass-input w-full pl-10 pr-3 py-2.5 rounded-xl text-white font-mono placeholder-slate-500 text-xs focus:outline-none"
+                className="glass-input w-full pl-10 pr-3 py-2.5 rounded text-main font-mono placeholder:text-muted text-xs focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-slate-300 font-medium block mb-1.5">Password (min 8 chars)</label>
+            <label className="text-main font-medium block mb-1.5">Password (min 8 chars)</label>
             <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
               <input
                 type="password"
                 value={password}
@@ -113,19 +112,19 @@ export default function RegisterPage() {
                 required
                 minLength={8}
                 placeholder="••••••••••••"
-                className="glass-input w-full pl-10 pr-3 py-2.5 rounded-xl text-white placeholder-slate-500 text-xs focus:outline-none"
+                className="glass-input w-full pl-10 pr-3 py-2.5 rounded text-main placeholder:text-muted text-xs focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-slate-300 font-medium block mb-1.5">System Role Scope</label>
+            <label className="text-main font-medium block mb-1.5">System Role Scope</label>
             <div className="relative">
-              <Shield className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <Shield className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="glass-input w-full pl-10 pr-3 py-2.5 rounded-xl text-white text-xs focus:outline-none bg-[#0D1525]"
+                className="glass-input w-full pl-10 pr-3 py-2.5 rounded text-main text-xs focus:outline-none bg-card"
               >
                 <option value="driver">Driver (Mobile Field Telematics)</option>
                 <option value="fleet_manager">Fleet Manager (Depot & Vehicle Ops)</option>
@@ -142,15 +141,15 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+            className="w-full py-3 rounded btn-primary font-semibold text-xs text-on-primary transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
           >
             <span>{loading ? 'Provisioning Account...' : 'Register Operator'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
-          <div className="text-center pt-2 border-t border-white/[0.06]">
-            <span className="text-slate-400">Already have an operator account? </span>
-            <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-medium">
+          <div className="text-center pt-2 border-t border-subtle">
+            <span className="text-muted">Already have an operator account? </span>
+            <Link href="/login" className="text-primary hover:text-primary font-medium">
               Sign in here
             </Link>
           </div>

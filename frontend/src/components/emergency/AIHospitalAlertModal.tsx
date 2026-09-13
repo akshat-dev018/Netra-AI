@@ -45,7 +45,7 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
   const [notes, setNotes] = useState('');
   const [showRejectInput, setShowRejectInput] = useState(false);
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || (process.env.NEXT_PUBLIC_API_BASE_URL ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1` : 'http://localhost:5001/api/v1');
 
   const handleApprove = async () => {
     setLoading(true);
@@ -115,37 +115,37 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
   ];
 
   return (
-    <div className="glass-panel p-5 border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/[0.04] rounded-2xl shadow-xl space-y-4">
+    <div className="glass-panel p-5 border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/[0.04] rounded space-y-4">
       {/* Header Banner */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/40 animate-pulse">
+          <div className="p-2.5 rounded bg-warning-50 text-amber-600 dark:text-warning border border-amber-500/40 animate-pulse">
             <Siren className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-bold uppercase tracking-wider border border-amber-500/30">
+              <span className="px-2 py-0.5 rounded-full bg-warning-50 text-amber-700 dark:text-warning text-[10px] font-bold uppercase tracking-wider border border-amber-500/30">
                 AI Agent High-Risk Alert
               </span>
-              <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-mono font-semibold text-muted">
                 {isPending ? '⚠️ OPERATOR DECISION REQUIRED' : isDispatched ? '✅ DISPATCH APPROVED' : '❌ DISMISSED'}
               </span>
             </div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
+            <h3 className="text-base font-bold text-strong mt-0.5">
               High Accident Potential: {alert.aiPrediction?.highwayRef || 'Corridor NH-48'}
             </h3>
           </div>
         </div>
 
         {/* Risk Pill */}
-        <div className="flex items-center gap-3 bg-white/80 dark:bg-black/40 px-3.5 py-1.5 rounded-xl border border-amber-500/30">
+        <div className="flex items-center gap-3 bg-white/80 dark:bg-black/40 px-3.5 py-1.5 rounded border border-amber-500/30">
           <div className="text-right">
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Accident Risk Score</div>
-            <div className="text-base font-extrabold text-rose-600 dark:text-rose-400 font-mono">
+            <div className="text-[10px] font-bold text-muted uppercase tracking-wider">Accident Risk Score</div>
+            <div className="text-base font-extrabold text-critical font-mono">
               {alert.aiPrediction?.riskScore || 78}/100
             </div>
           </div>
-          <div className="w-10 h-10 rounded-full border-2 border-rose-500/40 flex items-center justify-center font-bold text-xs text-rose-600 dark:text-rose-400 bg-rose-500/10">
+          <div className="w-10 h-10 rounded-full border-2 border-rose-500/40 flex items-center justify-center font-bold text-xs text-critical bg-rose-500/10">
             {Math.round((alert.aiPrediction?.accidentProbability || 0.78) * 100)}%
           </div>
         </div>
@@ -153,27 +153,27 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
 
       {/* Description & AI Reasoning */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white/60 dark:bg-white/[0.03] p-3.5 rounded-xl border border-slate-200 dark:border-white/[0.06]">
-          <div className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mb-1">
+        <div className="bg-white/60 dark:bg-white/[0.03] p-3.5 rounded border border-subtle">
+          <div className="text-xs font-bold text-main flex items-center gap-1.5 mb-1">
             <ShieldAlert className="w-4 h-4 text-amber-500" />
             <span>AI Reasoning & Trigger Summary</span>
           </div>
-          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p className="text-xs text-main leading-relaxed">
             {alert.aiPrediction?.reasoning || alert.description || 'ML predictive model detected severe vehicle deceleration, high congestion density, and sudden weather visibility drop.'}
           </p>
-          <div className="mt-2.5 flex items-center gap-4 text-[11px] font-mono text-slate-500">
+          <div className="mt-2.5 flex items-center gap-4 text-[11px] font-mono text-muted">
             <span>Confidence: <b>{Math.round((alert.aiPrediction?.confidence || 0.88) * 100)}%</b></span>
             <span>Triggered: <b>AI Risk Agent</b></span>
           </div>
         </div>
 
         {/* Target Action Status */}
-        <div className="bg-white/60 dark:bg-white/[0.03] p-3.5 rounded-xl border border-slate-200 dark:border-white/[0.06]">
-          <div className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mb-1">
-            <Activity className="w-4 h-4 text-cyan-500" />
+        <div className="bg-white/60 dark:bg-white/[0.03] p-3.5 rounded border border-subtle">
+          <div className="text-xs font-bold text-main flex items-center gap-1.5 mb-1">
+            <Activity className="w-4 h-4 text-primary" />
             <span>Human Operator Protocol</span>
           </div>
-          <p className="text-xs text-slate-600 dark:text-slate-300">
+          <p className="text-xs text-main">
             {isPending
               ? 'The AI agent has pre-selected nearby trauma centers and prepared emergency protocols. Please verify highway telemetry and confirm whether to dispatch the emergency hospital alert.'
               : isDispatched
@@ -185,31 +185,31 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
 
       {/* Recommended Nearby Hospitals */}
       <div>
-        <div className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between mb-2">
+        <div className="text-xs font-bold text-main flex items-center justify-between mb-2">
           <span className="flex items-center gap-1.5">
-            <Building2 className="w-4 h-4 text-indigo-500" />
+            <Building2 className="w-4 h-4 text-primary" />
             <span>AI Pre-Selected Nearby Hospitals ({hospitals.length})</span>
           </span>
-          <span className="text-[11px] font-mono text-slate-500">Ready for Emergency Dispatch</span>
+          <span className="text-[11px] font-mono text-muted">Ready for Emergency Dispatch</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {hospitals.map((h, idx) => (
             <div
               key={idx}
-              className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-white/[0.08] shadow-sm flex flex-col justify-between"
+              className="bg-white dark:bg-card p-3 rounded border border-subtle dark:border-subtle shadow-sm flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-start justify-between gap-1">
-                  <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{h.name}</h4>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono font-bold shrink-0">
+                  <h4 className="text-xs font-bold text-strong truncate">{h.name}</h4>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/10 text-primary font-mono font-bold shrink-0">
                     {h.traumaCenterLevel || 'Level 1'}
                   </span>
                 </div>
 
-                <div className="mt-2 space-y-1 text-[11px] text-slate-600 dark:text-slate-300 font-medium">
+                <div className="mt-2 space-y-1 text-[11px] text-main font-medium">
                   <div className="flex items-center gap-1.5">
-                    <Navigation2 className="w-3.5 h-3.5 text-cyan-500" />
+                    <Navigation2 className="w-3.5 h-3.5 text-primary" />
                     <span>{h.distanceKm} km away</span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -218,14 +218,14 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <PhoneCall className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="font-mono text-slate-700 dark:text-slate-200">{h.phone || '+91 98765 43210'}</span>
+                    <span className="font-mono text-main">{h.phone || '+91 98765 43210'}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between text-[11px]">
-                <span className="text-slate-500">Trauma Beds:</span>
-                <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+              <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-subtle flex items-center justify-between text-[11px]">
+                <span className="text-muted">Trauma Beds:</span>
+                <span className="font-bold text-emerald-600 dark:text-success font-mono">
                   {h.bedsAvailable ?? 12} Available
                 </span>
               </div>
@@ -243,7 +243,7 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
               placeholder="Add operator verification notes or instructions (optional)..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-cyan-500"
+              className="w-full px-3 py-2 rounded text-xs bg-white  border border-subtle dark:border-white/10 text-strong dark:text-main placeholder-slate-400 focus:outline-none focus:border-primary"
             />
           </div>
 
@@ -251,7 +251,7 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
             <button
               onClick={handleReject}
               disabled={loading}
-              className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-rose-500/20 hover:text-rose-600 dark:hover:text-rose-400 border border-slate-300 dark:border-slate-700 text-xs font-bold transition-all flex items-center gap-1.5"
+              className="px-4 py-2 rounded bg-primary-50 dark:bg-primary-100 text-main hover:bg-critical-50 hover:text-critical border border-subtle dark:border-subtle text-xs font-bold transition-all flex items-center gap-1.5"
             >
               <XCircle className="w-4 h-4" />
               <span>Dismiss / Reject Proposal</span>
@@ -260,7 +260,7 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
             <button
               onClick={handleApprove}
               disabled={loading}
-              className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20 hover:from-emerald-500 hover:to-teal-500 transition-all flex items-center gap-2 border border-emerald-400/30"
+              className="px-5 py-2 rounded btn-success font-bold text-xs text-white transition-all flex items-center gap-2 border border-emerald-400/30"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Approve & Dispatch Hospital Alert</span>
@@ -270,7 +270,7 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
       )}
 
       {isDispatched && (
-        <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2">
+        <div className="p-3 rounded bg-success-50 border border-emerald-500/30 text-emerald-800 dark:text-success text-xs font-bold flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
           <span>Alert Confirmed by Operator & Dispatched to Hospitals. Emergency units on standby.</span>
         </div>

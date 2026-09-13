@@ -19,7 +19,7 @@ import {
   Zap,
   CheckCircle2,
   Navigation,
-  Sparkles,
+  Bot,
 } from 'lucide-react';
 
 const SAMPLE_CORRIDORS = [
@@ -121,21 +121,21 @@ export default function CorridorsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-main font-sans">
               Corridor Intelligence
             </h1>
-            <span className="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-mono text-[10px] font-semibold uppercase">
+            <span className="px-2 py-0.5 rounded-full bg-primary-50 border border-subtle text-primary font-mono text-[10px] font-semibold uppercase">
               LIVE TELEMETRY
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-muted mt-0.5">
             Throughput capacity, segment speed profiles, and bottleneck mitigation on major freight arteries.
           </p>
         </div>
 
         <Link
           href="/network"
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 transition-all self-start sm:self-auto"
+          className="flex items-center gap-2 px-3.5 py-2 rounded btn-primary text-xs font-semibold text-on-primary transition-all self-start sm:self-auto"
         >
           <MapPin className="w-3.5 h-3.5" />
           <span>Interactive Radar Map</span>
@@ -148,17 +148,17 @@ export default function CorridorsPage() {
           <button
             key={c.code}
             onClick={() => setSelectedCorridorCode(c.code)}
-            className={`px-4 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
+            className={`px-4 py-2.5 rounded text-xs font-medium transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
               selectedCorridorCode === c.code
-                ? 'bg-cyan-500/20 text-white border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
-                : 'glass-card text-slate-400 hover:text-slate-200'
+                ? 'bg-cyan-500/20 text-main border border-subtle '
+                : 'glass-card text-muted hover:text-main'
             }`}
           >
-            <span className="font-mono font-bold text-cyan-400">{c.code}</span>
-            <span className="text-slate-300">{c.name.split('–')[1] || c.name}</span>
+            <span className="font-mono font-bold text-primary">{c.code}</span>
+            <span className="text-main">{c.name.split('–')[1] || c.name}</span>
             <span
               className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
-                c.riskScore > 50 ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'
+                c.riskScore > 50 ? 'bg-warning-50 text-warning' : 'bg-safe-bg text-success'
               }`}
             >
               Risk: {c.riskScore}
@@ -173,53 +173,53 @@ export default function CorridorsPage() {
         <div className="lg:col-span-8 space-y-5">
           {/* Summary Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="glass-card p-4 rounded-xl space-y-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+            <div className="glass-card p-4 rounded space-y-1">
+              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
                 Corridor Length
               </span>
-              <div className="text-xl font-bold font-mono text-white">{active.length}</div>
-              <span className="text-[10px] text-slate-500">{active.nodeStart} → {active.nodeEnd}</span>
+              <div className="text-xl font-bold font-mono text-main">{active.length}</div>
+              <span className="text-[10px] text-muted">{active.nodeStart} → {active.nodeEnd}</span>
             </div>
 
-            <div className="glass-card p-4 rounded-xl space-y-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+            <div className="glass-card p-4 rounded space-y-1">
+              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
                 Fleet Average Speed
               </span>
-              <div className="text-xl font-bold font-mono text-cyan-400">{active.avgSpeed}</div>
-              <span className="text-[10px] text-slate-500">Real-time telematics</span>
+              <div className="text-xl font-bold font-mono text-primary">{active.avgSpeed}</div>
+              <span className="text-[10px] text-muted">Real-time telematics</span>
             </div>
 
-            <div className="glass-card p-4 rounded-xl space-y-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+            <div className="glass-card p-4 rounded space-y-1">
+              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
                 Active En-Route Trucks
               </span>
-              <div className="text-xl font-bold font-mono text-white">{active.activeTrucks}</div>
-              <span className="text-[10px] text-emerald-400">98% GPS active</span>
+              <div className="text-xl font-bold font-mono text-main">{active.activeTrucks}</div>
+              <span className="text-[10px] text-success">98% GPS active</span>
             </div>
 
-            <div className="glass-card p-4 rounded-xl space-y-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+            <div className="glass-card p-4 rounded space-y-1">
+              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
                 Capacity Utilization
               </span>
-              <div className="text-xl font-bold font-mono text-amber-400">{active.utilization}%</div>
-              <div className="w-full h-1 rounded-full bg-slate-800 overflow-hidden mt-1">
+              <div className="text-xl font-bold font-mono text-warning">{active.utilization}%</div>
+              <div className="w-full h-1 rounded-full bg-primary-100 overflow-hidden mt-1">
                 <div className="h-full bg-amber-400 rounded-full" style={{ width: `${active.utilization}%` }} />
               </div>
             </div>
           </div>
 
           {/* Segment Speed Breakdown Timeline */}
-          <div className="glass-card p-5 sm:p-6 rounded-2xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+          <div className="glass-card p-5 sm:p-6 rounded space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-subtle">
               <div>
-                <h2 className="text-sm font-bold text-white tracking-tight">
+                <h2 className="text-sm font-bold text-main tracking-tight">
                   Corridor Segments & Speed Profile
                 </h2>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-muted">
                   Sub-arterial breakdown between major gateways and dry ports
                 </p>
               </div>
-              <span className="text-xs font-mono text-cyan-400">{active.segments.length} Segments Monitored</span>
+              <span className="text-xs font-mono text-primary">{active.segments.length} Segments Monitored</span>
             </div>
 
             <div className="space-y-3.5">
@@ -230,44 +230,44 @@ export default function CorridorsPage() {
                 return (
                   <div
                     key={idx}
-                    className={`p-4 rounded-xl border transition-all ${
+                    className={`p-4 rounded border transition-all ${
                       isBottleneck
                         ? 'bg-rose-500/10 border-rose-500/30'
                         : isSlow
                         ? 'bg-amber-500/10 border-amber-500/30'
-                        : 'bg-white/[0.02] border-white/[0.06]'
+                        : 'bg-white/[0.02] border-subtle'
                     }`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-white/10 text-white font-mono text-[10px] font-bold flex items-center justify-center">
+                          <span className="w-5 h-5 rounded-full bg-white/10 text-main font-mono text-[10px] font-bold flex items-center justify-center">
                             {idx + 1}
                           </span>
-                          <span className="font-semibold text-white text-xs">{seg.name}</span>
-                          <span className="text-[10px] text-slate-400 font-mono">({seg.km})</span>
+                          <span className="font-semibold text-main text-xs">{seg.name}</span>
+                          <span className="text-[10px] text-muted font-mono">({seg.km})</span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-4 text-xs">
                         <div className="flex items-center gap-1.5 font-mono">
-                          <Gauge className="w-3.5 h-3.5 text-cyan-400" />
-                          <span className="text-white font-semibold">{seg.speed}</span>
+                          <Gauge className="w-3.5 h-3.5 text-primary" />
+                          <span className="text-main font-semibold">{seg.speed}</span>
                         </div>
 
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${
                             isBottleneck
-                              ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                              ? 'bg-critical-50 text-critical border border-rose-500/40'
                               : isSlow
-                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                              ? 'bg-warning-50 text-warning border border-amber-500/40'
+                              : 'bg-safe-bg text-success border border-emerald-500/40'
                           }`}
                         >
                           {seg.status}
                         </span>
 
-                        <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+                        <span className="text-[11px] text-muted font-mono hidden sm:inline">
                           {seg.waitTime}
                         </span>
                       </div>
@@ -280,97 +280,97 @@ export default function CorridorsPage() {
         </div>
 
         {/* Right Glass Panel: Segment Risk Breakdown & Mitigation (4 cols) */}
-        <div className="lg:col-span-4 glass-panel-right p-5 rounded-2xl flex flex-col justify-between space-y-5">
+        <div className="lg:col-span-4 glass-panel-right p-5 rounded flex flex-col justify-between space-y-5">
           <div className="space-y-4">
             {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+            <div className="flex items-center justify-between pb-3 border-b border-subtle">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-subtle flex items-center justify-center text-primary">
                   <Activity className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-xs font-bold text-white uppercase tracking-wider">
+                  <h2 className="text-xs font-bold text-main uppercase tracking-wider">
                     Risk Decomposition
                   </h2>
-                  <p className="text-[10px] text-slate-400 font-mono">{active.code} DYNAMIC FACTORS</p>
+                  <p className="text-[10px] text-muted font-mono">{active.code} DYNAMIC FACTORS</p>
                 </div>
               </div>
-              <span className="font-mono text-xs font-bold text-cyan-400">{active.riskScore}/100</span>
+              <span className="font-mono text-xs font-bold text-primary">{active.riskScore}/100</span>
             </div>
 
             {/* 4-Component Visual Breakdown */}
             <div className="space-y-2.5 text-xs">
               <div className="space-y-1">
-                <div className="flex justify-between text-[11px] text-slate-300">
+                <div className="flex justify-between text-[11px] text-main">
                   <span className="flex items-center gap-1">
-                    <CloudRain className="w-3 h-3 text-cyan-400" /> Weather Factor
+                    <CloudRain className="w-3 h-3 text-primary" /> Weather Factor
                   </span>
-                  <span className="font-mono text-cyan-400">{active.riskBreakdown.weather}%</span>
+                  <span className="font-mono text-primary">{active.riskBreakdown.weather}%</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                  <div className="h-full bg-cyan-400 rounded-full" style={{ width: `${active.riskBreakdown.weather}%` }} />
+                <div className="w-full h-1.5 rounded-full bg-primary-100 overflow-hidden">
+                  <div className="h-full bg-success rounded-full" style={{ width: `${active.riskBreakdown.weather}%` }} />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <div className="flex justify-between text-[11px] text-slate-300">
+                <div className="flex justify-between text-[11px] text-main">
                   <span className="flex items-center gap-1">
-                    <Car className="w-3 h-3 text-amber-400" /> Congestion Factor
+                    <Car className="w-3 h-3 text-warning" /> Congestion Factor
                   </span>
-                  <span className="font-mono text-amber-400">{active.riskBreakdown.congestion}%</span>
+                  <span className="font-mono text-warning">{active.riskBreakdown.congestion}%</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-primary-100 overflow-hidden">
                   <div className="h-full bg-amber-400 rounded-full" style={{ width: `${active.riskBreakdown.congestion}%` }} />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <div className="flex justify-between text-[11px] text-slate-300">
+                <div className="flex justify-between text-[11px] text-main">
                   <span className="flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3 text-orange-400" /> Active Incidents
                   </span>
                   <span className="font-mono text-orange-400">{active.riskBreakdown.incidents}%</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-primary-100 overflow-hidden">
                   <div className="h-full bg-orange-400 rounded-full" style={{ width: `${active.riskBreakdown.incidents}%` }} />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <div className="flex justify-between text-[11px] text-slate-300">
+                <div className="flex justify-between text-[11px] text-main">
                   <span className="flex items-center gap-1">
-                    <Flame className="w-3 h-3 text-rose-400" /> Historical Accident Density
+                    <Flame className="w-3 h-3 text-critical" /> Historical Accident Density
                   </span>
-                  <span className="font-mono text-rose-400">{active.riskBreakdown.accidents}%</span>
+                  <span className="font-mono text-critical">{active.riskBreakdown.accidents}%</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-primary-100 overflow-hidden">
                   <div className="h-full bg-rose-400 rounded-full" style={{ width: `${active.riskBreakdown.accidents}%` }} />
                 </div>
               </div>
             </div>
 
             {/* Active Bottleneck Card */}
-            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-2 text-xs">
+            <div className="p-3.5 rounded bg-white/[0.03] border border-subtle space-y-2 text-xs">
               <div className="flex items-center justify-between text-[10px]">
-                <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono font-semibold">
+                <span className="px-1.5 py-0.5 rounded bg-critical-50 text-critical font-mono font-semibold">
                   ACTIVE BOTTLENECK
                 </span>
-                <span className="font-mono text-rose-400 font-bold">{active.bottleneck.delayEst}</span>
+                <span className="font-mono text-critical font-bold">{active.bottleneck.delayEst}</span>
               </div>
-              <div className="font-semibold text-white text-xs">{active.bottleneck.location}</div>
-              <p className="text-[11px] text-slate-400">{active.bottleneck.cause}</p>
+              <div className="font-semibold text-main text-xs">{active.bottleneck.location}</div>
+              <p className="text-[11px] text-muted">{active.bottleneck.cause}</p>
 
               <div className="pt-2 border-t border-white/[0.04] space-y-1">
-                <span className="text-[10px] font-semibold text-cyan-400 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> AI Recommended Detour:
+                <span className="text-[10px] font-semibold text-primary flex items-center gap-1">
+                  <Bot className="w-3 h-3" /> AI Recommended Detour:
                 </span>
-                <p className="text-[11px] text-slate-300 leading-snug">{active.bottleneck.detour}</p>
+                <p className="text-[11px] text-main leading-snug">{active.bottleneck.detour}</p>
               </div>
 
               <div className="pt-2">
                 <Link
                   href="/routes/optimizer"
-                  className="w-full py-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                  className="w-full py-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-subtle text-primary text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
                 >
                   <Navigation className="w-3.5 h-3.5" />
                   <span>Execute Dynamic Reroute</span>
@@ -379,11 +379,11 @@ export default function CorridorsPage() {
             </div>
 
             {/* Emergency & Patrol Standby */}
-            <div className="p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20 text-xs space-y-1">
-              <span className="text-[10px] font-semibold text-emerald-400 flex items-center gap-1 uppercase tracking-wider">
+            <div className="p-3 rounded bg-emerald-500/[0.06] border border-emerald-500/20 text-xs space-y-1">
+              <span className="text-[10px] font-semibold text-success flex items-center gap-1 uppercase tracking-wider">
                 <ShieldCheck className="w-3.5 h-3.5" /> Trauma Hubs & Patrol Status
               </span>
-              <p className="text-[11px] text-slate-300">{active.bottleneck.patrolUnits}</p>
+              <p className="text-[11px] text-main">{active.bottleneck.patrolUnits}</p>
             </div>
           </div>
         </div>

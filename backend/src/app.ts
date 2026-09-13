@@ -24,6 +24,20 @@ export function createApp() {
   );
   app.use(cookieParser());
 
+  app.get('/', (_req, res) => {
+    res.json({
+      success: true,
+      name: 'NETRA — FreightIntel API Platform',
+      version: '1.0.0',
+      status: 'online',
+      health: '/health',
+      ready: '/ready',
+      apiBase: '/api/v1',
+      frontendUrl: env.CLIENT_URL,
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   app.get('/health', (_req, res) => {
     res.json({ success: true, data: { status: 'ok' } });
   });

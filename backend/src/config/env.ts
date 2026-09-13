@@ -25,6 +25,7 @@ const envSchema = z.object({
   SMTP_PASS: z.string().optional(),
   EMAIL_FROM: z.string().optional(),
   MAPBOX_SERVER_TOKEN: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
   OVERPASS_API_URL: z.string().optional(),
   LOCATION_PING_MAX_INTERVAL_SECONDS: z.coerce.number().default(60),
   LOCATION_STALE_THRESHOLD_MINUTES: z.coerce.number().default(5),
