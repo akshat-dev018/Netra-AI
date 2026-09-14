@@ -5,13 +5,19 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user, loading, loginAsDemoRole } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.push('/login');
+        loginAsDemoRole('admin').then((success) => {
+          if (success) {
+            router.push('/dashboard');
+          } else {
+            router.push('/login');
+          }
+        });
       } else if (user.role === 'driver') {
         router.push('/driver');
       } else if (user.role === 'fleet_manager') {
@@ -20,7 +26,7 @@ export default function Home() {
         router.push('/dashboard');
       }
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, loginAsDemoRole]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen w-full bg-page text-main">

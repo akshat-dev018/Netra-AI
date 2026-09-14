@@ -148,7 +148,7 @@ export async function seedData() {
     { upsert: true },
   );
 
-  const corridor = await Corridor.findOneAndUpdate(
+  const corridor44 = await Corridor.findOneAndUpdate(
     { highwayRef: 'NH-44', name: 'Delhi–Agra freight corridor' },
     {
       name: 'Delhi–Agra freight corridor',
@@ -166,39 +166,179 @@ export async function seedData() {
     { upsert: true, returnDocument: 'after' as const },
   );
 
-  const shipment = await Shipment.findOneAndUpdate(
-    { reference: 'SHP-DEMO-001' },
+  const corridor48 = await Corridor.findOneAndUpdate(
+    { highwayRef: 'NH-48', name: 'Delhi–Mumbai freight corridor' },
+    {
+      name: 'Delhi–Mumbai freight corridor',
+      highwayRef: 'NH-48',
+      path: { type: 'LineString', coordinates: [[77.209, 28.6139], [75.787, 26.912], [72.877, 19.076]] },
+      nodeStart: 'Delhi ICD',
+      nodeEnd: 'JNPT Mumbai',
+      type: 'national',
+      capacity: 100,
+      currentUtilization: 78,
+      riskScore: 68,
+      riskComponents: { weather: 22, congestion: 38, incidents: 25, accidentDensity: 15 },
+      isDeleted: false,
+    },
+    { upsert: true, returnDocument: 'after' as const },
+  );
+
+  const corridor19 = await Corridor.findOneAndUpdate(
+    { highwayRef: 'NH-19', name: 'Delhi–Kolkata Grand Trunk' },
+    {
+      name: 'Delhi–Kolkata Grand Trunk',
+      highwayRef: 'NH-19',
+      path: { type: 'LineString', coordinates: [[77.209, 28.6139], [82.973, 25.317], [88.363, 22.572]] },
+      nodeStart: 'Delhi Dadri',
+      nodeEnd: 'Kolkata Port',
+      type: 'national',
+      capacity: 90,
+      currentUtilization: 58,
+      riskScore: 42,
+      riskComponents: { weather: 10, congestion: 18, incidents: 12, accidentDensity: 14 },
+      isDeleted: false,
+    },
+    { upsert: true, returnDocument: 'after' as const },
+  );
+
+  const seedShipments = [
     {
       reference: 'SHP-DEMO-001',
       origin: 'Tughlakabad ICD',
-      destination: 'Agra dry port',
+      destination: 'Agra Dry Port',
       carrier: 'NETRA Logistics',
-      status: 'planned',
+      status: 'in_transit',
       assignedDriverId: driver._id,
       assignedVehicleId: vehicle._id,
-      currentCorridorId: corridor._id,
+      currentCorridorId: corridor44._id,
       routePolyline: NH44,
       riskScore: 38,
-      eta: new Date(Date.now() + 6 * 60 * 60 * 1000),
+      eta: new Date(Date.now() + 3 * 60 * 60 * 1000),
       priority: 'high',
       cargoType: 'container',
       createdBy: users.controller._id,
       isDeleted: false,
     },
-    { upsert: true, returnDocument: 'after' as const },
-  );
+    {
+      reference: 'SHP-DEMO-002',
+      origin: 'Gurugram Logistics Hub',
+      destination: 'Jaipur Inland Depot',
+      carrier: 'North Express Freight',
+      status: 'in_transit',
+      assignedDriverId: driver._id,
+      assignedVehicleId: vehicle._id,
+      currentCorridorId: corridor48._id,
+      riskScore: 72,
+      eta: new Date(Date.now() + 5 * 60 * 60 * 1000),
+      priority: 'high',
+      cargoType: 'refrigerated',
+      createdBy: users.controller._id,
+      isDeleted: false,
+    },
+    {
+      reference: 'SHP-DEMO-003',
+      origin: 'Noida Cargo Terminal',
+      destination: 'Mathura Refinery Hub',
+      carrier: 'Apex Cargo Ltd',
+      status: 'delayed',
+      assignedDriverId: driver._id,
+      assignedVehicleId: vehicle._id,
+      currentCorridorId: corridor44._id,
+      riskScore: 84,
+      eta: new Date(Date.now() + 8 * 60 * 60 * 1000),
+      priority: 'critical',
+      cargoType: 'hazmat',
+      createdBy: users.controller._id,
+      isDeleted: false,
+    },
+    {
+      reference: 'SHP-DEMO-004',
+      origin: 'Delhi ICD Dadri',
+      destination: 'Varanasi Ring Terminal',
+      carrier: 'GT Road Transports',
+      status: 'in_transit',
+      assignedDriverId: driver._id,
+      assignedVehicleId: vehicle._id,
+      currentCorridorId: corridor19._id,
+      riskScore: 45,
+      eta: new Date(Date.now() + 12 * 60 * 60 * 1000),
+      priority: 'medium',
+      cargoType: 'bulk',
+      createdBy: users.controller._id,
+      isDeleted: false,
+    },
+    {
+      reference: 'SHP-DEMO-005',
+      origin: 'Kishangarh Industrial Park',
+      destination: 'Ahmedabad Port',
+      carrier: 'Western Logistics',
+      status: 'in_transit',
+      assignedDriverId: driver._id,
+      assignedVehicleId: vehicle._id,
+      currentCorridorId: corridor48._id,
+      riskScore: 65,
+      eta: new Date(Date.now() + 9 * 60 * 60 * 1000),
+      priority: 'high',
+      cargoType: 'container',
+      createdBy: users.controller._id,
+      isDeleted: false,
+    },
+    {
+      reference: 'SHP-DEMO-006',
+      origin: 'Delhi ICD',
+      destination: 'JNPT Mumbai',
+      carrier: 'Interstate Freight Co',
+      status: 'planned',
+      assignedDriverId: driver._id,
+      assignedVehicleId: vehicle._id,
+      currentCorridorId: corridor48._id,
+      riskScore: 35,
+      eta: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      priority: 'low',
+      cargoType: 'bulk',
+      createdBy: users.controller._id,
+      isDeleted: false,
+    },
+  ];
+
+  for (const s of seedShipments) {
+    await Shipment.findOneAndUpdate(
+      { reference: s.reference },
+      s,
+      { upsert: true },
+    );
+  }
+
+  const shipment = await Shipment.findOne({ reference: 'SHP-DEMO-001' }) || seedShipments[0];
 
   await Disruption.findOneAndUpdate(
     { description: 'Lane closure near Faridabad' },
     {
       type: 'road_closure',
       severity: 'medium',
-      affectedCorridorIds: [corridor._id],
+      affectedCorridorIds: [corridor44._id],
       status: 'open',
       source: 'manual',
       location: point(77.32, 28.41),
       startedAt: new Date(),
       description: 'Lane closure near Faridabad',
+      isDeleted: false,
+    },
+    { upsert: true },
+  );
+
+  await Disruption.findOneAndUpdate(
+    { description: 'Monsoon Flash Flood on NH-48 KM 142' },
+    {
+      type: 'flooding',
+      severity: 'critical',
+      affectedCorridorIds: [corridor48._id],
+      status: 'open',
+      source: 'manual',
+      location: point(75.787, 26.912),
+      startedAt: new Date(),
+      description: 'Monsoon Flash Flood on NH-48 KM 142',
       isDeleted: false,
     },
     { upsert: true },

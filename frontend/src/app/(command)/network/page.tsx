@@ -129,6 +129,16 @@ export default function NetworkPage() {
 
       L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
+      const corridorsLayer = L.layerGroup().addTo(map);
+      const incidentsLayer = L.layerGroup().addTo(map);
+      const weatherLayer = L.layerGroup().addTo(map);
+
+      layersRef.current = {
+        corridors: corridorsLayer,
+        incidents: incidentsLayer,
+        weather: weatherLayer,
+      };
+
       // National Highway network routes
       const highwayRoutes = [
         {
@@ -193,11 +203,11 @@ export default function NetworkPage() {
           weight: 5,
           opacity: 0.85,
           lineJoin: 'round',
-        }).addTo(map);
+        }).addTo(corridorsLayer);
 
         polyline.bindPopup(`
-          <div style="color: var(--text-main); font-family: sans-serif; font-size: 12px; padding: 4px;">
-            <b style="font-size: 13px; color: var(--text-strong);">${h.code}</b> — ${h.name}<br/>
+          <div style="color: #11315F; font-family: sans-serif; font-size: 12px; padding: 4px;">
+            <b style="font-size: 13px; color: #000000;">${h.code}</b> — ${h.name}<br/>
             <span>Risk Index: <b>${h.risk}/100</b></span>
           </div>
         `);
@@ -224,11 +234,22 @@ export default function NetworkPage() {
           iconAnchor: [12, 12],
         });
 
-        const marker = L.marker(inc.coords as [number, number], { icon: incidentIcon }).addTo(map);
+        const marker = L.marker(inc.coords as [number, number], { icon: incidentIcon }).addTo(incidentsLayer);
         marker.on('click', () => {
           setSelectedIncident(inc);
         });
+        marker.bindPopup(`
+          <div style="font-family:sans-serif; color:#11315F;">
+            <h4 style="font-weight:bold; color:#000; margin-bottom:4px;">${inc.title}</h4>
+            <p style="font-size:11px; margin:2px 0;">${inc.location}</p>
+            <p style="font-size:10px; color:${TOKENS.critical}; font-weight:bold;">${inc.speedDrop}</p>
+          </div>
+        `);
       });
+
+      // Add Weather radar layer overlay circles
+      L.circle([26.9124, 75.7873], { radius: 120000, color: '#38bdf8', fillColor: '#38bdf8', fillOpacity: 0.18 }).addTo(weatherLayer);
+      L.circle([25.3176, 82.9739], { radius: 90000, color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.15 }).addTo(weatherLayer);
     }
 
     initMap();
@@ -241,6 +262,31 @@ export default function NetworkPage() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    const map = mapInstance.current;
+    const layers = layersRef.current;
+    if (!map || !layers) return;
+
+    if (activeLayer === 'all') {
+      if (layers.corridors && !map.hasLayer(layers.corridors)) map.addLayer(layers.corridors);
+      if (layers.incidents && !map.hasLayer(layers.incidents)) map.addLayer(layers.incidents);
+      if (layers.weather && !map.hasLayer(layers.weather)) map.addLayer(layers.weather);
+    } else if (activeLayer === 'corridors') {
+      if (layers.corridors && !map.hasLayer(layers.corridors)) map.addLayer(layers.corridors);
+      if (layers.incidents && map.hasLayer(layers.incidents)) map.removeLayer(layers.incidents);
+      if (layers.weather && map.hasLayer(layers.weather)) map.removeLayer(layers.weather);
+    } else if (activeLayer === 'incidents') {
+      if (layers.corridors && map.hasLayer(layers.corridors)) map.removeLayer(layers.corridors);
+      if (layers.incidents && !map.hasLayer(layers.incidents)) map.addLayer(layers.incidents);
+      if (layers.weather && map.hasLayer(layers.weather)) map.removeLayer(layers.weather);
+    } else if (activeLayer === 'weather') {
+      if (layers.corridors && !map.hasLayer(layers.corridors)) map.addLayer(layers.corridors);
+      if (layers.incidents && map.hasLayer(layers.incidents)) map.removeLayer(layers.incidents);
+      if (layers.weather && !map.hasLayer(layers.weather)) map.addLayer(layers.weather);
+    }
+  }, [activeLayer]);
+
 
   return (
     <div className="space-y-4 animate-fade-in-up">
@@ -355,7 +401,12 @@ export default function NetworkPage() {
                 return (
                   <div
                     key={inc.id}
-                    onClick={() => setSelectedIncident(inc)}
+                    onClick={() => {
+                      setSelectedIncident(inc);
+                      if (mapInstance.current && inc.coords) {
+                        mapInstance.current.flyTo(inc.coords as [number, number], 9, { duration: 1.2 });
+                      }
+                    }}
                     className={`p-3.5 rounded border transition-all duration-200 cursor-pointer text-xs space-y-2.5 ${
                       isSelected
                         ? 'bg-primary-50 border-cyan-500/50 '

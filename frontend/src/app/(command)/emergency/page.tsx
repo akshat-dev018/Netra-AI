@@ -5,22 +5,19 @@ import { Siren, Building2, ShieldCheck, Activity, RefreshCw, Plus, CheckCircle2,
 import { AIHospitalAlertModal, type AIHospitalAlert } from '@/components/emergency/AIHospitalAlertModal';
 import toast from 'react-hot-toast';
 
+import { emergencyApi } from '@/lib/api';
+
 export default function EmergencyPage() {
   const [alerts, setAlerts] = useState<AIHospitalAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'pending' | 'all' | 'dispatched'>('pending');
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || (process.env.NEXT_PUBLIC_API_BASE_URL ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1` : 'http://localhost:5001/api/v1');
-
   const fetchAlerts = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token') || '';
-      const res = await fetch(`${apiBase}/emergency/alerts?limit=50`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
+      const res = await emergencyApi.listAlerts({ limit: 50 });
+      const data = res.data;
+      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
         setAlerts(data.data);
       } else {
         setAlerts(getMockAlerts());

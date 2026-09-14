@@ -22,7 +22,7 @@ export async function overview(_req: Request, res: Response) {
   ] = await Promise.all([
     Shipment.countDocuments({
       isDeleted: false,
-      status: trustedOp({ $in: ['in_transit', 'delayed'] }),
+      status: trustedOp({ $in: ['in_transit', 'delayed', 'planned', 'active'] }),
     } satisfies QueryFilter<ShipmentDoc>),
     Shipment.countDocuments({
       isDeleted: false,

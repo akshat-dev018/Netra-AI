@@ -15,14 +15,23 @@ export async function refreshPredictions(): Promise<void> {
       score: Math.round(Math.min(100, Math.max(0, base + (hour - 3) * 4))),
     }));
 
+    const delayMins = Math.round(15 + (c.riskScore * 0.45));
     const doc = await Prediction.findOneAndUpdate(
       { corridorId: c._id },
       {
         corridorId: c._id,
+        corridor: c.name || `Corridor ${c.highwayRef}`,
         predictedRiskTrajectory: trajectory,
-        confidence: 0.88,
+        predictedDelayMinutes: delayMins,
+        confidence: 92,
         horizonHours: 6,
         contributingSignals: ['utilization', 'open_disruptions', 'historical_accident_density', 'weather_drop'],
+        impactFactors: [
+          `High capacity utilization (${c.currentUtilization}%) along ${c.highwayRef} bottleneck points`,
+          `Elevated crash density and weather load (${c.riskComponents?.weather ?? 12}% precipitation index)`,
+        ],
+        recommendedAction: `Re-route time-sensitive consignments via peripheral bypass to avoid +${delayMins}m transit lag.`,
+        affectedShipments: Math.round(15 + c.currentUtilization * 0.3),
       },
       { upsert: true, returnDocument: 'after' as const },
     );

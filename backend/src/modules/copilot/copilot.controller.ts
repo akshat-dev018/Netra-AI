@@ -76,7 +76,7 @@ export async function message(req: Request, res: Response) {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-1.5-flash',
       systemInstruction:
         'You are NETRA Copilot for an Indian national freight and emergency control tower. Answer from the platform snapshot when it is relevant. Do not invent live GPS coordinates. Be concise and operational. Format key findings with clean bullet points and markdown.',
     });

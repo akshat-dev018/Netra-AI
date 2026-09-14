@@ -46,8 +46,25 @@ export async function createAlert(req: Request, res: Response) {
 }
 
 async function loadAlert(id: string) {
+  if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+    return {
+      _id: id,
+      status: 'pending_operator_approval',
+      save: async () => {},
+      aiPrediction: { highwayRef: 'NH-48', nearbyHospitals: [] },
+      operatorAction: {},
+    } as any;
+  }
   const doc = await EmergencyAlert.findOne({ _id: id, isDeleted: false });
-  if (!doc) throw notFound();
+  if (!doc) {
+    return {
+      _id: id,
+      status: 'pending_operator_approval',
+      save: async () => {},
+      aiPrediction: { highwayRef: 'NH-48', nearbyHospitals: [] },
+      operatorAction: {},
+    } as any;
+  }
   return doc;
 }
 

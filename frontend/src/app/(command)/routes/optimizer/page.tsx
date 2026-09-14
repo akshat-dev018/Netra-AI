@@ -24,6 +24,7 @@ type Candidate = {
   costIndex: number;
   riskScore: number;
   breakdown?: { weather?: number; congestion?: number; accidentDensity?: number };
+  coords?: [number, number][];
 };
 
 type RouteOption = {
@@ -36,10 +37,31 @@ type RouteOption = {
   costIndex: number;
   points: string[];
   kind: 'recommended' | 'alternate' | 'avoid';
+  coords?: [number, number][];
 };
 
-const ORIGIN_COORD: [number, number] = [28.5355, 77.2678];
-const DEST_COORD: [number, number] = [27.1767, 78.0081];
+const CITY_COORDS_MAP: Record<string, [number, number]> = {
+  'delhi': [28.6139, 77.2090],
+  'tughlakabad': [28.5355, 77.2678],
+  'agra': [27.1767, 78.0081],
+  'gurugram': [28.4595, 77.0266],
+  'jaipur': [26.9124, 75.7873],
+  'noida': [28.5355, 77.3910],
+  'mathura': [27.4924, 77.6737],
+  'mumbai': [19.0760, 72.8777],
+  'kolkata': [22.5726, 88.3639],
+  'chennai': [13.0827, 80.2707],
+  'bengaluru': [12.9716, 77.5946],
+  'hyderabad': [17.3850, 78.4867],
+};
+
+function getCoordsForCity(name: string, fallback: [number, number]): [number, number] {
+  const lower = name.toLowerCase();
+  for (const [key, coords] of Object.entries(CITY_COORDS_MAP)) {
+    if (lower.includes(key)) return coords;
+  }
+  return fallback;
+}
 
 function formatEta(mins: number) {
   const h = Math.floor(mins / 60);
@@ -52,14 +74,18 @@ function safetyFromRisk(risk: number) {
   return `${Math.max(5, 100 - risk)}/100`;
 }
 
-function polylineForRank(rank: number): [number, number][] {
-  const drift = (rank - 1) * 0.18;
+function generateDynamicPolyline(orig: string, dest: string, rank: number): [number, number][] {
+  const start = getCoordsForCity(orig, [28.5355, 77.2678]);
+  const end = getCoordsForCity(dest, [27.1767, 78.0081]);
+  const drift = (rank - 1) * 0.15;
+  const dx = end[0] - start[0];
+  const dy = end[1] - start[1];
+
   return [
-    ORIGIN_COORD,
-    [28.4595 - drift * 0.15, 77.526 + drift],
-    [28.1812 - drift * 0.4, 77.6841 + drift * 0.35],
-    [27.6823 - drift * 0.2, 77.7812 + drift * 0.55],
-    DEST_COORD,
+    start,
+    [start[0] + dx * 0.3 - drift * 0.1, start[1] + dy * 0.3 + drift * 0.12],
+    [start[0] + dx * 0.7 + drift * 0.08, start[1] + dy * 0.7 - drift * 0.1],
+    end,
   ];
 }
 
@@ -104,6 +130,7 @@ function mapCandidates(raw: unknown, origin: string, destination: string): Route
       costIndex: c.costIndex,
       points,
       kind,
+      coords: c.coords,
     };
   });
 }
@@ -149,7 +176,7 @@ export default function RouteOptimizerPage() {
 
   const presets = [
     { label: 'Delhi → Agra', origin: 'Tughlakabad ICD, Delhi', dest: 'Agra Dry Port, UP' },
-    { label: 'Gurugram → Jaipur', origin: 'Gurugram Logistics Park', dest: 'Jaipur Dry Port' },
+    { label: 'Gurugram → Jaipur', origin: 'Gurugram Logistics Hub', dest: 'Jaipur Inland Depot' },
     { label: 'Noida → Mathura', origin: 'Noida Cargo Terminal', dest: 'Mathura Refinery Hub' },
     { label: 'Delhi → Mumbai', origin: 'Delhi ICD', dest: 'JNPT Mumbai' },
   ];
@@ -166,7 +193,7 @@ export default function RouteOptimizerPage() {
       const map = L.map(mapContainer.current, {
         zoomControl: false,
         attributionControl: false,
-      }).setView([27.85, 77.65], 8);
+      }).setView([27.85, 77.65], 7);
 
       mapInstance.current = map;
       overlayRef.current = L.layerGroup().addTo(map);
@@ -204,21 +231,35 @@ export default function RouteOptimizerPage() {
       layer.clearLayers();
 
       const options = result ?? [];
-      const ranks = options.length ? options.map((o) => o.rank) : [1];
+      const startCoord = getCoordsForCity(origin, [28.5355, 77.2678]);
+      const endCoord = getCoordsForCity(destination, [27.1767, 78.0081]);
+      const allPoints: [number, number][] = [startCoord, endCoord];
 
-      ranks.forEach((rank, i) => {
-        const kind = options[i]?.kind ?? 'recommended';
-        const color =
-          kind === 'recommended' ? TOKENS.success : kind === 'alternate' ? TOKENS.primary : TOKENS.warning;
-        const line = Leaflet.polyline(polylineForRank(rank), {
-          color,
-          weight: kind === 'recommended' ? 6 : 4,
-          opacity: kind === 'recommended' ? 0.95 : 0.75,
-          dashArray: kind === 'avoid' ? '8, 8' : undefined,
+      if (options.length > 0) {
+        options.forEach((opt) => {
+          const pts = opt.coords && opt.coords.length > 0 ? opt.coords : generateDynamicPolyline(origin, destination, opt.rank);
+          pts.forEach((p) => allPoints.push(p));
+
+          const color =
+            opt.kind === 'recommended' ? TOKENS.success : opt.kind === 'alternate' ? TOKENS.primary : TOKENS.warning;
+          const line = Leaflet.polyline(pts, {
+            color,
+            weight: opt.kind === 'recommended' ? 6 : 4,
+            opacity: opt.kind === 'recommended' ? 0.95 : 0.75,
+            dashArray: opt.kind === 'avoid' ? '8, 8' : undefined,
+          }).addTo(layer);
+
+          line.bindTooltip(`${opt.title} · rank ${opt.rank}`, { sticky: true });
+        });
+      } else {
+        const baseline = generateDynamicPolyline(origin, destination, 1);
+        baseline.forEach((p) => allPoints.push(p));
+        Leaflet.polyline(baseline, {
+          color: TOKENS.primary,
+          weight: 5,
+          opacity: 0.8,
         }).addTo(layer);
-        const label = options[i]?.title ?? 'Route';
-        line.bindTooltip(`${label} · rank ${rank}`, { sticky: true });
-      });
+      }
 
       const startIcon = Leaflet.divIcon({
         className: 'custom-pin',
@@ -232,12 +273,19 @@ export default function RouteOptimizerPage() {
         iconSize: [14, 14],
         iconAnchor: [7, 7],
       });
-      Leaflet.marker(ORIGIN_COORD, { icon: startIcon }).addTo(layer).bindPopup(`Origin: ${origin}`);
-      Leaflet.marker(DEST_COORD, { icon: endIcon }).addTo(layer).bindPopup(`Destination: ${destination}`);
+
+      Leaflet.marker(startCoord, { icon: startIcon }).addTo(layer).bindPopup(`Origin: ${origin}`);
+      Leaflet.marker(endCoord, { icon: endIcon }).addTo(layer).bindPopup(`Destination: ${destination}`);
+
+      if (allPoints.length > 0) {
+        const bounds = Leaflet.latLngBounds(allPoints);
+        m.fitBounds(bounds, { padding: [40, 40] });
+      }
 
       setTimeout(() => m.invalidateSize(), 50);
     });
   }, [result, origin, destination]);
+
 
   const recommended = result?.find((r) => r.kind === 'recommended');
 

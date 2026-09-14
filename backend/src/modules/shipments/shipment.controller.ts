@@ -111,17 +111,98 @@ export async function importShipments(req: Request, res: Response) {
   res.json({ success: true, data: { imported } });
 }
 
+const CITY_COORDS: Record<string, [number, number]> = {
+  'delhi': [28.6139, 77.2090],
+  'tughlakabad': [28.5355, 77.2678],
+  'agra': [27.1767, 78.0081],
+  'gurugram': [28.4595, 77.0266],
+  'jaipur': [26.9124, 75.7873],
+  'noida': [28.5355, 77.3910],
+  'mathura': [27.4924, 77.6737],
+  'mumbai': [19.0760, 72.8777],
+  'kolkata': [22.5726, 88.3639],
+  'chennai': [13.0827, 80.2707],
+  'bengaluru': [12.9716, 77.5946],
+  'hyderabad': [17.3850, 78.4867],
+};
+
+function getCityCoords(name: string, fallback: [number, number]): [number, number] {
+  const lower = name.toLowerCase();
+  for (const [key, coords] of Object.entries(CITY_COORDS)) {
+    if (lower.includes(key)) return coords;
+  }
+  return fallback;
+}
+
 export async function optimizeRoute(req: Request, res: Response) {
-  const { origin, destination } = req.body as { origin: string; destination: string };
-  const candidates = [0.8, 1, 1.2].map((mult, i) => ({
-    rank: i + 1,
-    origin,
-    destination,
-    etaMinutes: Math.round(180 * mult),
-    distanceKm: Math.round(250 * mult),
-    costIndex: Math.round(100 * mult),
-    riskScore: Math.round(40 + i * 12),
-    breakdown: { weather: 10 + i * 4, congestion: 15 + i * 3, accidentDensity: 15 + i * 5 },
-  }));
+  const { origin, destination, cargoType, priority } = req.body as {
+    origin: string;
+    destination: string;
+    cargoType?: string;
+    priority?: string;
+  };
+
+  const start = getCityCoords(origin || '', [28.6139, 77.2090]);
+  const end = getCityCoords(destination || '', [27.1767, 78.0081]);
+
+  const dx = end[0] - start[0];
+  const dy = end[1] - start[1];
+  const distanceKm = Math.round(Math.sqrt(dx * dx + dy * dy) * 111);
+
+  const candidates = [
+    {
+      rank: 1,
+      title: 'AI incident-avoidance corridor',
+      origin: origin || 'Origin Node',
+      destination: destination || 'Destination Node',
+      etaMinutes: Math.round((distanceKm / 65) * 60),
+      distanceKm,
+      costIndex: 82,
+      riskScore: 38,
+      breakdown: { weather: 10, congestion: 14, accidentDensity: 14 },
+      coords: [
+        start,
+        [start[0] + dx * 0.25 + 0.05, start[1] + dy * 0.25 - 0.04],
+        [start[0] + dx * 0.5 - 0.03, start[1] + dy * 0.5 + 0.06],
+        [start[0] + dx * 0.75 + 0.04, start[1] + dy * 0.75 - 0.02],
+        end,
+      ],
+    },
+    {
+      rank: 2,
+      title: 'Alternate arterial (higher delay)',
+      origin: origin || 'Origin Node',
+      destination: destination || 'Destination Node',
+      etaMinutes: Math.round((distanceKm / 52) * 60),
+      distanceKm: Math.round(distanceKm * 1.15),
+      costIndex: 98,
+      riskScore: 54,
+      breakdown: { weather: 18, congestion: 24, accidentDensity: 12 },
+      coords: [
+        start,
+        [start[0] + dx * 0.3 - 0.12, start[1] + dy * 0.3 + 0.15],
+        [start[0] + dx * 0.6 + 0.1, start[1] + dy * 0.6 - 0.12],
+        end,
+      ],
+    },
+    {
+      rank: 3,
+      title: 'Direct urban artery (elevated risk)',
+      origin: origin || 'Origin Node',
+      destination: destination || 'Destination Node',
+      etaMinutes: Math.round((distanceKm / 44) * 60),
+      distanceKm: Math.round(distanceKm * 1.05),
+      costIndex: 112,
+      riskScore: 76,
+      breakdown: { weather: 25, congestion: 35, accidentDensity: 28 },
+      coords: [
+        start,
+        [start[0] + dx * 0.5 + 0.18, start[1] + dy * 0.5 + 0.22],
+        end,
+      ],
+    },
+  ];
+
   res.json({ success: true, data: candidates });
 }
+

@@ -101,67 +101,73 @@ export default function PredictionsPage() {
         {/* Left Side (8 cols) */}
         <div className="lg:col-span-8 space-y-4">
           <div className="grid grid-cols-1 gap-4">
-            {demoPredictions.map((p: any, i: number) => (
-              <div
-                key={i}
-                className="glass-card p-5 sm:p-6 rounded flex flex-col justify-between space-y-4 hover:border-subtle transition-all"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-primary border border-subtle uppercase">
-                      CORRIDOR ML MODEL
-                    </span>
-                    <span className="text-xs text-primary font-mono font-semibold">
-                      Confidence: <b className="text-main">{p.confidence ?? 90}%</b>
-                    </span>
-                  </div>
+            {demoPredictions.map((p: any, i: number) => {
+              const confVal = typeof p.confidence === 'number' ? (p.confidence <= 1 ? Math.round(p.confidence * 100) : Math.round(p.confidence)) : 92;
+              const signals = (p.impactFactors && p.impactFactors.length > 0) ? p.impactFactors : (p.contributingSignals && p.contributingSignals.length > 0 ? p.contributingSignals.map((s: string) => `Corridor neural vector: ${s.replace('_', ' ')}`) : ['Evening peak commute congestion near Badarpur Toll', 'Dense monsoon radiation fog reducing visibility']);
+              const mitigation = p.recommendedAction || p.recommendedMitigation || 'Stagger departure times by +45 mins or divert through Eastern Peripheral Expressway.';
 
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div>
-                      <h3 className="text-base font-bold text-main">{p.corridor || 'Corridor Forecast'}</h3>
-                      <span className="text-[11px] text-muted">
-                        {p.affectedShipments || 24} active consignments traversing
+              return (
+                <div
+                  key={i}
+                  className="glass-card p-5 sm:p-6 rounded flex flex-col justify-between space-y-4 hover:border-subtle transition-all"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-primary border border-subtle uppercase">
+                        CORRIDOR ML MODEL
+                      </span>
+                      <span className="text-xs text-primary font-mono font-semibold">
+                        Confidence: <b className="text-main">{confVal}%</b>
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded bg-amber-500/10 border border-amber-500/20 text-warning flex items-center gap-2 self-start sm:self-auto">
-                      <Clock className="w-4 h-4 text-warning" />
-                      <span className="font-mono font-bold text-sm">+{p.predictedDelayMinutes ?? 35} mins</span>
-                      <span className="text-[11px] text-warning/80">predicted delay</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <h3 className="text-base font-bold text-main">{p.corridor || 'Delhi–Agra NH-44 Corridor'}</h3>
+                        <span className="text-[11px] text-muted">
+                          {p.affectedShipments || 28} active consignments traversing
+                        </span>
+                      </div>
+
+                      <div className="p-2.5 rounded bg-amber-500/10 border border-amber-500/20 text-warning flex items-center gap-2 self-start sm:self-auto">
+                        <Clock className="w-4 h-4 text-warning" />
+                        <span className="font-mono font-bold text-sm">+{p.predictedDelayMinutes ?? 35} mins</span>
+                        <span className="text-[11px] text-warning/80">predicted delay</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 text-xs pt-1">
+                      <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
+                        Contributing Neural Signals:
+                      </span>
+                      <div className="space-y-1.5">
+                        {signals.map((f: string, idx: number) => (
+                          <div key={idx} className="flex items-center gap-2 text-main text-xs">
+                            <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-xs pt-1">
-                    <span className="text-[10px] font-semibold text-muted uppercase tracking-wider block">
-                      Contributing Neural Signals:
-                    </span>
-                    <div className="space-y-1.5">
-                      {p.impactFactors?.map((f: string, idx: number) => (
-                        <div key={idx} className="flex items-center gap-2 text-main text-xs">
-                          <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
-                          <span>{f}</span>
-                        </div>
-                      ))}
+                  <div className="p-3.5 rounded bg-white/[0.03] border border-subtle text-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] text-primary font-semibold uppercase block mb-0.5">
+                        Recommended Mitigation:
+                      </span>
+                      <p className="text-main text-[11px] leading-relaxed">{mitigation}</p>
                     </div>
+                    <button
+                      onClick={() => toast.success('Dispatched AI proactive rest recommendation to drivers')}
+                      className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-primary text-xs font-semibold shrink-0 transition-all"
+                    >
+                      Broadcast Advisory
+                    </button>
                   </div>
                 </div>
-
-                <div className="p-3.5 rounded bg-white/[0.03] border border-subtle text-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] text-primary font-semibold uppercase block mb-0.5">
-                      Recommended Mitigation:
-                    </span>
-                    <p className="text-main text-[11px] leading-relaxed">{p.recommendedAction}</p>
-                  </div>
-                  <button
-                    onClick={() => toast.success('Dispatched AI proactive rest recommendation to drivers')}
-                    className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-primary text-xs font-semibold shrink-0 transition-all"
-                  >
-                    Broadcast Advisory
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

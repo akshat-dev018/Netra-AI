@@ -147,6 +147,10 @@ export const emergencyApi = {
   dispatchAlert: (id: string, data?: { unitId?: string }) =>
     client.post<ApiResponse<any>>(`/emergency/alerts/${id}/dispatch`, data || {}),
   resolveAlert: (id: string) => client.post<ApiResponse<any>>(`/emergency/alerts/${id}/resolve`),
+  approveHospitalAlert: (id: string, data?: { notes?: string }) =>
+    client.post<ApiResponse<any>>(`/emergency/alerts/${id}/approve-hospital`, data || {}),
+  rejectHospitalAlert: (id: string, data?: { reason?: string }) =>
+    client.post<ApiResponse<any>>(`/emergency/alerts/${id}/reject-hospital`, data || {}),
   listResponseUnits: (params?: { page?: number; limit?: number }) =>
     client.get<ApiResponse<any[]>>('/emergency/response-units', { params }),
   createResponseUnit: (data: { name: string; type: string; status?: string; currentLocation?: any }) =>

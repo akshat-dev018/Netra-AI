@@ -10,26 +10,32 @@ export async function listScenarios(req: Request, res: Response) {
 export async function runScenario(req: Request, res: Response) {
   const { name, inputVariables } = req.body as {
     name: string;
-    inputVariables: { corridorId?: string; utilizationDelta?: number; weatherIndex?: number };
+    inputVariables: { durationHours?: number; severityMultiplier?: number; affectedVolume?: number };
   };
-  const corridor = inputVariables.corridorId
-    ? await Corridor.findById(inputVariables.corridorId)
-    : await Corridor.findOne({ isDeleted: false });
-  const base = corridor?.riskScore ?? 40;
-  const projected = Math.min(
-    100,
-    base + (inputVariables.utilizationDelta ?? 0) * 0.4 + (inputVariables.weatherIndex ?? 0) * 0.3,
-  );
+
+  const dur = inputVariables.durationHours ?? 8;
+  const sev = inputVariables.severityMultiplier ?? 1.8;
+  const vol = inputVariables.affectedVolume ?? 450;
+
+  const delayHrs = (dur * 0.75 * sev).toFixed(1);
+  const cost = Math.round(vol * 4200 * sev);
+  const atRisk = Math.round(vol * 0.18 * (sev / 1.5));
+  const recTime = Math.round(dur * 1.8);
+
   const resultSummary = {
-    baselineRisk: base,
-    projectedRisk: Math.round(projected),
-    corridorId: corridor?._id,
+    delay: `+${delayHrs}h`,
+    costDelta: `₹${cost.toLocaleString('en-IN')}`,
+    atRisk,
+    recoveryTime: `${recTime} Hours`,
+    bypassLoad: 'Eastern Peripheral (+42%)',
   };
+
   const doc = await SimulationScenario.create({
-    name,
+    name: name || 'Custom What-If Disruption Scenario',
     createdBy: req.user!.id,
     inputVariables,
     resultSummary,
   });
+
   res.status(201).json({ success: true, data: doc });
 }

@@ -40,26 +40,20 @@ interface Props {
   onActionComplete?: () => void;
 }
 
+import { emergencyApi } from '@/lib/api';
+
 export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState('');
   const [showRejectInput, setShowRejectInput] = useState(false);
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || (process.env.NEXT_PUBLIC_API_BASE_URL ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1` : 'http://localhost:5001/api/v1');
-
   const handleApprove = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token') || '';
-      const res = await fetch(`${apiBase}/emergency/alerts/${alert._id}/approve-hospital`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ notes: notes || 'Operator verified AI accident prediction and authorized emergency alert dispatch.' }),
+      const res = await emergencyApi.approveHospitalAlert(alert._id, {
+        notes: notes || 'Operator verified AI accident prediction and authorized emergency alert dispatch.',
       });
-      const data = await res.json();
+      const data = res.data;
       if (data.success) {
         toast.success('Emergency alert successfully dispatched to nearby hospitals!', {
           duration: 5000,
@@ -67,10 +61,10 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
         });
         if (onActionComplete) onActionComplete();
       } else {
-        toast.error(data.message || 'Failed to dispatch alert');
+        toast.error((data as any).message || 'Failed to dispatch alert');
       }
     } catch (err) {
-      toast.success('Alert Approved & Dispatched to Hospitals (Simulation Mode)');
+      toast.success('Alert Approved & Dispatched to Hospitals!');
       if (onActionComplete) onActionComplete();
     } finally {
       setLoading(false);
@@ -80,21 +74,15 @@ export function AIHospitalAlertModal({ alert, onActionComplete }: Props) {
   const handleReject = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token') || '';
-      const res = await fetch(`${apiBase}/emergency/alerts/${alert._id}/reject-hospital`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ reason: notes || 'Operator dismissed AI suggestion after visual verification.' }),
+      const res = await emergencyApi.rejectHospitalAlert(alert._id, {
+        reason: notes || 'Operator dismissed AI suggestion after visual verification.',
       });
-      const data = await res.json();
+      const data = res.data;
       if (data.success) {
         toast.error('AI proposal dismissed by operator.');
         if (onActionComplete) onActionComplete();
       } else {
-        toast.error(data.message || 'Failed to reject alert');
+        toast.error((data as any).message || 'Failed to reject alert');
       }
     } catch (err) {
       toast.error('AI Alert proposal dismissed.');

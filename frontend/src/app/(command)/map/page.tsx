@@ -35,6 +35,25 @@ export default function MapPage() {
   });
 
   const [selectedCorridor, setSelectedCorridor] = useState<any | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState('Delhi–Agra Spine (NH-44)');
+
+  const REGIONS: Record<string, { center: [number, number]; zoom: number }> = {
+    'Delhi–Agra Spine (NH-44)': { center: [27.85, 77.65], zoom: 8 },
+    'Delhi–Mumbai Arc (NH-48)': { center: [23.5, 75.0], zoom: 6 },
+    'Delhi–Kolkata Trunk (NH-19)': { center: [25.5, 83.0], zoom: 6 },
+    'Mumbai–Pune Corridor': { center: [18.8, 73.3], zoom: 9 },
+    'Bengaluru–Chennai Arc': { center: [13.0, 78.8], zoom: 8 },
+    'National Overview (India)': { center: [22.5, 78.5], zoom: 5 },
+  };
+
+  const handleRegionChange = (regionKey: string) => {
+    setSelectedRegion(regionKey);
+    const reg = REGIONS[regionKey];
+    if (reg && mapRef.current) {
+      mapRef.current.flyTo(reg.center, reg.zoom, { duration: 1.5 });
+    }
+  };
+
   const [driverLocations, setDriverLocations] = useState<Record<string, any>>({
     'DL01AB1234': { lat: 28.5672, lng: 77.21, speed: 64, driver: 'Demo Driver', reg: 'DL01AB1234' },
   });
@@ -180,10 +199,10 @@ export default function MapPage() {
 
         const marker = L.marker([lat, lng], { icon }).addTo(group);
         marker.bindPopup(`
-          <div style="font-family:sans-serif; min-width:160px; color:var(--text-main);">
-            <h4 style="font-weight:bold; margin:0 0 4px 0; color:var(--text-strong);">${h.name}</h4>
-            <p style="margin:2px 0; font-size:11px; color:var(--text-main);">Trauma Level: <b>Level ${h.traumaLevel || 1}</b></p>
-            <p style="margin:2px 0; font-size:11px; color:var(--text-main);">Capacity: <b>${h.capacityStatus || 'Available'}</b></p>
+          <div style="font-family:sans-serif; min-width:160px; color:#11315F;">
+            <h4 style="font-weight:bold; margin:0 0 4px 0; color:#000000;">${h.name}</h4>
+            <p style="margin:2px 0; font-size:11px; color:#11315F;">Trauma Level: <b>Level ${h.traumaLevel || 1}</b></p>
+            <p style="margin:2px 0; font-size:11px; color:#11315F;">Capacity: <b>${h.capacityStatus || 'Available'}</b></p>
             ${h.contactInfo?.phone ? `<p style="margin:4px 0 0 0; font-size:11px;"><a href="tel:${h.contactInfo.phone}" style="color:${TOKENS.success}; text-decoration:underline;">📞 ${h.contactInfo.phone}</a></p>` : ''}
           </div>
         `);
@@ -216,10 +235,10 @@ export default function MapPage() {
 
         const marker = L.marker([lat, lng], { icon }).addTo(group);
         marker.bindPopup(`
-          <div style="font-family:sans-serif; min-width:180px; color:var(--text-main);">
+          <div style="font-family:sans-serif; min-width:180px; color:#11315F;">
             <h4 style="font-weight:bold; margin:0 0 4px 0; color:${TOKENS.warning};">${d.type?.replace('_', ' ').toUpperCase()}</h4>
-            <p style="margin:2px 0; font-size:11px; color:var(--text-main);">${d.description}</p>
-            <p style="margin:4px 0 0 0; font-size:10px; color:var(--text-muted);">Severity: <b>${d.severity}</b></p>
+            <p style="margin:2px 0; font-size:11px; color:#11315F;">${d.description}</p>
+            <p style="margin:4px 0 0 0; font-size:10px; color:#11315F;">Severity: <b>${d.severity}</b></p>
           </div>
         `);
       }
@@ -254,11 +273,11 @@ export default function MapPage() {
 
         const marker = L.marker([lat, lng], { icon }).addTo(group);
         marker.bindPopup(`
-          <div style="font-family:sans-serif; min-width:180px; color:var(--text-main);">
+          <div style="font-family:sans-serif; min-width:180px; color:#11315F;">
             <h4 style="font-weight:bold; margin:0 0 4px 0; color:${TOKENS.critical};">${a.type?.toUpperCase() || 'EMERGENCY SOS'}</h4>
-            <p style="margin:2px 0; font-size:11px; color:var(--text-main);">${a.description}</p>
+            <p style="margin:2px 0; font-size:11px; color:#11315F;">${a.description}</p>
             <p style="margin:2px 0; font-size:10px; color:${TOKENS.critical};">Status: <b>${a.status}</b></p>
-            <a href="/emergency/alerts" style="display:inline-block; margin-top:6px; font-size:11px; color:var(--text-strong); font-weight:bold; text-decoration:underline;">Open Response Action →</a>
+            <a href="/emergency/alerts" style="display:inline-block; margin-top:6px; font-size:11px; color:#000000; font-weight:bold; text-decoration:underline;">Open Response Action →</a>
           </div>
         `);
       }
@@ -289,10 +308,10 @@ export default function MapPage() {
 
       const marker = L.marker([d.lat, d.lng], { icon }).addTo(group);
       marker.bindPopup(`
-        <div style="font-family:sans-serif; min-width:160px; color:var(--text-main);">
-          <h4 style="font-weight:bold; margin:0 0 4px 0; color:var(--text-strong);">${d.reg}</h4>
-          <p style="margin:2px 0; font-size:11px; color:var(--text-main);">Driver: <b>${d.driver}</b></p>
-          <p style="margin:2px 0; font-size:11px; color:var(--text-main);">Speed: <b>${d.speed} km/h</b></p>
+        <div style="font-family:sans-serif; min-width:160px; color:#11315F;">
+          <h4 style="font-weight:bold; margin:0 0 4px 0; color:#000000;">${d.reg}</h4>
+          <p style="margin:2px 0; font-size:11px; color:#11315F;">Driver: <b>${d.driver}</b></p>
+          <p style="margin:2px 0; font-size:11px; color:#11315F;">Speed: <b>${d.speed} km/h</b></p>
           <span style="display:inline-block; margin-top:4px; padding:2px 6px; border-radius:4px; font-size:9px; background:rgba(39,139,86,0.2); color:${TOKENS.success}; font-weight:bold;">LIVE TELEMETRY</span>
         </div>
       `);
@@ -313,15 +332,30 @@ export default function MapPage() {
     <div className="space-y-4 h-[calc(100vh-140px)] flex flex-col animate-fade-in-up">
       {/* Top Map Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 glass-card p-3 rounded">
-        <div className="flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-main" />
-          <h1 className="text-base font-bold text-strong font-sans tracking-tight">
-            National Control Map
-          </h1>
-          <span className="hidden sm:inline px-2 py-0.5 rounded-full bg-primary-100 text-strong text-[10px] font-mono font-semibold border border-subtle">
-            TELEMETRY v1.0
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-main" />
+            <h1 className="text-base font-bold text-strong font-sans tracking-tight">
+              National Control Map
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-1.5 bg-card border border-subtle rounded px-2.5 py-1 text-xs">
+            <Navigation className="w-3.5 h-3.5 text-primary shrink-0" />
+            <select
+              value={selectedRegion}
+              onChange={(e) => handleRegionChange(e.target.value)}
+              className="bg-transparent text-main font-semibold focus:outline-none cursor-pointer"
+            >
+              {Object.keys(REGIONS).map((rKey) => (
+                <option key={rKey} value={rKey} className="bg-card text-main">
+                  {rKey}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
 
         {/* Multi-Layer Toggle Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-medium">

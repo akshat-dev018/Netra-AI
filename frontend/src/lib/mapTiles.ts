@@ -37,8 +37,9 @@ export function getLeafletTileConfig(): LeafletTileConfig {
   }
 
   if (key) {
+    // Mappls (MapMyIndia) raster tile endpoint
     return {
-      url: 'https://apis.mappls.com/advancedmaps/v1/' + encodeURIComponent(key) + '/still/{z}/{x}/{y}',
+      url: 'https://apis.mappls.com/advancedmaps/v1/' + encodeURIComponent(key) + '/map_tile/{z}/{x}/{y}',
       options: {
         maxZoom: 18,
         attribution: '',

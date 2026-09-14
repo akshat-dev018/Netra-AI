@@ -42,6 +42,40 @@ export default function SimulatorPage() {
     },
   });
 
+  // Recompute simulation metrics dynamically when sliders change
+  const computeMetrics = (dur: number, sev: number, vol: number) => {
+    const totalMins = Math.round(dur * 0.75 * sev * 60);
+    const hrs = Math.floor(totalMins / 60);
+    const mins = totalMins % 60;
+    const delayStr = hrs > 0 ? `+${hrs}h ${mins}m` : `+${mins}m`;
+    const cost = Math.round(vol * 4200 * sev);
+    const atRiskCount = Math.round(vol * 0.18 * (sev / 1.5));
+    const recHrs = Math.round(dur * 1.8);
+
+    setSimulationResult({
+      delay: delayStr,
+      costDelta: `₹${cost.toLocaleString('en-IN')}`,
+      atRisk: atRiskCount,
+      bypassLoad: 'Eastern Peripheral (+42%)',
+      recoveryTime: `${recHrs} Hours`,
+    });
+  };
+
+  const handleDurationChange = (val: number) => {
+    setDurationHours(val);
+    computeMetrics(val, severityMultiplier, affectedVolume);
+  };
+
+  const handleSeverityChange = (val: number) => {
+    setSeverityMultiplier(val);
+    computeMetrics(durationHours, val, affectedVolume);
+  };
+
+  const handleVolumeChange = (val: number) => {
+    setAffectedVolume(val);
+    computeMetrics(durationHours, severityMultiplier, val);
+  };
+
   const runMutation = useMutation({
     mutationFn: async () => {
       const res = await simulatorApi.run({
@@ -55,14 +89,15 @@ export default function SimulatorPage() {
       return res.data.data;
     },
     onSuccess: (data) => {
-      const delayHrs = Math.round(durationHours * 0.75 * severityMultiplier);
-      setSimulationResult({
-        delay: `+${delayHrs}h ${Math.round((durationHours * 0.75 * severityMultiplier % 1) * 60)}m`,
-        costDelta: `₹${(affectedVolume * 4200 * severityMultiplier).toLocaleString('en-IN')}`,
-        atRisk: Math.round(affectedVolume * 0.18 * (severityMultiplier / 1.5)),
-        bypassLoad: 'Eastern Peripheral (+42%)',
-        recoveryTime: `${Math.round(durationHours * 1.8)} Hours`,
-      });
+      if (data?.resultSummary) {
+        setSimulationResult({
+          delay: data.resultSummary.delay || simulationResult.delay,
+          costDelta: data.resultSummary.costDelta || simulationResult.costDelta,
+          atRisk: data.resultSummary.atRisk || simulationResult.atRisk,
+          bypassLoad: data.resultSummary.bypassLoad || 'Eastern Peripheral (+42%)',
+          recoveryTime: data.resultSummary.recoveryTime || simulationResult.recoveryTime,
+        });
+      }
       toast.success('Simulation executed. Impact vectors synthesized.');
     },
     onError: (err: any) => {
@@ -175,7 +210,7 @@ export default function SimulatorPage() {
                 min={1}
                 max={48}
                 value={durationHours}
-                onChange={(e) => setDurationHours(parseInt(e.target.value))}
+                onChange={(e) => handleDurationChange(parseInt(e.target.value))}
                 className="w-full accent-primary cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-muted font-mono">
@@ -198,7 +233,7 @@ export default function SimulatorPage() {
                 max={3.0}
                 step={0.1}
                 value={severityMultiplier}
-                onChange={(e) => setSeverityMultiplier(parseFloat(e.target.value))}
+                onChange={(e) => handleSeverityChange(parseFloat(e.target.value))}
                 className="w-full accent-amber-400 cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-muted font-mono">
@@ -221,7 +256,7 @@ export default function SimulatorPage() {
                 max={2000}
                 step={50}
                 value={affectedVolume}
-                onChange={(e) => setAffectedVolume(parseInt(e.target.value))}
+                onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
                 className="w-full accent-primary cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-muted font-mono">
