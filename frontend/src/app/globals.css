@@ -322,14 +322,18 @@ html.dark ::-webkit-scrollbar-thumb {
 
 .leaflet-popup-content-wrapper {
   background: var(--bg-card) !important;
-  color: var(--text-main) !important;
+  color: var(--color-primary) !important;
   border: 1px solid var(--border-subtle);
   border-radius: 6px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
 }
 
+html.dark .leaflet-popup-content-wrapper {
+  color: var(--color-surface) !important;
+}
+
 .leaflet-popup-content {
-  color: var(--text-main) !important;
+  color: inherit !important;
   font-size: 12px;
   line-height: 1.4;
 }
@@ -341,28 +345,34 @@ html.dark ::-webkit-scrollbar-thumb {
 .leaflet-popup-content h5,
 .leaflet-popup-content h6,
 .leaflet-popup-content b,
-.leaflet-popup-content strong {
-  color: var(--text-strong) !important;
-}
-
+.leaflet-popup-content strong,
 .leaflet-popup-content p,
 .leaflet-popup-content span {
-  color: var(--text-main) !important;
+  color: inherit !important;
+}
+
+html.dark .leaflet-popup-content,
+html.dark .leaflet-popup-content * {
+  color: var(--color-surface) !important;
 }
 
 .leaflet-popup-content a {
-  color: var(--text-strong) !important;
+  color: var(--color-primary) !important;
   text-decoration: underline;
+}
+
+html.dark .leaflet-popup-content a {
+  color: var(--color-surface) !important;
 }
 
 .leaflet-popup-tip {
   background: var(--bg-card) !important;
 }
 
+/* Dark map chrome (tooltips over tiles): navy panel, surface text — never navy-on-black */
 .leaflet-tooltip,
 .leaflet-dark-tooltip {
   background: var(--color-primary) !important;
-  /* Always white/light text on navy background — never blue-on-dark */
   color: #DEEBEC !important;
   border: 1px solid color-mix(in srgb, #DEEBEC 35%, transparent) !important;
   border-radius: 4px !important;
@@ -377,8 +387,6 @@ html.dark ::-webkit-scrollbar-thumb {
 .leaflet-dark-tooltip * {
   color: #DEEBEC !important;
 }
-
-/* Arrow tip: cover all 4 directions so no blue bleeds through */
 .leaflet-tooltip::before,
 .leaflet-dark-tooltip::before,
 .leaflet-tooltip-top::before {

@@ -49,6 +49,7 @@ export function createApp() {
     res.json({ success: true, data: { status: 'ready' } });
   });
 
+  app.use('/api/v1/shipments/import', express.json({ limit: '1mb' }));
   app.use(express.json({ limit: '10kb' }));
   app.use(express.urlencoded({ extended: true }));
   app.use(mongoSanitize());
@@ -62,11 +63,6 @@ export function createApp() {
   app.use('/api', globalLimiter);
   app.use('/api/v1/auth', authLimiter);
   app.use('/api/v1/tracking/ping', pingLimiter);
-
-  app.use(
-    '/api/v1/shipments/import',
-    express.json({ limit: '1mb' }),
-  );
 
   app.use('/api/v1', apiRouter);
 

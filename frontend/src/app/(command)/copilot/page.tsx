@@ -27,6 +27,7 @@ interface ChatMessage {
 
 export default function CopilotPage() {
   const [input, setInput] = useState('');
+  const [conversationId, setConversationId] = useState<string | undefined>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -49,35 +50,32 @@ export default function CopilotPage() {
 
   const sendMutation = useMutation({
     mutationFn: async (text: string) => {
-      const res = await copilotApi.sendMessage({ content: text });
+      const res = await copilotApi.sendMessage({ content: text, conversationId });
       return res.data.data;
     },
     onSuccess: (data) => {
+      if (data?.conversationId) setConversationId(String(data.conversationId));
+      const reply = typeof data?.reply === 'string' ? data.reply.trim() : '';
+      if (!reply) {
+        toast.error('Copilot returned an empty response');
+        return;
+      }
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
           role: 'assistant',
-          content: data.reply || data.content || 'Intelligence query processed.',
+          content: reply,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
     },
     onError: (err: any) => {
       const errorMessage =
+        err?.response?.data?.error?.message ||
         err?.response?.data?.message ||
-        err?.message ||
-        'Error communicating with NETRA Gemini Copilot engine. Please verify the Gemini API key configuration.';
+        'Copilot request failed. Check that GEMINI_API_KEY is set on the backend.';
       toast.error(errorMessage);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          role: 'assistant',
-          content: `⚠️ **Copilot Error**: ${errorMessage}`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
     },
   });
 
@@ -122,7 +120,8 @@ export default function CopilotPage() {
         </div>
 
         <button
-          onClick={() =>
+          onClick={() => {
+            setConversationId(undefined);
             setMessages([
               {
                 id: 'welcome',
@@ -130,8 +129,8 @@ export default function CopilotPage() {
                 content: 'Chat session reset. How can I assist your logistics operations?',
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
               },
-            ])
-          }
+            ]);
+          }}
           className="px-3 py-1.5 rounded glass-card text-muted hover:text-main text-xs flex items-center gap-1.5 transition-all"
         >
           <RefreshCw className="w-3.5 h-3.5" />

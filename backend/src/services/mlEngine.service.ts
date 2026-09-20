@@ -29,10 +29,13 @@ export async function runMLInference(payload: Record<string, any>): Promise<MLIn
     const { stdout } = await execFileAsync(pythonBin, [cliScriptPath, payloadJson], {
       timeout: 10000,
     });
-
-    const parsed = JSON.parse(stdout);
-    if (parsed && parsed.success && parsed.data) {
-      return parsed.data;
+    const jsonStart = stdout.indexOf('{');
+    const jsonEnd = stdout.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1) {
+      const parsed = JSON.parse(stdout.slice(jsonStart, jsonEnd + 1));
+      if (parsed && parsed.success && parsed.data) {
+        return parsed.data;
+      }
     }
   } catch (error) {
     // Logging fallback execution

@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import type { QueryFilter } from 'mongoose';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { env } from '../../config/env.js';
 import { AppError } from '../../utils/appError.js';
 import { Driver, type DriverDoc } from '../drivers/driver.model.js';
@@ -9,6 +9,8 @@ import { EmergencyAlert, type EmergencyAlertDoc } from '../emergency-alerts/emer
 import { Shipment, type ShipmentDoc } from '../shipments/shipment.model.js';
 import { CopilotConversation } from './copilotConversation.model.js';
 import { trustedOp } from '../../utils/trustedQuery.js';
+
+const GEMINI_MODEL = 'gemini-2.5-flash';
 
 function redactSecrets(text: string) {
   return text
@@ -72,18 +74,21 @@ export async function message(req: Request, res: Response) {
   convo.messages.push({ role: 'user', content, createdAt: new Date() });
 
   const ctx = await groundContext();
+  const history = convo.messages
+    .slice(-12)
+    .map((m) => `${m.role === 'assistant' ? 'Copilot' : 'Operator'}: ${m.content}`)
+    .join('\n');
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      systemInstruction:
-        'You are NETRA Copilot for an Indian national freight and emergency control tower. Answer from the platform snapshot when it is relevant. Do not invent live GPS coordinates. Be concise and operational. Format key findings with clean bullet points and markdown.',
+    const ai = new GoogleGenAI({ apiKey });
+    const result = await ai.models.generateContent({
+      model: GEMINI_MODEL,
+      contents: `[Platform live snapshot]\n${JSON.stringify(ctx)}\n\n[Recent thread]\n${history}\n\n[Operator question]\n${content}`,
+      config: {
+        systemInstruction:
+          'You are NETRA Copilot for an Indian national freight and emergency control tower. Answer from the platform snapshot when it is relevant. Do not invent live GPS coordinates. Be concise and operational. Format key findings with clean bullet points and markdown.',
+      },
     });
-
-    const prompt = `[Platform live snapshot]\n${JSON.stringify(ctx, null, 2)}\n\n[Operator question]\n${content}`;
-    const result = await model.generateContent(prompt);
-    const reply = (result.response.text() ?? '').trim();
+    const reply = (result.text ?? '').trim();
     if (!reply) {
       throw new AppError(502, 'COPILOT_PROVIDER_ERROR', 'Gemini returned an empty response');
     }
@@ -91,7 +96,7 @@ export async function message(req: Request, res: Response) {
     convo.messages.push({ role: 'assistant', content: reply, createdAt: new Date() });
     await convo.save();
 
-    res.json({ success: true, data: { conversationId: convo._id, reply, content: reply } });
+    res.json({ success: true, data: { conversationId: convo._id, reply } });
   } catch (err: unknown) {
     if (err instanceof AppError) throw err;
     const raw = err instanceof Error ? err.message : 'Failed to generate Copilot response';

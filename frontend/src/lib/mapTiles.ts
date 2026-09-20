@@ -13,13 +13,13 @@ type LeafletTileConfig = {
 
 function publicMapKey(): string {
   const raw = env.NEXT_PUBLIC_MAP_API_KEY?.trim() || env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim() || '';
-  if (!raw || raw.startsWith('your_')) return '';
+  if (!raw || raw.toLowerCase().startsWith('your_')) return '';
   return raw;
 }
 
 /**
- * Browser-safe Leaflet raster config. The public token is only used in the
- * tile URL required by the provider — never log or display it.
+ * Leaflet raster tiles. Public map tokens belong in the tile URL (browser).
+ * Never log or display the key.
  */
 export function getLeafletTileConfig(): LeafletTileConfig {
   const key = publicMapKey();
@@ -36,8 +36,6 @@ export function getLeafletTileConfig(): LeafletTileConfig {
     };
   }
 
-  if (key) {
-    // Mappls (MapMyIndia) raster tile endpoint
     return {
       url: 'https://apis.mappls.com/advancedmaps/v1/' + encodeURIComponent(key) + '/map_tile/{z}/{x}/{y}',
       options: {

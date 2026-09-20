@@ -8,7 +8,11 @@ and outputs prediction JSON result to stdout.
 import sys
 import json
 import os
+import warnings
 from pathlib import Path
+
+# Suppress warnings to ensure stdout remains pure JSON
+warnings.filterwarnings("ignore")
 
 # Ensure script directory is in sys.path
 sys.path.insert(0, str(Path(__file__).parent.resolve()))
