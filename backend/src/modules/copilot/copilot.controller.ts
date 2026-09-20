@@ -79,6 +79,7 @@ export async function message(req: Request, res: Response) {
     .map((m) => `${m.role === 'assistant' ? 'Copilot' : 'Operator'}: ${m.content}`)
     .join('\n');
 
+  try {
     const ai = new GoogleGenAI({ apiKey });
     const result = await ai.models.generateContent({
       model: GEMINI_MODEL,

@@ -36,6 +36,7 @@ export function getLeafletTileConfig(): LeafletTileConfig {
     };
   }
 
+  if (key) {
     return {
       url: 'https://apis.mappls.com/advancedmaps/v1/' + encodeURIComponent(key) + '/map_tile/{z}/{x}/{y}',
       options: {
